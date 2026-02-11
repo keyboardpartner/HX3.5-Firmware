@@ -8,6 +8,7 @@
 *.tmp
 .gitignore
 # AVRco compiled files
+_sccs_/*.*
 *.u
 *.sym
 *.unuV
@@ -20,3 +21,7 @@
 *.opt
 *.x
 *.DSM
+*.bak0
+*.bak1
+*.struct
+*.fas

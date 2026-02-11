@@ -24,6 +24,7 @@ program hx35_main_allinone;
 
 { $DEFINE DEBUG_MSG}      // Ausführliche Meldungen bei vielen Aktionen
 
+
 { $DEFINE DEBUG_MIDI_IN}
 { $DEFINE DEBUG_FH}       // Ausführliche Meldungen bei
 { $DEFINE DEBUG_SWI}
@@ -121,7 +122,7 @@ ProgLock = true;
 ProgFlash = true;
 ProgEEprom= true;
 
-AddApp= 'E:\Dropbox\HOAX_35\AVR\HX35_bootloader';
+AddApp= 'HX35_bootloader';
 
 Import SysTick, FAT16_32, FlashWrite, TWImaster, SerPort, LCDmultiPort, I2CExpand;
 

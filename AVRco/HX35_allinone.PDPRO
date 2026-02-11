@@ -1,6 +1,6 @@
 [Files]
-Main=E:\DROPBOX\HOAX_35\AVR\HX35_main.pas
-Binary=E:\DROPBOX\HOAX_35\AVR\HX35_main.obj
+Main=E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\HX35_main.pas
+Binary=E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\HX35_main.obj
 DESC=c:\program files (x86)\avrco\avrco\PMEGA1284P.dsc
 
 [Status]
@@ -37,28 +37,28 @@ flags=6
 Base=896
 
 [Entries]
-Library=$01B050
-MainEntry=54673
-UnitEntry=7610
+Library=$01AA90
+MainEntry=53937
+UnitEntry=7636
 BootEntry=0
 
 [-MAINENTRY]
-PC=$01B14A
+PC=$01AB8C
 
 [-I2CEXPSTAT]
-PC=$01B5A8
+PC=$01AFEA
 
 [-I2CEXPOUTW]
-PC=$01B5B4
+PC=$01AFF6
 
 [-I2CEXPOUTR]
-PC=$01B5C0
+PC=$01B002
 
 [-I2CEXPINP1]
-PC=$01B5CE
+PC=$01B010
 
 [-I2CEXPINP2]
-PC=$01B5D0
+PC=$01B012
 
 [Diverse]
 AppLeft=-4
@@ -2160,69 +2160,69 @@ const_def=
 UFAT16_32=
 
 [Project_Files]
-0=hx35_main_allinone|E:\DROPBOX\HOAX_35\AVR\HX35_main.pas|1545750823
-1=UFAT16_32|c:\program files (x86)\avrco\avrco\System\UFAT16_32.PCU|1301782011
-2=eeprom_def|E:\Dropbox\HOAX_35\AVR\units\eeprom_def.pas|1496410959
-3=const_def|E:\Dropbox\HOAX_35\AVR\units\const_def.pas|1493134210
-4=var_def|E:\Dropbox\HOAX_35\AVR\units\var_def.pas|1466134035
-5=nuts_and_bolts|E:\Dropbox\HOAX_35\AVR\units\nuts_and_bolts.pas|1464437516
-6=port_def|E:\Dropbox\HOAX_35\AVR\units\port_def.pas|1446547797
-7=edit_changes|E:\Dropbox\HOAX_35\AVR\units\edit_changes.pas|1485476757
-8=fpga_if|E:\Dropbox\HOAX_35\AVR\units\fpga_if.pas|1432903960
-9=dataflash|E:\Dropbox\HOAX_35\AVR\units\dataflash.pas|1464437509
-10=startup|E:\Dropbox\HOAX_35\AVR\units\startup.pas|1492667209
-11=sd_card|E:\Dropbox\HOAX_35\AVR\units\sd_card.pas|1464437520
-12=display_toolbox|E:\Dropbox\HOAX_35\AVR\units\display_toolbox.pas|1462734630
-13=apply_changes|E:\Dropbox\HOAX_35\AVR\units\apply_changes.pas|1485476757
-14=MIDI_com|E:\Dropbox\HOAX_35\AVR\units\MIDI_com.pas|1464437526
-15=fpga_hilevel|E:\Dropbox\HOAX_35\AVR\units\fpga_hilevel.pas|1493134183
-16=adc_touch_interface|E:\Dropbox\HOAX_35\AVR\units\adc_touch_interface.pas|1463583413
-17=save_restore|E:\Dropbox\HOAX_35\AVR\units\save_restore.pas|1464437504
-18=switch_interface|E:\Dropbox\HOAX_35\AVR\units\switch_interface.pas|1463133465
-19=main_tasks|E:\Dropbox\HOAX_35\AVR\units\main_tasks.pas|1492666862
-20=parser|E:\Dropbox\HOAX_35\AVR\units\parser.pas|1466134009
-21=midi_sysex|E:\Dropbox\HOAX_35\AVR\units\midi_sysex.pas|1466464278
-22=midi_sysex|E:\Dropbox\HOAX_35\AVR\units\MIDI_Custom.pas|1466138482
-23=midi_sysex|E:\Dropbox\HOAX_35\AVR\units\MIDI_ni.pas|1466138044
-24=midi_sysex|E:\Dropbox\HOAX_35\AVR\units\MIDI_sempra.pas|1458405911
-25=menu_system|E:\Dropbox\HOAX_35\AVR\units\menu_system.pas|1466462875
+0=hx35_main_allinone|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\HX35_main.pas|1548442694
+1=UFAT16_32|c:\program files (x86)\avrco\avrco\System\UFAT16_32.PCU|1301779963
+2=eeprom_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\eeprom_def.pas|1496410959
+3=const_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\const_def.pas|1493134210
+4=var_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\var_def.pas|1466134035
+5=nuts_and_bolts|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\nuts_and_bolts.pas|1464437516
+6=port_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\port_def.pas|1446547797
+7=edit_changes|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\edit_changes.pas|1485476757
+8=fpga_if|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\fpga_if.pas|1432903960
+9=dataflash|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\dataflash.pas|1464437509
+10=startup|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\startup.pas|1492667209
+11=sd_card|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\sd_card.pas|1535277232
+12=display_toolbox|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\display_toolbox.pas|1462734630
+13=apply_changes|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\apply_changes.pas|1485476757
+14=MIDI_com|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_com.pas|1464437526
+15=fpga_hilevel|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\fpga_hilevel.pas|1493134183
+16=adc_touch_interface|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\adc_touch_interface.pas|1463583413
+17=save_restore|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\save_restore.pas|1464437504
+18=switch_interface|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\switch_interface.pas|1463133465
+19=main_tasks|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\main_tasks.pas|1492666862
+20=parser|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\parser.pas|1466134009
+21=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\midi_sysex.pas|1548442892
+22=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_Custom.pas|1466138482
+23=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_ni.pas|1466138044
+24=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_sempra.pas|1548442919
+25=menu_system|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\menu_system.pas|1466462875
 
 [-SYSTICKENTRY]
-PC=$01B14C
+PC=$01AB8E
 
 [-SYSTICKEXIT]
-PC=$01B22C
+PC=$01AC6E
 
 [-LCDBUSY_RD]
-PC=$01B432
+PC=$01AE74
 
 [-LCDCTRL_WR]
-PC=$01B45C
+PC=$01AE9E
 
 [-LCDOUT_M]
-PC=$01B468
+PC=$01AEAA
 
 [-I2CSTAT_M]
-PC=$01B47C
+PC=$01AEBE
 
 [-FAT16ENTER]
-PC=$01B838
+PC=$01B27A
 
 [-FAT16EXIT]
-PC=$01B88C
+PC=$01B2CE
 
 [-Execute]
-off0=$01B98C
-on0=$01B99C
-off1=$01B9A2
-on1=$01B9A2
-off2=$01B9BC
-on2=$01B9FC
-off3=$01BA2A
-on3=$01BA4A
-off4=$01BA64
-on4=$01BA72
+off0=$01B3CE
+on0=$01B3DE
+off1=$01B3E4
+on1=$01B3E4
+off2=$01B3FE
+on2=$01B43E
+off3=$01B46C
+on3=$01B48C
+off4=$01B4A6
+on4=$01B4B4
 
 [-DEBDELAY]
-PC=$01BAB8
+PC=$01B4FA
 

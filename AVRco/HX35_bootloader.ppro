@@ -1,8 +1,8 @@
 [MainParams]
 MainFile=BootLoaderSD_1284.pas
-FirstAccess=45861.3714535417
-LastAccess=45965.5498034606
-CurAccount=0.000752546300645918
+FirstAccess=46064.4984412616
+LastAccess=46064.4985749653
+CurAccount=0
 TotAccount=0
 LastCompile=43202.6697571065
 DeviceID=$1E9705
@@ -63,6 +63,5 @@ count=34
 33=TIMER3COMPB
 34=TIMER3
 [System Paths]
-Path0=E:\Dropbox\HOAX_35\AVR\units\
 [Files]
-File=
+File=BootLoaderSD_1284.pas

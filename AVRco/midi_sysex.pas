@@ -1108,7 +1108,7 @@ begin
       //  'NI B4 d3c  ' , // 0, interpretiert, teilw. über Custom 'ccset0.dat'
       //  'Hammond XK ' , // 1, interpretiert, teilw. über Custom 'ccset1.dat'
       //  'Hammond SK ' , // 2, interpretiert, teilw. über Custom 'ccset2.dat'
-      //  'Versatile  ' , // 3, interpretiert, teilw. über Custom 'ccset3.dat'
+      //  'Versatile  ' , // 3, aus DF Core Block c_midicc_base +3,  'ccset3.dat'
       //  'Nord C1/C2 ' , // 4, aus DF Core Block c_midicc_base +4, 'ccset4.dat'
       //  'VoceDrawbar' , // 5, aus DF Core Block c_midicc_base +5, 'ccset5.dat'
       //  'KeyB/Duo   ' , // 6, aus DF Core Block c_midicc_base +6, 'ccset6.dat'
@@ -1125,11 +1125,7 @@ begin
           midi_DisablePercussion:= false;
           MIDI_Dispatch_custom;   // SK/XB/XK series
           |
-        3:
-          midi_DisablePercussion:= false;
-          MIDI_Dispatch_sempra;
-          |
-        4..10:
+        3..10:
           MIDI_Dispatch_custom;    // Touchpad und alle CC-only
           |
       else

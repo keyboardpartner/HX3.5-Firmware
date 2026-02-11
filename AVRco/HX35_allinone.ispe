@@ -1,5 +1,5 @@
 [CPU]
-DeviceID=$1E9705
+DeviceID=2004741
 CPUname=MEGA1284P
 CalWrite=false
 ProgFuses=true
@@ -49,7 +49,7 @@ LB2=False
 LB3=False
 
 [ProgMode]
-ProgFlash=true
+ProgFlash=True
 ProgEEprom=true
 ProgMode=0
 BootLoaderID=0
@@ -95,5 +95,5 @@ Fuse6DispOrd=False
 Fuse7DispOrd=False
 
 [AddApp]
-BootLoaderSD_1284.hex=E:\Dropbox\HOAX_35\AVR\BootLoaderSD_1284.hex
+BootLoaderSD_1284.hex=BootLoaderSD_1284.hex
 
