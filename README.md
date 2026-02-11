@@ -1,4 +1,5 @@
-Future repository for HX3.5 Firmware disclosure
+#HX3.5 Firmware
+###Future repository for HX3.5 Firmware disclosure
 
 HX3.5 firmware was compiled with older AVRCo Pascal IDE from [**e-lab**](https://www.e-lab.de/) which is free of charge now. It runs on a ATmega644A-PU MCU (see AVRco directory).
 
