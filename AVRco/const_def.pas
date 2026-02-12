@@ -7,7 +7,7 @@ unit const_def;
 interface
 
 type
-  // Quelle einer Parameter-�nderung
+  // Quelle einer Parameter-Änderung
   t_connect = (t_connect_midi, t_connect_osc_midi, t_connect_editor_midi,
               t_connect_osc_wifi, t_connect_editor_serial, t_disable);
 
@@ -38,11 +38,11 @@ type
 const
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  c_min_date: LongInt = $20221012; // FPGA YYYY MM DD (!)
+  c_min_date: LongInt = $20260209; // FPGA YYYY MM DD (!)
   // letzte 4 Bytes vor Bootloader ($1F000) = $1EFFC
-  c_CurrentFirmwareVersion[$1EFFE]: Word   = $0580;
+  c_CurrentFirmwareVersion[$1EFFE]: Word   = $0590;
   // Erh�hen, wenn sich eep_defaults-Array-Struktur �ndert:
-  c_FirmwareStructureVersion: Byte   = 80;  // Dezimalstellen FW-Version
+  c_FirmwareStructureVersion: Byte   = 90;  // Dezimalstellen FW-Version
   // Wenn bestehende EEPROM-Version kleiner, wird DB-Bereich �berschrieben
   c_SkipEEPROM_DBs: Word   = $400;
   // Self-FlashWrite from DF, BOOTSZ0-Fuse = $FC000 (*2 = $1F800):
@@ -57,11 +57,11 @@ const
 
 {$TYPEDCONST OFF}
 
-  Vers1Str  = '5.900';    // m�ssen 5 Zeichen sein!
+  Vers1Str  = '5.900';    // müssen 5 Zeichen sein!
   Vers1Hex: Word = $5900;
 
   {$IFNDEF MODULE}
-  // Dieses m�ssen die ersten Strings mit "HX3." im Firmware-File sein,
+  // Dieses müssen die ersten Strings mit "HX3." im Firmware-File sein,
   // da der HX3 Manager beim Start nach dieser Signatur sucht.
     SysExDeviceStr  = 'HX3.5 TrueOrgan ' // 16 Bytes
                     + '#' + Vers1Str;    // +8 Bytes
