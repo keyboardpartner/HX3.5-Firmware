@@ -1,9 +1,9 @@
 [CPU]
 DeviceID=2004741
 CPUname=MEGA1284P
-CalWrite=false
-ProgFuses=true
-ProgLockBits=true
+CalWrite=False
+ProgFuses=True
+ProgLockBits=True
 Clock=16000000
 CalByteAddr=131070
 Voltage=500
@@ -36,7 +36,7 @@ UsrRowMode=2
 
 [Fuses]
 FuseBits0=8
-FuseBits1=44
+FuseBits1=32
 FuseBits2=3
 LockBits0=16
 FuseBits3=0
@@ -50,7 +50,7 @@ LB3=False
 
 [ProgMode]
 ProgFlash=True
-ProgEEprom=true
+ProgEEprom=True
 ProgMode=0
 BootLoaderID=0
 AT89Era=True
@@ -58,7 +58,7 @@ BlankCheck=False
 ProgUsrRow=True
 
 [Interface]
-COMauto=false
+COMauto=False
 ComPort=USB
 USBstayActive=False
 

@@ -13,6 +13,8 @@ In AVRco IDE project manager, import project **HX35_allinone.ppro** and compile 
 
 ### Future repository for HX3.5 Firmware C++ conversion
 
-We plan to port it to PlatformIO IDE with Arduino C++ framework for easier compilation and portability. Please ignore the *src* directory for now.
+We plan to port it to PlatformIO IDE with Arduino C++ framework for easier compilation and portability. Please ignore the *src, lib* and *include* directory for now. These just contain a framework that displays some menus, inits the FPGA and loads a (present) scancore, but has no other functionality.
+
+Feel free to help us converting it to a PlatformIO or Arduino project!
 
 C.Meyer 10/2010 - 11/2025

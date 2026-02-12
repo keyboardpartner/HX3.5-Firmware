@@ -1,13 +1,30 @@
 {
 	"folders": [
 		{
-			"path": "./AVRco"
+			"path": "AVRco"
+		},
+		{
+			"path": "src"
+		},
+		{
+			"path": "docs"
+		},
+		{
+			"path": ".pio"
+		},
+		{
+			"path": "test"
+		},
+		{
+			"path": "include"
+		},
+		{
+			"path": "lib"
 		}
 	],
 	"settings": {
 		"files.exclude": {
         "**/*.bak": true,
-        "**/*.ini": true,
 				"**/*.asm": true,
 				"**/*.err": true,
 				"**/*.lst": true,
