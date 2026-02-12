@@ -1,5 +1,5 @@
 // #############################################################################
-// ###                     F Ü R   A L L E   B O A R D S                     ###
+// ###                     F ï¿½ R   A L L E   B O A R D S                     ###
 // #############################################################################
 
 unit const_def;
@@ -7,7 +7,7 @@ unit const_def;
 interface
 
 type
-  // Quelle einer Parameter-Änderung
+  // Quelle einer Parameter-ï¿½nderung
   t_connect = (t_connect_midi, t_connect_osc_midi, t_connect_editor_midi,
               t_connect_osc_wifi, t_connect_editor_serial, t_disable);
 
@@ -41,12 +41,12 @@ const
   c_min_date: LongInt = $20221012; // FPGA YYYY MM DD (!)
   // letzte 4 Bytes vor Bootloader ($1F000) = $1EFFC
   c_CurrentFirmwareVersion[$1EFFE]: Word   = $0580;
-  // Erhöhen, wenn sich eep_defaults-Array-Struktur ändert:
+  // Erhï¿½hen, wenn sich eep_defaults-Array-Struktur ï¿½ndert:
   c_FirmwareStructureVersion: Byte   = 80;  // Dezimalstellen FW-Version
-  // Wenn bestehende EEPROM-Version kleiner, wird DB-Bereich überschrieben
+  // Wenn bestehende EEPROM-Version kleiner, wird DB-Bereich ï¿½berschrieben
   c_SkipEEPROM_DBs: Word   = $400;
   // Self-FlashWrite from DF, BOOTSZ0-Fuse = $FC000 (*2 = $1F800):
-  c_BootSection: LongInt = $1F800;    // Einsprungadresse in geschützten Bereich
+  c_BootSection: LongInt = $1F800;    // Einsprungadresse in geschï¿½tzten Bereich
 
   c_MinimalPresetStructureVersion: Byte = 31;
   c_MinimalOrganStructureVersion: Byte = 60;
@@ -57,11 +57,11 @@ const
 
 {$TYPEDCONST OFF}
 
-  Vers1Str  = '5.836';    // müssen 5 Zeichen sein!
-  Vers1Hex: Word = $5836;
+  Vers1Str  = '5.900';    // mï¿½ssen 5 Zeichen sein!
+  Vers1Hex: Word = $5900;
 
   {$IFNDEF MODULE}
-  // Dieses müssen die ersten Strings mit "HX3." im Firmware-File sein,
+  // Dieses mï¿½ssen die ersten Strings mit "HX3." im Firmware-File sein,
   // da der HX3 Manager beim Start nach dieser Signatur sucht.
     SysExDeviceStr  = 'HX3.5 TrueOrgan ' // 16 Bytes
                     + '#' + Vers1Str;    // +8 Bytes
@@ -74,7 +74,7 @@ const
     Vers3Str        = 'RealOrgan';
   {$ENDIF}
 
-  LCD1Str   = 'HX3.5 #' + Vers1Str;    // Kurzform von Vers1 für LCD
+  LCD1Str   = 'HX3.5 #' + Vers1Str;    // Kurzform von Vers1 fÃ¼r LCD
 
   c_PresetNameStr0        = 'Startup/Live';
   s_none = '(none)';
@@ -92,48 +92,48 @@ const
 // ###                     Dataflash Block-Belegung                          ###
 // #############################################################################
 
-  // Länge $C439F je XC6S25 Image, Rest frei bis einschl. Block $31F
-  // Zwischen FPGA und PB Core sind 144 Blöcke frei für Daten, 100 für Presets benutzt
+  // LÃ¤nge $C439F je XC6S25 Image, Rest frei bis einschlieÃŸlich Block $31F
+  // Zwischen FPGA und PB Core sind 144 BlÃ¶cke frei fÃ¼r Daten, 100 fÃ¼r Presets benutzt
 {$IFDEF SPARTAN7}
   c_FPGA_lastblock: Word = $130;  // Shadow nicht nutzbar!
 {$ELSE}
   c_FPGA_lastblock: Word = $0C4;
 {$ENDIF}
-  // Diese Werte müssen auch dem Editor bekannt sein:
+  // Diese Werte mÃ¼ssen auch dem Editor bekannt sein:
   c_FPGA_base_DF: Word = 0;  // bis Block $012F = 303 dez.
-  // Failsafe-Images für FPGA und Scan Driver falls normale korrumpiert
+  // Failsafe-Images fÃ¼r FPGA und Scan Driver falls normale korrumpiert
   // Falls es Bootloader nicht gelingt, FPGA und Scan Driver zu starten,
   // wird Image aus diesen Bereichen umkopiert und FPGA-Start erneut versucht.
-  // Nötig, um ggf. Zugriff auf SAM-Flash über FPGA und DFU zu ermöglichen
-  // Failsafe-Binaries können/dürfen nur von SD-Karte aufgespielt werden!
+  // NÃ¶tig, um ggf. Zugriff auf SAM-Flash Ã¼ber FPGA und DFU zu ermÃ¶glichen
+  // Failsafe-Binaries kÃ¶nnen/dÃ¼rfen nur von SD-Karte aufgespielt werden!
   c_FPGA_failsafe_base_DF: Word = $140;  // 320, bis Block $0270 = 624 dez.
   c_scan_failsafe_base_DF: Word = $278;  // 632, zwei Blocks
   c_dfudl_failsafe_DF: Word     = $27C;  // 636, letzte geladene DFUDL-Table mit Failsafe
 
-  c_update_info_DF: Word        = $27D;  // 637, DFUDL-Info-Block, für Firmware
-  c_param_update_list_DF: Word  = $27E;  // 638, PUL-Block, für Firmware
+  c_update_info_DF: Word        = $27D;  // 637, DFUDL-Info-Block, fÃ¼r Firmware
+  c_param_update_list_DF: Word  = $27E;  // 638, PUL-Block, fÃ¼r Firmware
   c_boardinfo_DF: Word          = $27F;  // 639, Block mit Seriennummern, Username etc.
 
-  // 16 Rotary-Modelle (Einstellungen für Rotary Setup)
+  // 16 Rotary-Modelle (Einstellungen fÃ¼r Rotary Setup)
   c_leslieModel_base_DF: Word   = $300;  // 768, nach Firmware-Image
-  // 16 Orgelmodelle (Einstellungen für Vibrato, Generator, Gating, Mixturen etc.
+  // 16 Orgelmodelle (Einstellungen fÃ¼r Vibrato, Generator, Gating, Mixturen etc.
   c_organModel_base_DF: Word    = $310;  // 784, nach Rotary Models
 
-  // Freie Blöcke für Daten, 100 für Presets benutzt
+  // Freie Blï¿½cke fÃ¼r Daten, 100 fÃ¼r Presets benutzt
   c_preset_base_DF: Word  = $320;  // 800..899
-  // Platz für 16 MIDI-CC-Sets je 4K:
+  // Platz fÃ¼r 16 MIDI-CC-Sets je 4K:
   c_midicc_base_DF: Word  = $3A0;  // 928, erster 4k-Block nach Presets
 
   c_core_base_DF: Word     = $3B0;    // 944, erster 4k-Block nach FPGA-Image(s)
   c_scan_base_DF: Word     = $3B0;    // 944, erster 4k-Block nach FPGA-Image(s)
-  c_voice_base_DF: Word    = c_core_base_DF + 2;    // 946, Zugriegel-Arrays, Länge 1 Block
+  c_voice_base_DF: Word    = c_core_base_DF + 2;    // 946, Zugriegel-Arrays, LÃ¤nge 1 Block
   c_defaults_base_DF: Word = c_core_base_DF + 3;    // 947, EEPROM-simulation bei ARM
-  c_taper_base_DF: Word    = c_core_base_DF + 11;   // 955..958, Länge 4 x 1 Block
-  c_coeff_base_DF: Word    = c_core_base_DF + 15;   // 959, Länge 1 Block
-  c_waveset_base_DF: Word  = $3C0;   // 960, Länge 32 (8 x 4 Blocks)
+  c_taper_base_DF: Word    = c_core_base_DF + 11;   // 955..958, LÃ¤nge 4 x 1 Block
+  c_coeff_base_DF: Word    = c_core_base_DF + 15;   // 959, LÃ¤nge 1 Block
+  c_waveset_base_DF: Word  = $3C0;   // 960, LÃ¤nge 32 (8 x 4 Blocks)
 
   c_eeprom_base35_DF: Word   = c_core_base_DF + 9;    // 953, EEPROM AVR
-  c_firmware_base35_DF: Word = $3E0;  // 32 Blöcke, 128 KByte
+  c_firmware_base35_DF: Word = $3E0;  // 32 BlÃ¶cke, 128 KByte
 
 // #############################################################################
 // ###                       BLOCKBUFFER   OFFSETS                           ###
@@ -147,11 +147,11 @@ const
   c_edit_ext_offs: Word     = c_edit_array_offs + 512;
   c_edit_all_len: Word = c_edit_ext_offs + c_edit_ext_len;  // 2048 Bytes
 
-  c_midiarr_dflen: Word = 3328; // ganze 256-Byte-Seiten für Dataflash-Routinen
+  c_midiarr_dflen: Word = 3328; // ganze 256-Byte-Seiten fÃ¼r Dataflash-Routinen
   c_midiarr_len: Word = 3200;   // inkl. NRPN-Array 3200
   c_midicc_len:  Word = 3072;   // nur CC-Array
 
-  c_voiceblock_len: Word = 832 + 2;   // plus Word für Init-Flag
+  c_voiceblock_len: Word = 832 + 2;   // plus Word fÃ¼r Init-Flag
 
   c_table_0: Word = 0;
   c_UpperDBs: Word = c_table_0 + 0;
@@ -183,7 +183,7 @@ const
   c_GatingKnob: Word = 261;
   c_PercKnob: Word = 262;
   c_ReverbKnob: Word = 263;
-// @8, #1264 ff. "Drehknöpfe", exklusive Stellungen, werden auf edit- oder Tab-Werte umgesetzt
+// @8, #1264 ff. "DrehknÃ¼pfe", exklusive Stellungen, werden auf edit- oder Tab-Werte umgesetzt
   c_VibKnob: Word = 264; // #1264 Bedienfeld-Stellung
 
   c_OrganModel: Word = 265; // #1265
@@ -220,7 +220,7 @@ const
   c_ReverbLevel_2: Word = c_ReverbLevels + 1;
   c_ReverbLevel_3: Word = c_ReverbLevels + 2;
 
-// @240, #1496 ff. Defaults, alles mögliche, nur zum Start und Reset gelesen
+// @240, #1496 ff. Defaults, alles mï¿½gliche, nur zum Start und Reset gelesen
   c_SystemInits: Word = 496;
   c_VibKnobMode: Word = c_SystemInits + 1; // #1497
   c_RestoreCommonPresetMask: Word = c_SystemInits + 2; // #1498
@@ -239,11 +239,11 @@ const
   c_EditMagicFlagIdx: Word = c_SystemInits + 15; // #1511
 
 
-// Fehlerkonstanten für SysEx <er>, die falls >0 aufgetretene Fehler
-// in einem 8-Bit-Feld anzeigen. Fehler können kombiniert auftreten.
+// Fehlerkonstanten fÃ¼r SysEx <er>, die falls >0 aufgetretene Fehler
+// in einem 8-Bit-Feld anzeigen. Fehler kÃ¶nnen kombiniert auftreten.
 // Bit 0 = SysEx-Befehl unbekannt (nur wenn auf 0 oder 0x33 addressiert, der Rest interessiert nicht)
 //         oder es wurde versucht, einen unbekannten Parameter zu setzen oder zu lesen.
-//         Dieses Bit wird nach Ausgeben des Status-SysEx wieder gelöscht.
+//         Dieses Bit wird nach Ausgeben des Status-SysEx wieder gelÃ¶scht.
 //         Alle anderen sind persistent, bleiben also bis zum Reboot gesetzt.
 // Bit 1 = SD-Karte nicht erkannt/fehlerhaft (darf 1 sein, weil nicht immer eine SD-Karte steckt),
 //         Datei auf SD nicht gefunden
@@ -278,7 +278,7 @@ const
 // ###                       Digital Input Mapping                           ###
 // #############################################################################
 
-// Button Assigns für spezielle Behandlung in swi_get_TabLED_bits
+// Button Assigns fÃ¼r spezielle Behandlung in swi_get_TabLED_bits
   c_map_percon:  Byte = 0;
   c_map_percsoft:  Byte = 1;
   c_map_percfast:  Byte = 2;
@@ -295,7 +295,7 @@ const
   c_map_singledb_lwr:    Byte = 92;
   c_map_singledb_ped:    Byte = 93;
 
-// Button Assigns für Preset/Voice Groups
+// Button Assigns fÃ¼r Preset/Voice Groups
   c_map_preset: Byte = 100;         // btn_type_idx: Byte = 0
   c_map_voice_upr: Byte = 101;      // btn_type_idx: Byte = 1
   c_map_voice_lwr: Byte = 102;      // btn_type_idx: Byte = 2
@@ -394,11 +394,11 @@ const
 // #############################################################################
 
   c_to_fpga_event_source: Byte  = 1;   // nur an FPGA, ohne Quelle
-  c_board_event_source: Byte    = 2;   // eigene Events durch verknüpfte Einstellungen
-  c_preset_event_source: Byte   = 4;   // durch Preset-Load ausgelöstes Event
-  c_editor_event_source: Byte   = 8;   // über Serial gekommen
-  c_midi_event_source: Byte     = 16;  // über MIDI als CC gekommen
-  c_midi_sysex_source: Byte     = 32;  // über MIDI vom Editor gekommen
+  c_board_event_source: Byte    = 2;   // eigene Events durch verknï¿½pfte Einstellungen
+  c_preset_event_source: Byte   = 4;   // durch Preset-Load ausgelï¿½stes Event
+  c_editor_event_source: Byte   = 8;   // ï¿½ber Serial gekommen
+  c_midi_event_source: Byte     = 16;  // ï¿½ber MIDI als CC gekommen
+  c_midi_sysex_source: Byte     = 32;  // ï¿½ber MIDI vom Editor gekommen
   c_control_event_source: Byte  = 64;  // eigene Events durch Bedienelemente/Tabs
   c_menu_event_source: Byte     = 128; // eigene Events durch MenuPanel
 
@@ -614,7 +614,7 @@ c_TimeLogTable: Array[0..127] of word = (
     20988, 20988
     );
 
-  // Faktoren für Drawbar-Mix bei 4 Drawbars, Initialwerte
+  // Faktoren fÃ¼r Drawbar-Mix bei 4 Drawbars, Initialwerte
   c_Pedal4DBfacs8: Array [0..11] of byte =
     // 0  1   2   3   4   5   6   7  8  9  10 11   // Drawbar
     (  0, 0, 127, 50, 35, 20, 10, 0, 0, 0, 0, 0
@@ -657,12 +657,12 @@ c_TimeLogTable: Array[0..127] of word = (
 // idx = Inc_dec div 2
 //  c_midi_osc_order_to_gmidx: Array[0..5] of byte = (0, 4, 1, 5, 2, 6);
 
-// Index in MIDI/OSC-Reihenfolge auf Einträge in edit_GMprogs:
+// Index in MIDI/OSC-Reihenfolge auf EintrÃ¤ge in edit_GMprogs:
 // idx = Inc_dec div 2
   c_midi_osc_order_to_edit_gmvoice: Array[0..5] of byte =
       (0, 3, 8, 11, 16, 19);
 
-// Index in NRPN-Reihenfolge auf Einträge in edit_GMprogs div 2:
+// Index in NRPN-Reihenfolge auf EintrÃ¤ge in edit_GMprogs div 2:
 // idx = upper_0, lower_0, pedal_0, xxx, upper_1, lower_1, pedal_1, xxx
   c_gmidx_order_to_edit_gmvoice: Array[0..7] of byte =
       (0, 8, 16, 0, 3, 11, 19, 0);
@@ -671,19 +671,31 @@ c_TimeLogTable: Array[0..127] of word = (
 //      (57, 82, 98, 0, 60, 85, 101, 0);
 
 // Reduziert Percussion-Pegel bei H100 und Modul,
-// wenn mehrere Perc-Fußlagen aktiviert sind
+// wenn mehrere Perc-FuÃŸlagen aktiviert sind
   c_perc_mute: Array [0..15] of byte =
     //  0    1    2   3   4   5   6   7   8   9  10  11  12  13  14  15 // BBs
     (  100, 100, 80, 68, 60, 55, 50, 47, 45, 42, 40, 38, 36, 35, 33, 33
     );
-// Relative Percussion-Level (Prozent) nach Fußlage zur Mittelwertbildung
+// Relative Percussion-Level (Prozent) nach FuÃŸlage zur Mittelwertbildung
   c_perc_bbfacs: Array [0..15] of byte =
     //  0    1    2   2nd  3rd  5   6   7   8   9  10  11  12  13  14  15 // BB#
     (  100, 100, 100, 100, 95, 85, 75, 65, 60, 55, 50, 50, 50, 50, 50, 50
     );
 
 // #############################################################################
-// ###   Tabellen aus "Controllerliste HX35_custom_xxx.xls" übernommen       ###
+// ###   Tabellen aus "Controllerliste HX35_custom_xxx.xls" Ã¼bernommen       ###
+// #############################################################################
+
+// #############################################################################
+//
+//     #     # ####### #     # #     #
+//     ##   ## #       ##    # #     #
+//     # # # # #       # #   # #     #
+//     #  #  # #####   #  #  # #     #
+//     #     # #       #   # # #     #
+//     #     # #       #    ## #     #
+//     #     # ####### #     #  #####
+//
 // #############################################################################
 
 // ab hier in Pascal-Konstanten kopieren
@@ -721,14 +733,14 @@ c_TimeLogTable: Array[0..127] of word = (
     151  //  #12 Ende Organ Setup Menu
   );
 
-  // Spezielle Menüs
+  // Spezielle Menï¿½s
   c_MenuLen: byte = 151;
   // Startmenu
   c_MenuCommonPreset: Byte = 0;
   c_MainMenuStart: Byte = 0;
   c_MainMenuEnd: Byte = 21;
   c_VibKnobMenu: Byte = 13;
-  // für Freigabe mit Scanboard
+  // fÃ¼r Freigabe mit Scanboard
   c_KeybEarlySubmenu: Byte = 150;
   c_EquMenuStart: Byte = 89;
   c_EquMenuEnd: Byte = 97;
@@ -1079,6 +1091,18 @@ c_TimeLogTable: Array[0..127] of word = (
   1357  // #1357 No DB1 @Perc
 );
 
+// #############################################################################
+//
+//     #     # #######    #    ######  ####### ######
+//     #     # #         # #   #     # #       #     #
+//     #     # #        #   #  #     # #       #     #
+//     ####### #####   #     # #     # #####   ######
+//     #     # #       ####### #     # #       #   #
+//     #     # #       #     # #     # #       #    #
+//     #     # ####### #     # ######  ####### #     #
+//
+// #############################################################################
+
 s_MenuHeaderArr: array[0..  c_MenuLen] of String[13] = (
   'HX3 Preset   ',  // #1268
   'Voice Upper  ',  // #1269
@@ -1233,6 +1257,18 @@ s_MenuHeaderArr: array[0..  c_MenuLen] of String[13] = (
   'ContEarlyActn',  // #1356
   'No DB1 @Perc '   // #1357
 );
+
+// #############################################################################
+//
+//     #     #    #     #####  #    #
+//     ##   ##   # #   #     # #   #
+//     # # # #  #   #  #       #  #
+//     #  #  # #     #  #####  ###
+//     #     # #######       # #  #
+//     #     # #     # #     # #   #
+//     #     # #     #  #####  #    #
+//
+// #############################################################################
 
 // Bit 0 = B3, Bit 1 = H100, Bit 2 = Versatile,
 // Bit 3 = Expander, Bit 4 = mk4, Bit 5 = mk5,
@@ -1533,7 +1569,7 @@ s_LocalEnableArr: array[0..7] of String[11] = (
   'All Kbd ON '); // 7
 
 
-// wird auch über SysEx gesendet
+// wird auch ï¿½ber SysEx gesendet
 // s_MenuMidiCCArr: array[0..3] of String[11] = (
 //  'NI B4 d3c  ',  // 0
 //  'Hammond XK ',  // 1
@@ -1558,8 +1594,8 @@ s_MenuTaperingArr: array[0..5] of String[11] = (
 {
 Waveset: 0..3 Hammond 25-38% k2,
 4: Sinus 2% THD
-5: Sägezahn gefiltert für Strings oder Cheesy
-6: Sinus 12% k3 für Conn
+5: Sï¿½gezahn gefiltert fÃ¼r Strings oder Cheesy
+6: Sinus 12% k3 fÃ¼r Conn
 7: Sinus Square 8% k3, 5% k5
 }
 s_MenuWaveArr: array[0..7] of String[11] = (
@@ -1567,13 +1603,26 @@ s_MenuWaveArr: array[0..7] of String[11] = (
   'B3  28% k2 ',  // 1
   'B3  32% k2 ',  // 2
   'B3  38% k2 ',  // 3 alte B3
-  'Sine 2% k2 ',  // 4 Reiner Sinus, Böhm mit Sinus-Zusatz
-  'Sawt Fltrd ',  // 5 Sägezahn gefiltert
+  'Sine 2% k2 ',  // 4 Reiner Sinus, Bï¿½hm mit Sinus-Zusatz
+  'Sawt Fltrd ',  // 5 Sï¿½gezahn gefiltert
   'Sine LC Gen',  // 6 Sinus LC-Generator
   'Sine TOSGen'); // 7 Sinus aus Rechteck-Filterung
 
 
 const
+
+// #############################################################################
+//
+//     ####### ######  ### #######   #     #    #    #     #
+//     #       #     #  #     #      ##   ##   # #    #   #
+//     #       #     #  #     #      # # # #  #   #    # #
+//     #####   #     #  #     #      #  #  # #     #    #
+//     #       #     #  #     #      #     # #######   # #
+//     #       #     #  #     #      #     # #     #  #   #
+//     ####### ######  ###    #      #     # #     # #     #
+//
+// #############################################################################
+
 
 c_edit_max: Array[0..511] of byte = (
   127, // #1000 Upper Drawbar 16
@@ -1667,11 +1716,11 @@ c_edit_max: Array[0..511] of byte = (
   127, // #1088 Trim Cap Swell
   127, // #1089 Minimal Swell Level
   127, // #1090 AO 28 Triode Distortion
-  127, // #1091 Böhm Module Reverb Volume
-  127, // #1092 Böhm Module Efx Volume
-  127, // #1093 Böhm Module Swell Volume
-  127, // #1094 Böhm Module Front Volume
-  127, // #1095 Böhm Module Rear Volume
+  127, // #1091 Swell Loudness Bass
+  127, // #1092 Swell Midrange Response
+  127, // #1093 Swell Midrange Shelving TonePot Fac
+  63, // #1094 Swell Final Response
+  127, // #1095 Swell Loudness Treble
   127, // #1096 Upper Envelope Drawbar 16
   127, // #1097 Upper Envelope Drawbar 5 1/3
   127, // #1098 Upper Envelope Drawbar 8
@@ -1698,8 +1747,8 @@ c_edit_max: Array[0..511] of byte = (
   127, // #1119 Equ Treble Frequency if FullParametric
   127, // #1120 Equ Treble Peak/Q if FullParametric
   255, // #1121 Equ FullParametric Enable
-  127, // #1122 Böhm Module Ext Rotary Volume Left
-  127, // #1123 Böhm Module Ext Rotary Volume Right
+  127, // #1122 Bï¿½hm Module Ext Rotary Volume Left
+  127, // #1123 Bï¿½hm Module Ext Rotary Volume Right
   127, // #1124 Equ Bass Gain Pot Mid Position
   127, // #1125 Equ Mid Gain Pot Mid Position
   127, // #1126 Equ Treble Gain Pot Mid Position
@@ -2095,6 +2144,18 @@ c_edit_max: Array[0..511] of byte = (
 {$I debug_sempra_inc.pas}
 {$ENDIF}
 
+// #############################################################################
+//
+//      #####  #       ####### ######  #######
+//     #     # #       #     # #     # #
+//     #       #       #     # #     # #
+//      #####  #       #     # ######  #####
+//           # #       #     # #       #
+//     #     # #       #     # #       #
+//      #####  ####### ####### #       #######
+//
+// #############################################################################
+
 c_tubeampslopes: Array[0..7, 0..31] of Integer = (
   (
   1024,
@@ -2364,7 +2425,15 @@ c_tubeampslopes: Array[0..7, 0..31] of Integer = (
 
 
 // #############################################################################
-// ###                   Save/Restore Mask (Matrix)                          ###
+//
+//      #####     #    #     # #######   #     #    #     #####  #    #
+//     #     #   # #   #     # #         ##   ##   # #   #     # #   #
+//     #        #   #  #     # #         # # # #  #   #  #       #  #
+//      #####  #     # #     # #####     #  #  # #     #  #####  ###
+//           # #######  #   #  #         #     # #######       # #  #
+//     #     # #     #   # #   #         #     # #     # #     # #   #
+//      #####  #     #    #    #######   #     # #     #  #####  #    #
+//
 // #############################################################################
 
 // MSN Value Type Bits 12..15
@@ -2493,11 +2562,11 @@ c_tubeampslopes: Array[0..7, 0..31] of Integer = (
   14080, // #1088 Trim Cap Swell
   14080, // #1089 Minimal Swell Level
   14080, // #1090 AO 28 Triode Distortion
-  0, // #1091 Böhm Module Reverb Volume
-  0, // #1092 Böhm Module Efx Volume
-  0, // #1093 Böhm Module Swell Volume
-  0, // #1094 Böhm Module Front Volume
-  0, // #1095 Böhm Module Rear Volume
+  14080, // #1091 Swell Loudness Bass
+  14080, // #1092 Swell Midrange Response
+  14080, // #1093 Swell Midrange Shelving TonePot Fac
+  14080, // #1094 Swell Final Response
+  14080, // #1095 Swell Loudness Treble
   13833, // #1096 Upper Envelope Drawbar 16
   13833, // #1097 Upper Envelope Drawbar 5 1/3
   13833, // #1098 Upper Envelope Drawbar 8
@@ -2524,8 +2593,8 @@ c_tubeampslopes: Array[0..7, 0..31] of Integer = (
   13376, // #1119 Equ Treble Frequency if FullParametric
   13376, // #1120 Equ Treble Peak/Q if FullParametric
   6400, // #1121 Equ FullParametric Enable
-  0, // #1122 Böhm Module Ext Rotary Volume Left
-  0, // #1123 Böhm Module Ext Rotary Volume Right
+  0, // #1122 Bï¿½hm Module Ext Rotary Volume Left
+  0, // #1123 Bï¿½hm Module Ext Rotary Volume Right
   14592, // #1124 Equ Bass Gain Pot Mid Position
   14592, // #1125 Equ Mid Gain Pot Mid Position
   14592, // #1126 Equ Treble Gain Pot Mid Position

@@ -1,5 +1,5 @@
 // #############################################################################
-// ###                   Tabs auswerten und Änderungen an FPGA               ###
+// ###                   Tabs auswerten und ï¿½nderungen an FPGA               ###
 // #############################################################################
 Unit apply_changes;
 
@@ -21,7 +21,7 @@ uses var_def, edit_changes, nuts_and_bolts, MIDI_Com, fpga_hilevel;
   procedure AC_IncDecControls; // Radio Buttons etc.
   procedure AC_IncDecControlsTimerElapsed;
   procedure AC_MutualControls;
-  procedure AC_ExecEditChanges;   // Geänderte Bedienelemente als Message senden und für FPGA sammeln
+  procedure AC_ExecEditChanges;   // Geï¿½nderte Bedienelemente als Message senden und fï¿½r FPGA sammeln
 
   procedure AC_SendSwell;
   procedure AC_SendVolumes;
@@ -33,7 +33,7 @@ uses var_def, edit_changes, nuts_and_bolts, MIDI_Com, fpga_hilevel;
   procedure AC_IncDecGMprogs(gm_btn_offset: byte; event_source: byte);
 
 
-  // Wrapper-Forwards für Proc-Tabelle:
+  // Wrapper-Forwards fï¿½r Proc-Tabelle:
   procedure AC_HandleGatingknob;
   procedure AC_HandleGatingButtons;
   procedure AC_HandleVibknob;
@@ -91,8 +91,8 @@ const
 // ####                        ACTION-TABELLE                               ####
 // #############################################################################
 
-// Diese Tabelle enthält alle Indexe auf Routinen-Adressen in ac_proclist,
-// die bei Änderung eines edit-Wertes aufgerufen werden müssen.
+// Diese Tabelle enthï¿½lt alle Indexe auf Routinen-Adressen in ac_proclist,
+// die bei ï¿½nderung eines edit-Wertes aufgerufen werden mï¿½ssen.
 
 c_last_edit_param: Word = c_edit_array_len - 17;
 
@@ -188,11 +188,11 @@ ac_proc_idx: Array[0..c_last_edit_param] of byte = (
     38,  // #1088, Trim Cap Swell
     38,  // #1089, Minimal Swell Level
     38,  // #1090, AO 28 Triode Distortion
-    38,  // #1091, Böhm Module Reverb Volume
-    38,  // #1092, Böhm Module Efx Volume
-    38,  // #1093, Böhm Module Swell Volume
-    38,  // #1094, Böhm Module Front Volume
-    38,  // #1095, Böhm Module Rear Volume
+    38,  // #1091, Swell Loudness Bass
+    38,  // #1092, Swell Midrange Response
+    38,  // #1093, Swell Midrange Shelving TonePot Fac
+    38,  // #1094, Swell Final Response
+    38,  // #1095, Swell Loudness Treble
     39,  // #1096, Upper Envelope Drawbar 16
     39,  // #1097, Upper Envelope Drawbar 5 1/3
     39,  // #1098, Upper Envelope Drawbar 8
@@ -219,8 +219,8 @@ ac_proc_idx: Array[0..c_last_edit_param] of byte = (
     37,  // #1119, Equ Treble Frequency if FullParametric
     37,  // #1120, Equ Treble Peak/Q if FullParametric
     37,  // #1121, Equ FullParametric Enable
-    38,  // #1122, Böhm Module Ext Rotary Volume Left
-    38,  // #1123, Böhm Module Ext Rotary Volume Right
+    38,  // #1122, Bï¿½hm Module Ext Rotary Volume Left
+    38,  // #1123, Bï¿½hm Module Ext Rotary Volume Right
     36,  // #1124, Equ Bass Gain Pot Mid Position
     36,  // #1125, Equ Mid Gain Pot Mid Position
     36,  // #1126, Equ Treble Gain Pot Mid Position
@@ -649,7 +649,7 @@ ac_proc_idx: Array[0..c_last_edit_param] of byte = (
     @nil   // Index [46]
   );
 
-// Konstanten für ac_proclist_flags-Index
+// Konstanten fï¿½r ac_proclist_flags-Index
 const
   c_AC_HandleGatingknob: Byte = 0;
   c_AC_HandleGatingButtons: Byte = 1;
@@ -712,7 +712,7 @@ var
 
   ac_mb_inc, ac_mb_dec,
   ac_mb_v1, ac_mb_v2: Boolean; // temp values for Inc/Dec Buttons
-  ac_proc_eventsource: Byte; // für jeweils aufgerufene Proc gültig
+  ac_proc_eventsource: Byte; // fï¿½r jeweils aufgerufene Proc gï¿½ltig
   ac_proclist_flags: Array[0..c_proc_max] of Boolean;
   ac_swell_integrator_w, ac_volume_integrator_w: Word;
   ac_swell_w, ac_volume_w: Word;
@@ -739,7 +739,7 @@ end;
 
 
 procedure AC_sendmsg(idx: Word; const event_source: byte);
-// Event-Sender: Sorgt dafür, dass Änderungen nicht an den Absender zurückgehen
+// Event-Sender: Sorgt dafï¿½r, dass ï¿½nderungen nicht an den Absender zurï¿½ckgehen
 // idx muss zwischen 0 und 511 liegen!
 var param: Integer;
   my_menu_requ, hammond_db_val: Byte; new_val: Byte;
@@ -751,13 +751,13 @@ begin
   new_val:= edit_array[idx];
   my_menu_requ:= Param2MenuInverseArray[idx];
   case event_source of
-    // c_to_fpga_event_source: nur ans FPGA, interne Änderung
+    // c_to_fpga_event_source: nur ans FPGA, interne ï¿½nderung
     // c_midi_sysex_source: SysEx-Events kommen immer vom Editor
     c_editor_event_source:
       // Durch Editor oder TouchOSC verursachte Events
       case ConnectMode of
         t_connect_osc_wifi:
-          NB_SendBinaryVal(param, new_val); // OSC braucht das Event zurück
+          NB_SendBinaryVal(param, new_val); // OSC braucht das Event zurï¿½ck
           mdelay(5);
           |
       endcase;
@@ -767,7 +767,7 @@ begin
       // Durch Bedienung verursachte Events
       case ConnectMode of
         t_connect_midi:
-          // speziell für XB3-Einbau:
+          // speziell fï¿½r XB3-Einbau:
           if edit_MIDI_CC_Set = 1 then
             case idx of
             0..8:
@@ -821,7 +821,7 @@ begin
       endcase;
       |
     c_midi_event_source:
-      // über MIDI-CCs verursachte Events
+      // ï¿½ber MIDI-CCs verursachte Events
       case ConnectMode of
         t_connect_editor_midi:
           MIDI_SendSysExParam(param, Integer(new_val));
@@ -856,7 +856,7 @@ begin
     // unterhalb Mittelstellung, n < 64
     val_i:= val_i + (val_i * diff_i div 64);
   else
-    // oberhalb Mittelstellung, n >= 64, läuft von 64 bis 127
+    // oberhalb Mittelstellung, n >= 64, lï¿½uft von 64 bis 127
     val_i:= val_i + ((127 - val_i) * diff_i div 64);
   endif;
   {$IFDEF DEBUG_AC}
@@ -871,7 +871,7 @@ end;
 
 // #############################################################################
 // #############################################################################
-// #####         Interface für Prozeduraufruf über Tabelle                ######
+// #####         Interface fï¿½r Prozeduraufruf ï¿½ber Tabelle                ######
 // #############################################################################
 // #############################################################################
 
@@ -880,7 +880,7 @@ begin
   NB_SetLEDdimmer;
 end;
 
-// Parameteränderungen in edit_table rufen eine zugehörige Routine
+// Parameterï¿½nderungen in edit_table rufen eine zugehï¿½rige Routine
 // in der Tabelle ac_edit_procs auf
 
 
@@ -947,12 +947,12 @@ end;
 
 // -----------------------------------------------------------------------------
 
-procedure AC_RouteDirect; // nur für Modul benötigt
+procedure AC_RouteDirect; // nur fï¿½r Modul benï¿½tigt
 begin
   ac_proclist_flags[c_AC_RouteDirect]:= false;
   FH_UpperRoutingToFPGA;
   FH_UpperDrawbarsToFPGA;
-  FH_PercussionParamsToFPGA; // Perc-Bits könnten sich geändert haben
+  FH_PercussionParamsToFPGA; // Perc-Bits kï¿½nnten sich geï¿½ndert haben
   FH_LowerDrawbarsToFPGA;
 end;
 
@@ -999,7 +999,7 @@ end;
 // -----------------------------------------------------------------------------
 
 procedure AC_HandleReverbKnob;
-// Übersetzung in Buttons bereits in AC_MomentaryControls erledigt
+// ï¿½bersetzung in Buttons bereits in AC_MomentaryControls erledigt
 begin
   ac_proclist_flags[c_AC_HandleReverbKnob]:= false;
   FH_SendReverbTabs;
@@ -1022,7 +1022,7 @@ procedure AC_HandlePercKnob;
 var edit_idx: Word;
 begin
   for edit_idx:= 128 to 131 do
-    AC_sendmsg(edit_idx, c_control_event_source);     // zusätzlich senden
+    AC_sendmsg(edit_idx, c_control_event_source);     // zusï¿½tzlich senden
   endfor;
   AC_SendPercValues;
 end;
@@ -1106,7 +1106,7 @@ end;
 
 procedure AC_SetDetent;
 begin
-// Mittelpositions-Default geändert, nach zugehörigem ADC suchen
+// Mittelpositions-Default geï¿½ndert, nach zugehï¿½rigem ADC suchen
   ac_proclist_flags[c_AC_SetDetent]:= false;
 {$IFNDEF MODULE}
   for i:= 0 to 87 do
@@ -1129,17 +1129,17 @@ begin
   {$ENDIF}
   ac_proclist_flags[c_AC_SendGM2ena]:= false;
   m:= (edit_LocalEnable shl 4) or edit_MIDI_Channel;
-  MIDI_SendNRPN($357F, m); // Kanal und Freigabe für SAM5504
+  MIDI_SendNRPN($357F, m); // Kanal und Freigabe fï¿½r SAM5504
   AC_SendVolumes;
   ToneChanged:=true;
 end;
 
 procedure AC_SendGMprgRequestDisplay(idx: Integer; const gm_prg: Byte);
-// GM-Programm senden und Namen anfordern, kommt später über SysEx vom DSP
+// GM-Programm senden und Namen anfordern, kommt spï¿½ter ï¿½ber SysEx vom DSP
 begin
   // Programm setzen
   MIDI_SendNRPN($3550 + idx, gm_prg);
-  // Namen anfordern, wird über SysEx in GM_VoiceNames[] gesetzt
+  // Namen anfordern, wird ï¿½ber SysEx in GM_VoiceNames[] gesetzt
   MIDI_SendNRPN($3570 + idx, 127);
   if not ac_preset_changed then
     GM_VoiceNameToDisplaySema[idx]:= GM_VoiceNameToDisplaySema[idx]
@@ -1231,12 +1231,20 @@ end;
 
 
 // #############################################################################
-// ####                         POTENTIOMETERS                              ####
+//
+//     #     # ####### #       #     # #     # #######  #####
+//     #     # #     # #       #     # ##   ## #       #     #
+//     #     # #     # #       #     # # # # # #       #
+//     #     # #     # #       #     # #  #  # #####    #####
+//      #   #  #     # #       #     # #     # #             #
+//       # #   #     # #       #     # #     # #       #     #
+//        #    ####### #######  #####  #     # #######  #####
+//
 // #############################################################################
 
 procedure AC_SendVolumes;
 // UPPER/LOWER/PEDAL Volumes
-// wird bei Änderungen aufgerufen
+// wird bei ï¿½nderungen aufgerufen
 // Rechnet Byte "volume" in EQ-Paramater um
 begin
 {$IFDEF DEBUG_AC}
@@ -1254,11 +1262,11 @@ begin
     // NEU ab FPGA 01032022
     SendVolumeByteToFPGA(m, 69);  // Amp In Gain in Volume-Gruppe, auf 0..255
     if Bit(edit_ConfBits, 2) then // Volume Correction bit gesetzt?
-      // für Amp Out Lvl
+      // fï¿½r Amp Out Lvl
       m:= 240 - (ValueTrimLimit(edit_LeslieVolume, 0, 33) * 4)
               - (edit_LeslieVolume div 5);
     else
-      // nur geringe Korrektur für Leslie-Sim
+      // nur geringe Korrektur fï¿½r Leslie-Sim
       m:= 230 - (edit_LeslieVolume div 3);
     endif;
     SendByteToFPGA(m, 70);    // Amp Out Level, in Volume-Gruppe, auf 0..255
@@ -1299,7 +1307,7 @@ end;
 
 procedure AC_SendTrimPots;
 // UPPER/LOWER/PEDAL Volumes
-// wird bei Änderungen aufgerufen
+// wird bei ï¿½nderungen aufgerufen
 // Rechnet Byte "volume" in EQ-Paramater um
 var temp_vol: Byte;
 begin
@@ -1309,7 +1317,7 @@ begin
 // **************************** ALLINONE****************************************
   // DREAM FX5000 Biquads
   // Mid ist immer Typ 1 = parametrisch Peak
-  // bei Änderungen wird EQ in SAM-FW neu initialisiert
+  // bei ï¿½nderungen wird EQ in SAM-FW neu initialisiert
   MIDI_SendNRPN($351D, byte(edit_EqualizerFullParametric)); // SAM5504 EQU Bass/Treble Type
 
 {$IFDEF DEBUG_AC}
@@ -1361,6 +1369,19 @@ begin
 end;
 
 // #############################################################################
+//
+//      #####  #     # ####### #       #
+//     #     # #  #  # #       #       #
+//     #       #  #  # #       #       #
+//      #####  #  #  # #####   #       #
+//           # #  #  # #       #       #
+//     #     # #  #  # #       #       #
+//      #####   ## ##  ####### ####### #######
+//
+// #############################################################################
+
+
+// #############################################################################
 // ###                  Schweller und Volume an FPGA senden                  ###
 // #############################################################################
 
@@ -1369,7 +1390,7 @@ procedure AC_SendSwell;
 // SCHWELLPEDAL- und MASTER-VOLUME-Steuerung
 // Wird alle 2ms aus main_tasks aufgerufen wg. Integratoren
 const
-  // Scale * int_fac < 256, sonst Word-Überlauf!
+  // Scale * int_fac < 256, sonst Word-ï¿½berlauf!
   int_fac_swell: Word = 7;
   int_div_swell: Word = int_fac_swell + 1;
   int_shift_swell: Byte = 4;  // Scale = 16 bei 4 shifts
@@ -1377,14 +1398,13 @@ const
   int_div_volume: Word = int_fac_volume + 1;
   int_shift_volume: Byte = 3;  // Scale = 8 bei 3 shifts
 
-var swell_raw255,
-    swell_ranged,
-    swell_63hz,
-    swell_midrange,
-    swell_bypass,   // nur halber Audio-Pegel in AO28 NEU!
-    swell_fullrange,   // nur halber Audio-Pegel in AO28 NEU!
+var swell_raw255, swell_raw128, swell_temp,
+    swell_final,
+    swell_midrange, swell_midrange_response, swell_midrange_shelf,
+    swell_bassboost,
+    swell_loudness_hi,
     swell_pedal,
-    swell_final: Byte;
+    swell_final_response: Byte;
     swell_changed: Boolean;
 begin
   // Volume Integrator, t = 2ms
@@ -1419,67 +1439,49 @@ begin
 
   swell_final:= 128 + edit_TrimSwell;
   if swell_changed or ToneChanged then
-    case edit_PreampSwellType of
-    0:
-      // Hammond Mode, ausgeprägtes, aber flaches Maximum bei 200 Hz,
-      // ab 250 Hz mit 3-4 db/Okt fallend, über 4 kHz stärker
-      // TONE-Pot, Minimal Swell und Swell Trim Cap werden berücksichtigt
-      // Maximalwert auf Trim Cap Swell anpassen
-      // Range auf Minimal Swell anpassen
-      // n:= MulDivByte(64 + edit_TrimSwell, swell_raw255, 195);  // zu laut
-      n:= MulDivByte(48 + edit_TrimSwell, swell_raw255, 230);
-      swell_ranged:= edit_MinimalSwell + MulDivByte(n, 255-edit_MinimalSwell, 255);
+    swell_final:= 128 + edit_TrimSwell;
+    // edit_TrimSwell: 0..127, nom. 75..90
+    // edit_MinimalSwell: 0..50, nom. 20
+    // edit_TonePot: 0..127, nom. 60
+    swell_raw128:= swell_raw255 div 2;
+    if edit_PreampSwellType = 0 then
+      swell_bassboost:= MulDivByte(edit_SwellLoudnessBass, edit_MinimalSwell, 20) + c_AntiLogTable[swell_raw128] div 3;   // #1091
+      if swell_bassboost > 200 then
+        swell_bassboost:= 200;
+      endif;
+      // halber Anstieg bis 32, danach steiler mis Max. 255
+      if swell_raw255 < 32 then
+        swell_midrange:= swell_raw255 div 2; // 0..16
+      else
+        swell_midrange:= MulDivByte(swell_raw255-16, 255, 255-16);
+      endif;
 
-      n:= MulDivByte(edit_TonePot, swell_ranged, 190);
-      swell_fullrange:= (swell_ranged div 3) + n; // 0..63
-      swell_63hz:= 80 + (swell_ranged div 2); //
+      swell_temp:= edit_MinimalSwell div 10;
+      if swell_temp > 0 then
+        swell_midrange:= swell_temp + MulDivByte(swell_midrange, 255-swell_temp, 255);
+      endif;
 
-      swell_midrange:= swell_ranged;
+      swell_midrange_response:= edit_SwellMidrangeResponse; // #1092
 
-      // Finales Lowpass-Filter 6db/Okt.
-      // Frequenzen ermittelt mit IIR_Filter_Coef_Generator.xls
-      // Bit 7 = 0, Hammond Mode, 4khz-Bereich um 12 dB abgesenkt
-      // Frequenz 120,3 Hz * (Wert + 1) nom. 40 für 4800 Hz
-      n:= (edit_TonePot div 4) + 6;   // (edit_TonePot div 3) + 10;
-      SendByteToFPGA(n, 87);  // 10..42, ca. 4,5 kHz Grenzfrequenz
+      swell_midrange_shelf:= edit_SwellMidrangeShelving + MulDivByte(edit_SwellMidrangeShelving, edit_TonePot, 64);      // #1093, 0..255
+      if swell_midrange_shelf > 255 then
+        swell_midrange_shelf:= 255;
+      endif;
 
-      // Filter Bypass, full range ohne Tone-Lowpass
-      swell_bypass:= 0;
-
-      swell_pedal:= 35 + MulDivByte(swell_ranged, 220, 255);
-      // writeln(serout,'/ 1k:' + bytetostr(swell_bypass) + ' 4k: ' + bytetostr(swell_fullrange));
-      |
-
-    1:  // Conn, Böhm etc. Sinus
-      swell_63hz:= MulDivByte(swell_raw255, 150, 255);
-      swell_midrange:= MulDivByte(swell_raw255, 165, 255);
-      swell_bypass:= MulDivByte(swell_raw255, 120, 255); // - 12 dB in Preamp
-      // in AO28-Sim ist dieser Pegel nur um -6 dB abgesenkt, wenn Linear Mode ON
-      swell_fullrange:= MulDivByte(swell_raw255, 140, 255); // - 6 dB in Preamp
-
-      // Finales Lowpass-Filter 6db/Okt.
-      // Frequenzen ermittelt mit IIR_Filter_Coef_Generator.xls
-      // Bit 7 = 1, 4khz-Bereich nur um 6 dB abgesenkt
-      // Frequenz 120,3 Hz * (Wert + 1) + 128 für 4k Enhanced
-      SendByteToFPGA(45, 87);  // ca. 5,5 kHz Grenzfrequenz
-
-      swell_pedal:=  swell_raw255;
-      |
-    else  // andere, fast linear, etwas Mid-Bass-Anhebung
-      swell_63hz:= 20;
-      swell_midrange:= MulDivByte(swell_raw255, 95, 255);
-      swell_bypass:= MulDivByte(swell_raw255, 145, 255); // - 12 dB in Preamp
-      // in AO28-Sim ist dieser Pegel nur um -6 dB abgesenkt, wenn Linear Mode ON
-      swell_fullrange:= MulDivByte(swell_raw255, 190, 255); // - 6 dB in Preamp
-
-      // Finales Lowpass-Filter 6db/Okt.
-      // Frequenzen ermittelt mit IIFilter_Coef_Generator.xls
-      // Bit 7 = 1, 4khz-Bereich nur um 6 dB abgesenkt
-      // Frequenz 120,3 Hz * (Wert + 1) + 128 für 4k Enhanced
-      SendByteToFPGA(128 + 47, 87);  // ca. 6 kHz Grenzfrequenz
-
-      swell_pedal:= swell_raw255;
-    endcase;
+      swell_temp:= edit_TonePot div 4;
+      swell_final_response:= edit_SwellFinalResponse + swell_temp;  // #1094
+      if swell_final_response > 63 then
+        swell_final_response:= 63; // nur 5 Bit
+      endif;
+      swell_loudness_hi:= MulDivByte(swell_temp + edit_SwellLoudnessTreble, edit_MinimalSwell, 20);  // #1095
+    else // Testmodus
+      swell_midrange:= swell_raw255;      // #1092
+      swell_bassboost:= edit_SwellLoudnessBass;    // #1091
+      swell_midrange_response:= edit_SwellMidrangeResponse;
+      swell_midrange_shelf:= edit_SwellMidrangeShelving * 2;      // #1093
+      swell_final_response:= edit_SwellFinalResponse;  // #1094
+      swell_loudness_hi:= edit_SwellLoudnessTreble;    // #1095
+    endif;
 
     if edit_EnablePedalAudio then
       if edit_LogicalTab_PedalPostMix then  // Pedal Bypass Tab
@@ -1498,10 +1500,10 @@ begin
           SendDoubledByteToFPGA(edit_PedalVolume, 46);  // Pedal an AO28
         endif;
       endif;
-      // Pedal-Signal für separaten Ausgang auf Extension Board und Postmix:
+      // Pedal-Signal fï¿½r separaten Ausgang auf Extension Board und Postmix:
       swell_pedal:= mulDivByte(swell_pedal, edit_PedalVolume, 128);
       if Bit(edit_ConfBits, 6) then
-        // Swell disable für separaten Ausgang auf Extension Board und Postmix
+        // Swell disable fï¿½r separaten Ausgang auf Extension Board und Postmix
         swell_pedal:=   mulDivByte(edit_PedalVolume, 150, 100) // 0..191
                          + (swell_pedal div 4); // geringer Anteil Swell
       endif;
@@ -1512,11 +1514,20 @@ begin
       SendByteToFPGA(0, 47);   // Pedal Vol auf 0
     endif;
 
-    SendByteToFPGA(swell_63hz, 80);
+    SendByteToFPGA(swell_bassboost, 80);
     SendByteToFPGA(swell_midrange, 81);
-    SendByteToFPGA(swell_bypass,  82);
-    SendByteToFPGA(swell_fullrange,  83);
-    SendByteToFPGA(swell_final,  84);      // final AO28 gain
+    SendByteToFPGA(swell_loudness_hi, 82);
+    SendByteToFPGA(swell_midrange_shelf, 83);
+    SendByteToFPGA(swell_final, 84);     // final AO28 gain
+
+    SendByteToFPGA(swell_final_response, 87); // #1094, 0..63, 5 Bit fÃ¼r Response
+    SendByteToFPGA(swell_midrange_response, 88); // #1092, 0..255, 8 Bit fÃ¼r Midrange Response
+
+    if edit_LogicalTab_DisableAO28 then
+       SendByteToFPGA(1, 89); // AO28 Equalizing Bypass, nur Midrange Swell
+    else
+      SendByteToFPGA(0, 89);
+    endif;
     ToneChanged:= false;
   endif;
 end;
@@ -1525,7 +1536,7 @@ end;
 
 procedure AC_SendLeslieLiveParams;
 var my_val, my_spread_angle: Byte;
-// wird bei Änderungen aufgerufen
+// wird bei ï¿½nderungen aufgerufen
 begin
   SendByteToFPGA(edit_LeslieInpLvl, 180); // Leslie Input Level
   ac_proclist_flags[c_AC_SendLeslieLiveParams]:= false;
@@ -1551,22 +1562,22 @@ begin
     my_val:= MulDivByte(edit_LeslieInits[6], (128-edit_LeslieBalance), 64);
     SendByteToFPGA(my_val, 182);   // skalierter Rotor-Anteil
 
-    // Hornpegel konstant, unabhängig von Balance
+    // Hornpegel konstant, unabhï¿½ngig von Balance
     SendByteToFPGA(edit_LeslieInits[5], 181);
   else
     // Horn-Pegel reduzieren
     my_val:= MulDivByte(edit_LeslieInits[5], edit_LeslieBalance, 64);
     SendByteToFPGA(my_val, 181);
 
-    // Rotorpegel konstant, unabhängig von Balance
+    // Rotorpegel konstant, unabhï¿½ngig von Balance
     SendByteToFPGA(edit_LeslieInits[6], 182);
   endif;
 
-  // Horn-Throb konstant, unabhängig von Balance
+  // Horn-Throb konstant, unabhï¿½ngig von Balance
   my_val:= MulDivByte(edit_LeslieInits[22], edit_LeslieThrob, 128); // Throb Horn L
   SendByteToFPGA(my_val, 198);  // 0..254 auf Horn L
   SendByteToFPGA(my_val, 199);  // 0..254 auf Horn R
-  // Rotor-Throb konstant, unabhängig von Balance
+  // Rotor-Throb konstant, unabhï¿½ngig von Balance
   my_val:= MulDivByte(edit_LeslieInits[27], edit_LeslieThrob, 128); // Throb Rotor
   SendByteToFPGA(my_val, 203);  // Rotor
 end;
@@ -1593,11 +1604,11 @@ begin
         mdelay(5);
         ADC_ReadAll_24;
       endif;
-      ADC_ResetTimersUpper;    // ADC-Kanäle unempfindlich machen (abgelaufen!)
+      ADC_ResetTimersUpper;    // ADC-Kanï¿½le unempfindlich machen (abgelaufen!)
       ADC_ChangeStateAll(false);
       LoadUpperVoice(edit_UpperVoice);
     endif;
-  else // Expander, keine Analogeingänge
+  else // Expander, keine Analogeingï¿½nge
     was_live:= (edit_UpperVoice_old = 0)
     or (edit_UpperVoice_old = edit_2ndDBselect);
     if (not UpperIsLive) then
@@ -1621,7 +1632,7 @@ begin
     |
   endcase;
   if (not ac_preset_changed) then
-    MenuIndex_Splash:= c_MenuCommonPreset + 1; // neues Menü anfordern
+    MenuIndex_Splash:= c_MenuCommonPreset + 1; // neues Menï¿½ anfordern
   endif;
   edit_UpperVoice_flag:= 0;
   edit_UpperVoice_old:= edit_UpperVoice;
@@ -1652,11 +1663,11 @@ begin
         mdelay(5);
         ADC_ReadAll_24;
       endif;
-      ADC_ResetTimersLower;    // ADC-Kanäle unempfindlich machen (abgelaufen!)
+      ADC_ResetTimersLower;    // ADC-Kanï¿½le unempfindlich machen (abgelaufen!)
       ADC_ChangeStateAll(false);
       LoadLowerVoice(edit_LowerVoice);
     endif;
-  else // Expander, keine Analogeingänge
+  else // Expander, keine Analogeingï¿½nge
     was_live:= (edit_LowerVoice_old = 0)
     or (edit_LowerVoice_old = edit_2ndDBselect);
     if (not LowerIsLive) then
@@ -1679,7 +1690,7 @@ begin
     |
   endcase;
   if (not ac_preset_changed) then
-    MenuIndex_Splash:= c_MenuCommonPreset + 2; // neues Menü anfordern
+    MenuIndex_Splash:= c_MenuCommonPreset + 2; // neues Menï¿½ anfordern
   endif;
   edit_LowerVoice_flag:= 0;
   edit_LowerVoice_old:= edit_LowerVoice;
@@ -1696,12 +1707,12 @@ begin
   // Voice Change Pedal
   is_live:= (edit_PedalVoice = 0);
 
-  if (edit_ADCconfig >= 2) then // hat Analogeingänge
+  if (edit_ADCconfig >= 2) then // hat Analogeingï¿½nge
     if is_live then
-      ADC_SetChangedPedal; // ADC-Kanäle invalidieren
+      ADC_SetChangedPedal; // ADC-Kanï¿½le invalidieren
     else
       LoadPedalVoice(edit_PedalVoice);
-      ADC_ResetTimersPedal;    // ADC-Kanäle unempfindlich machen (abgelaufen!)
+      ADC_ResetTimersPedal;    // ADC-Kanï¿½le unempfindlich machen (abgelaufen!)
       ADC_ChangeStateAll(false);
     endif;
   else
@@ -1723,13 +1734,13 @@ begin
     MIDI_SendSysExParamList(1072, 4);
     |
   t_connect_editor_serial, t_connect_osc_wifi:
-    // DB-Änderungen sofort als Block senden
+    // DB-ï¿½nderungen sofort als Block senden
     NB_SendBinaryBlock(1032, 12);
     NB_SendBinaryBlock(1072, 4);
     |
   endcase;
   if (not ac_preset_changed) then
-    MenuIndex_Splash:= c_MenuCommonPreset + 3; // neues Menü anfordern
+    MenuIndex_Splash:= c_MenuCommonPreset + 3; // neues Menï¿½ anfordern
   endif;
   edit_PedalVoice_flag:= 0;
   edit_PedalVoice_old:= edit_PedalVoice;
@@ -1749,7 +1760,7 @@ begin
   // Modul, Vibrato 1
   if edit_LogicalTab_PHR_WersiBoehm and edit_LogicalTab_PHR_Ensemble then
 {$ENDIF}
-    my_phrset:= 6; // Vibrato 1, dünn
+    my_phrset:= 6; // Vibrato 1, dï¿½nn
   elsif edit_LogicalTab_PHR_Celeste and edit_LogicalTab_PHR_Fading then
     my_phrset:= 7; // Vibrato 2, X66 etwas langsamer
   elsif edit_LogicalTab_PHR_WersiBoehm then
@@ -1791,8 +1802,8 @@ begin
     edit_PedalADSRharmonics_flag:= c_preset_event_source;
   endif;
 
-  AC_sendmsg(c_OrganModel, c_preset_event_source);  //  für TouchOSC
-  AC_sendmsg(c_GatingKnob, c_preset_event_source);  //  für TouchOSC
+  AC_sendmsg(c_OrganModel, c_preset_event_source);  //  fï¿½r TouchOSC
+  AC_sendmsg(c_GatingKnob, c_preset_event_source);  //  fï¿½r TouchOSC
   SR_LoadOrganModel(edit_OrganModel);
 {$ENDIF}
 end;
@@ -1805,7 +1816,7 @@ begin
   if not HasExtendedLicence then
     edit_SpeakerModel:= ValueTrimLimit(edit_SpeakerModel, 0, 5);
   endif;
-  AC_sendmsg(c_SpeakerModel, c_preset_event_source);  //  für TouchOSC
+  AC_sendmsg(c_SpeakerModel, c_preset_event_source);  //  fï¿½r TouchOSC
   SR_LoadSpeakerModel(edit_SpeakerModel);
   FH_SendFIRToFPGA(edit_SpeakerModel);
   FH_SendLeslieInitsToFPGA;
@@ -1822,7 +1833,7 @@ procedure send_osc_colors;
 // Red 0, Green 1, Blue 2, Yellow 3, Purple 4, Gray 5, Orange 6, Brown 7, Pink 8
 var idx: Integer;
 begin
-  // für TouchOSC: Farben setzen
+  // fï¿½r TouchOSC: Farben setzen
   if (ConnectMode = t_connect_osc_midi) then
     case edit_GatingKnob of
       2: // EG Mode
@@ -1902,7 +1913,7 @@ end;
 
 // #############################################################################
 // #############################################################################
-// ######               CHORES - regelmäßig aufgerufen                    ######
+// ######               CHORES - regelmï¿½ï¿½ig aufgerufen                    ######
 // #############################################################################
 // #############################################################################
 
@@ -1977,10 +1988,10 @@ end;
 procedure AC_IncDecControls;
 // wird aus MainTasks aufgerufen
 // Up/Down-Buttons (Momentary) behandeln
-// Button-LEDs werden erst nach Ablauf von ActivityTimer zurückgesetzt.
-// Dadurch ist es möglich, gleichzeitige Betätigung mehrerer Buttons
+// Button-LEDs werden erst nach Ablauf von ActivityTimer zurï¿½ckgesetzt.
+// Dadurch ist es mï¿½glich, gleichzeitige Betï¿½tigung mehrerer Buttons
 // zu erkennen.
-// Hier: Beide Transpose-Buttons zugleich setzen Transponierwert auf 0 zurück.
+// Hier: Beide Transpose-Buttons zugleich setzen Transponierwert auf 0 zurï¿½ck.
 var
   event_source, my_idx: Byte;
   edit_idx: Word;
@@ -1996,7 +2007,7 @@ begin
       SetSystimer(TimeoutTimer, 75);
     endif;
   endfor;
-  FillBlock(@edit_LogicalTab_IncDecBtns, 16, 0);  // alle IncDec-Buttons löschen
+  FillBlock(@edit_LogicalTab_IncDecBtns, 16, 0);  // alle IncDec-Buttons lï¿½schen
   FillBlock(@edit_LogicalTab_IncDecBtns_flag, 16, 0);
 end;
 
@@ -2005,7 +2016,7 @@ end;
 procedure AC_IncDecControlsTimerElapsed;
 // wird aus MainTasks nach Abschluss aller Aufgaben
 // aufgerufen, wenn TimeoutTimer abgelaufen ist
-// Aktivierte IncDec-Momentary-Buttons wieder zurücksetzen
+// Aktivierte IncDec-Momentary-Buttons wieder zurï¿½cksetzen
 begin
   ac_mb_inc:= false;
   ac_mb_dec:= false;
@@ -2061,7 +2072,7 @@ begin
     if (edit_ADCconfig > 1) then
       ADC_ResetTimersAll;
     endif;
-    SWI_ForceSwitchReload;       // Schalter-Eingänge neu einlesen
+    SWI_ForceSwitchReload;       // Schalter-Eingï¿½nge neu einlesen
     VoiceUpperInvalid:= false;   // kein Blinken der Preset-LEDs
     VoiceLowerInvalid:= false;
     VoicePedalInvalid:= false;
@@ -2107,7 +2118,7 @@ begin
 
   MIDI_SendController(0, edit_PresetCC, edit_CommonPreset); // Default: Bank Select LSB
   if ConnectMode = t_connect_osc_wifi then
-    MIDI_RequestAllGMnames; // werden für Anzeige gebraucht
+    MIDI_RequestAllGMnames; // werden fï¿½r Anzeige gebraucht
   endif;
 
   CommonPresetInvalid:= false;
@@ -2115,7 +2126,7 @@ begin
 
   edit_CommonPreset_old:= edit_CommonPreset;
   edit_CommonPreset_flag:= 0;
-  edit_PercKnob_flag:= 0; // wird sonst evt. zurückübersetzt!
+  edit_PercKnob_flag:= 0; // wird sonst evt. zurï¿½ckï¿½bersetzt!
   edit_ReverbKnob_flag:= 0;
   NB_VibknobToVCbits;
   NB_ResetSpecialFlags; // Voice-Flags und Momentary Buttons
@@ -2129,9 +2140,9 @@ end;
 
 
 procedure AC_MutualControls;
-// Wird regelmäßig aus main_tasks-Zeitscheibe aufgerufen
+// Wird regelmï¿½ï¿½ig aus main_tasks-Zeitscheibe aufgerufen
 // Behandlung sich gegenseitig beeinflussender Bedienelemente
-// und Presets (würden nach AC_CollectChanges nicht mehr ausgeführt)
+// und Presets (wï¿½rden nach AC_CollectChanges nicht mehr ausgefï¿½hrt)
 var
   any_change, resend_osc_colors: boolean;
   any_gating_tab, is_b3, is_primary_upperdb, is_not_primary_upperdb: Boolean;
@@ -2140,7 +2151,7 @@ begin
 
   // Preset-Change vorab behandeln
   if (not PresetStoreRequest) and (edit_CommonPreset_flag > c_to_fpga_event_source) then
-    ac_preset_changed:= true;  // wird für GM-Voicenamen-Unterdrückung gebraucht
+    ac_preset_changed:= true;  // wird fï¿½r GM-Voicenamen-Unterdrï¿½ckung gebraucht
     AC_HandlePresetChange;
   endif;
 
@@ -2172,17 +2183,17 @@ begin
     endif;
     any_change:= true;
   endif;
-  // alle SingleDBset-Buttons löschen, nur aktiven setzen
+  // alle SingleDBset-Buttons lï¿½schen, nur aktiven setzen
   // edit_LogicalTab_SingleDBtoggle wird in swi_get_TabLED_bits behandelt
   if any_change then
-    FillBlock(@edit_SingleDBtoggle, 4, 0);   // alle SingleDBset-Buttons löschen
+    FillBlock(@edit_SingleDBtoggle, 4, 0);   // alle SingleDBset-Buttons lï¿½schen
     edit_LogicalTab_SingleDBdestBtns[SingleDBsetSelect + 1]:= 255;
   endif;
 
   resend_osc_colors:= false;
 
-  // Organ-/Rotary-Setup, Änderungen nur über Menu oder OSC/MIDI,
-  // NICHT über Preset. Belegt einige Parameter für jeweiliges Modell.
+  // Organ-/Rotary-Setup, ï¿½nderungen nur ï¿½ber Menu oder OSC/MIDI,
+  // NICHT ï¿½ber Preset. Belegt einige Parameter fï¿½r jeweiliges Modell.
   if edit_OrganModel_flag > 0 then
     AC_LoadOrganModel; // setzt Gating Mode etc anhand edit_OrganSetup
     AC_sendmsg(c_OrganModel, edit_OrganModel_flag);
@@ -2198,8 +2209,8 @@ begin
 
   // ---------------------------------------------------------------------------
 
-  // Gating-Mode, 4 Radio Buttons mit gegenseitiger Auslösung und OFF
-  // Menü-Item oder Knob (RFU) - falls Änderungen über Menü
+  // Gating-Mode, 4 Radio Buttons mit gegenseitiger Auslï¿½sung und OFF
+  // Menï¿½-Item oder Knob (RFU) - falls ï¿½nderungen ï¿½ber Menï¿½
   if (edit_LogicalTab_H100_Mode_flag > 0) then
     edit_GatingKnob_flag:= edit_LogicalTab_H100_Mode_flag;
     if edit_LogicalTab_H100_Mode then
@@ -2234,9 +2245,9 @@ begin
   endif;
 
   if edit_GatingKnob_flag > 0 then
-    // Knob geändert. Zugehörige Tabs neu setzen und senden
-    // alle Tabs löschen = B3, Flags setzen auf c_board_event_source:
-    // edit_LogicalTab_H100_Mode etc. löschen, Sende-Flags setzen
+    // Knob geï¿½ndert. Zugehï¿½rige Tabs neu setzen und senden
+    // alle Tabs lï¿½schen = B3, Flags setzen auf c_board_event_source:
+    // edit_LogicalTab_H100_Mode etc. lï¿½schen, Sende-Flags setzen
     // #1152 bis #1155
     FillBlock(@edit_LogicalTabs_KeyingModes, 4, 0);
     if edit_GatingKnob >= 1 then
@@ -2248,11 +2259,11 @@ begin
     FillBlock(@edit_LogicalTabs_KeyingModes_flag, 4, 0);
 
 {$IFNDEF MODULE}
-    AC_sendmsg(c_GatingKnob, edit_GatingKnob_flag);  //  für TouchOSC
+    AC_sendmsg(c_GatingKnob, edit_GatingKnob_flag);  //  fï¿½r TouchOSC
 {$ENDIF}
 
     resend_osc_colors:= true;
-    NB_ValidateExtendedParams;  // Legt gültige Menüs und Restore-Freigaben an
+    NB_ValidateExtendedParams;  // Legt gï¿½ltige Menï¿½s und Restore-Freigaben an
     MenuRefresh:= true;
   endif;
 
@@ -2267,7 +2278,7 @@ begin
              or MIDI_DisablePercussion or SWI_CancelActive_upr;
 
   if DisablePercussion <> any_change then
-    // erzwingt Senden von Upper und Perc über ta_perc_param
+    // erzwingt Senden von Upper und Perc ï¿½ber ta_perc_param
     edit_PercEnaOnLiveDBonly_flag:= c_to_fpga_event_source;
     edit_LogicalTab_PercOn_flag:= c_to_fpga_event_source;
   endif;
@@ -2278,22 +2289,22 @@ begin
     DisableDB1:= false;
   endif;
   if DisableDB1 <> any_change then
-    // erzwingt Senden von Upper und Perc über ta_perc_param
+    // erzwingt Senden von Upper und Perc ï¿½ber ta_perc_param
     edit_PercEnaOnLiveDBonly_flag:= c_to_fpga_event_source;
     edit_LogicalTab_PercOn_flag:= c_to_fpga_event_source;
   endif;
 
   // ---------------------------------------------------------------------------
 
-  // Percussion Modes über Menü oder #1262 eingestellt?
-  if edit_PercKnob_flag > 0 then // über Menü geändert
+  // Percussion Modes ï¿½ber Menï¿½ oder #1262 eingestellt?
+  if edit_PercKnob_flag > 0 then // ï¿½ber Menï¿½ geï¿½ndert
     NB_PercKnobToTabs;
     FillEventSource(c_LogicalTab_PercBtns, 4, edit_PercKnob_flag);
     edit_PercKnob_flag:= 0;
     resend_osc_colors:= true;
     MenuRefresh:= true;
   else
-    // zurückübersetzen, falls Änderung über Tabs
+    // zurï¿½ckï¿½bersetzen, falls ï¿½nderung ï¿½ber Tabs
     if (edit_LogicalTab_PercOn_flag  or edit_LogicalTab_PercSoft_flag
     or edit_LogicalTab_PercFast_flag or edit_LogicalTab_Perc3rd_flag) > 0 then
       NB_TabsToPercKnob;
@@ -2303,8 +2314,8 @@ begin
     endif;
   endif;
 
-  // Reverb über Menü oder #1263 eingestellt?
-  if edit_ReverbKnob_flag > 0 then // über Menü geändert
+  // Reverb ï¿½ber Menï¿½ oder #1263 eingestellt?
+  if edit_ReverbKnob_flag > 0 then // ï¿½ber Menï¿½ geï¿½ndert
     edit_LogicalTab_Reverb1:= Bit(edit_ReverbKnob, 0);
     edit_LogicalTab_Reverb2:= Bit(edit_ReverbKnob, 1);
     edit_LogicalTab_Reverb1_flag:= edit_ReverbKnob_flag;
@@ -2330,18 +2341,18 @@ begin
   1:
     if edit_LogicalTab_4V1_flag > 0 then
       // 2 Binary Toggle Buttons + C/V
-      // Logik: Wechselseitige Auslösung oder beide gedrückt
+      // Logik: Wechselseitige Auslï¿½sung oder beide gedrï¿½ckt
       edit_LogicalTab_4V1:= true;
-      edit_LogicalTab_4V2:= ac_mb_v2; // nach 75 Ticks gelöscht
+      edit_LogicalTab_4V2:= ac_mb_v2; // nach 75 Ticks gelï¿½scht
       ac_mb_v1:= true;
       ac_send_converted_vibbtns(edit_LogicalTab_4V1_flag);
       SetSystimer(TimeoutTimer, 75);
     endif;
     if edit_LogicalTab_4V2_flag > 0 then
       // 2 Binary Toggle Buttons + C/V
-      // Logik: Wechselseitige Auslösung oder beide gedrückt
+      // Logik: Wechselseitige Auslï¿½sung oder beide gedrï¿½ckt
       edit_LogicalTab_4V2:= true;
-      edit_LogicalTab_4V1:= ac_mb_v1; // nach 75 Ticks gelöscht
+      edit_LogicalTab_4V1:= ac_mb_v1; // nach 75 Ticks gelï¿½scht
       ac_mb_v2:= true;
       ac_send_converted_vibbtns(edit_LogicalTab_4V2_flag);
       SetSystimer(TimeoutTimer, 75);
@@ -2397,8 +2408,8 @@ end;
 // #############################################################################
 
 procedure AC_ExecEditChanges;
-// Wird regelmäßig aus main_tasks-Zeitscheibe aufgerufen
-// Geänderte Bedienelemente (*_flag > 0) als Message senden und über
+// Wird regelmï¿½ï¿½ig aus main_tasks-Zeitscheibe aufgerufen
+// Geï¿½nderte Bedienelemente (*_flag > 0) als Message senden und ï¿½ber
 // Proc-Tabelle ans FPGA bzw. entsprechende Routinen schicken
 var
   event_flags, proc_idx: Byte;
@@ -2406,7 +2417,7 @@ var
 begin
   AC_MutualControls; // gegenseitig beeinflussende Bedienelemente behandeln
 
-  // alle Proc-Flags auf "nicht ausführen"
+  // alle Proc-Flags auf "nicht ausfï¿½hren"
   FillBlock(@ac_proclist_flags, word(c_proc_max + 1), 0);
 
   for idx_w:= 0 to c_last_edit_param do
@@ -2420,7 +2431,7 @@ begin
       AC_sendmsg(idx_w, event_flags);
     endif;
 
-    // Änderungen für FPGA und DSP, Prozeduraufruf über Tabelle
+    // ï¿½nderungen fï¿½r FPGA und DSP, Prozeduraufruf ï¿½ber Tabelle
     proc_idx:= ac_proc_idx[idx_w];
     if proc_idx < c_nil_proc then
       ac_proclist_flags[proc_idx]:= true;
@@ -2432,7 +2443,7 @@ begin
   for proc_idx:= 0 to c_proc_max - 1 do // ohne "nil"
     if ac_proclist_flags[proc_idx] then
       run_proc:= ac_proclist[proc_idx];
-      run_proc; // aus Tabelle entnommene Routine ausführen
+      run_proc; // aus Tabelle entnommene Routine ausfï¿½hren
     endif;
   endfor;
   ac_preset_changed:= false;

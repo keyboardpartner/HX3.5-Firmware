@@ -1,11 +1,11 @@
 // #############################################################################
-// ###                     F Ü R   A L L E   B O A R D S                     ###
+// ###                     F ï¿½ R   A L L E   B O A R D S                     ###
 // #############################################################################
-// ###          Tabellen für Parameter, Einstellungen und Defaults           ###
+// ###          Tabellen fï¿½r Parameter, Einstellungen und Defaults           ###
 // #############################################################################
 
 // Virtuelle Bedienelemente. Jeder Wert hat eine Vergleichskopie _old,
-// um Änderungen ermitteln zu können und entsprechende Routinen aufzurufen.
+// um ï¿½nderungen ermitteln zu kï¿½nnen und entsprechende Routinen aufzurufen.
 
 unit edit_changes;
 
@@ -16,13 +16,13 @@ procedure NewEditIdxEvent(edit_idx: Word; pvalue, event_source: Byte);
 procedure FillEventSource(start_idx, count: Word; event_source: Byte);
 //procedure FillEditArray(start_idx, count: Word; data: Byte);
 
-// löscht Flags, die in delete_bitmask '1' sind
+// lï¿½scht Flags, die in delete_bitmask '1' sind
 // procedure MaskEventSource(start_idx, count: Word; delete_bitmask: Byte);
 
 // Index zeigt auf Eintrag in edit_LogicalTabs, 64 Schalterstellungen
 function EC_LogicalTabsToByte(const idx: Byte): byte;
 
-// Setzt LogicalTabs ab Index aus Byte (repäsentiert Bit-Array)
+// Setzt LogicalTabs ab Index aus Byte (repï¿½sentiert Bit-Array)
 procedure EC_ByteToLogicalTabs(const my_tab_byte, idx: Byte);
 
 function EC_LogicalTabs2Word(const idx: Byte): word;
@@ -57,20 +57,20 @@ var
 // #############################################################################
 
 // "Virtuelle" Bedienelemente (Schalter und Analogwerte)
-// Alle Änderungen seitens Bedienelemente werden hier eingetragen und das
+// Alle ï¿½nderungen seitens Bedienelemente werden hier eingetragen und das
 // gleichnamige Flags-Byte auf aktuellen Sender gesetzt.
 
-  edit_array: Array[0..511] of byte; // Gesamt-Array änderbarer Parameter 1000..1511
+  edit_array: Array[0..511] of byte; // Gesamt-Array ï¿½nderbarer Parameter 1000..1511
 
   edit_table_0[@edit_array + 0]: Table[0..255] of byte;
 
 // #############################################################################
-// Drawbar-Voices, nur für Live und EEPROM
+// Drawbar-Voices, nur fï¿½r Live und EEPROM
 // #############################################################################
 
 // @0, #1000 Upper Drawbars
   edit_UpperDBs[@edit_table_0 + 0]: Array [0..15] of byte;
-    edit_UpperDB_1[@edit_UpperDBs + 8]:byte;       // für Percussion gebraucht
+    edit_UpperDB_1[@edit_UpperDBs + 8]:byte;       // fï¿½r Percussion gebraucht
 
 // @16, #1016 Lower Drawbars
   edit_LowerDBs[@edit_table_0 + 16]: Array [0..15] of byte;
@@ -118,8 +118,8 @@ var
 
 // @72, #1072
   edit_PedalDB4s[@edit_table_0 + 72]: Array[0..3] of byte;
-    edit_PedalDB_B3_16[@edit_PedalDB4s + 0]: byte;  // für MIDI und Hammond,
-    edit_PedalDB_B3_16H[@edit_PedalDB4s + 1]:byte;  // werden später umgerechnet
+    edit_PedalDB_B3_16[@edit_PedalDB4s + 0]: byte;  // fï¿½r MIDI und Hammond,
+    edit_PedalDB_B3_16H[@edit_PedalDB4s + 1]:byte;  // werden spï¿½ter umgerechnet
     edit_PedalDB_B3_8[@edit_PedalDB4s + 2]:  byte;  // und auf 11 Drawbars verteilt
     edit_PedalDB_B3_8H[@edit_PedalDB4s + 3]: byte;  //
 
@@ -143,14 +143,20 @@ var
     edit_TrimSwell[@edit_PreampGroup + 8]:      byte;       //  + 08
     edit_MinimalSwell[@edit_PreampGroup + 9]:   byte;       //  + 09
     edit_Triode_k2[@edit_PreampGroup + 10]:     byte;       //  + 10
+{
+    edit_ModuleRevVolume[@edit_PreampGroup + 11]:byte;    //  #1091
+    edit_ModuleEfxVolume[@edit_PreampGroup + 12]:byte;    //  #1092
+    edit_ModuleSwellVolume[@edit_PreampGroup + 13]:   byte;       //  #1093
+    edit_ModuleFrontVolume[@edit_PreampGroup + 14]:   byte;       //  #1094
+    edit_ModuleRearVolume[@edit_PreampGroup + 15]:   byte;        //  #1095
+}
+    edit_SwellLoudnessBass[@edit_PreampGroup + 11]:     byte;       //  #1091
+    edit_SwellMidrangeResponse[@edit_PreampGroup + 12]: byte;       //  #1092
+    edit_SwellMidrangeShelving[@edit_PreampGroup + 13]: byte;       //  #1093
+    edit_SwellFinalResponse[@edit_PreampGroup + 14]:    byte;       //  #1094
+    edit_SwellLoudnessTreble[@edit_PreampGroup + 15]:   byte;       //  #1095
 
-    edit_ModuleRevVolume[@edit_PreampGroup + 11]:byte;    //  + 91
-    edit_ModuleEfxVolume[@edit_PreampGroup + 12]:byte;    //  + 92
-    edit_ModuleSwellVolume[@edit_PreampGroup + 13]:   byte;       //  + 93
-    edit_ModuleFrontVolume[@edit_PreampGroup + 14]:   byte;       //  + 94
-    edit_ModuleRearVolume[@edit_PreampGroup + 15]:   byte;        //  + 95
-
-// @96, #1096 ff. getrennte DBs für elektronische Tastenkontakte mit ADSR, Upper
+// @96, #1096 ff. getrennte DBs fï¿½r elektronische Tastenkontakte mit ADSR, Upper
   edit_UpperEnvelopeDBs[@edit_table_0 + 96]:Array[0..15] of byte;
     edit_UpperEnvelopeDB_16[@edit_UpperEnvelopeDBs + 0]:     byte;
     edit_UpperEnvelopeDB_5_13[@edit_UpperEnvelopeDBs + 1]:   byte;
@@ -189,7 +195,7 @@ var
     edit_EquTrebleDetentShift[@edit_PotDetentShiftGroup + 2]: byte;
     edit_PercVolDetentShift[@edit_PotDetentShiftGroup + 3]:  byte;
 
-// @128..191, #1128..1191 im Parser reserviert für Boolean Tabs
+// @128..191, #1128..1191 im Parser reserviert fï¿½r Boolean Tabs
 // Tabs 0-7, #1128 ff.
   edit_LogicalTabs[@edit_table_0 + 128]: Array[0..63] of boolean;
     edit_LogicalTab_PercOn    [@edit_LogicalTabs + 0] : Boolean; // Perc ON, Reihenfolge wie B3
@@ -213,7 +219,7 @@ var
     edit_LogicalTab_SplitOn   [@edit_LogicalTabs + 15] : Boolean; // Split Lower
 
 // Tabs 16-23, #1144 ff.
-    edit_LogicalTab_PHR_WersiBoehm[@edit_LogicalTabs + 16]   : Boolean;  // Böhm Phasing Rotor
+    edit_LogicalTab_PHR_WersiBoehm[@edit_LogicalTabs + 16]   : Boolean;  // Bï¿½hm Phasing Rotor
     edit_LogicalTab_PHR_Ensemble[@edit_LogicalTabs + 17]: Boolean;
     edit_LogicalTab_PHR_Celeste[@edit_LogicalTabs + 18] : Boolean;
     edit_LogicalTab_PHR_Fading[@edit_LogicalTabs + 19]  : Boolean;
@@ -230,7 +236,7 @@ var
     edit_LogicalTab_EG_TimeBendMode[@edit_LogicalTabs + 27]: boolean; // Electronic Gating Mode, EG Drawbars sind TimeBend DBs
     edit_LogicalTab_H100_2ndVoice[@edit_LogicalTabs + 28]: boolean;   // H100 Perc Bypass (2nd Voice)
     edit_LogicalTab_H100_HarpSustain[@edit_LogicalTabs + 29]: boolean;// H100 HarpSustain voice on DB 8'
-    edit_LogicalTab_EG_mask2dry[@edit_LogicalTabs + 30]: boolean;     // Electronic Gating Option, Enables => Fußlagen auf Dry
+    edit_LogicalTab_EG_mask2dry[@edit_LogicalTabs + 30]: boolean;     // Electronic Gating Option, Enables => Fuï¿½lagen auf Dry
     edit_LogicalTab_EqualizerBypass[@edit_LogicalTabs + 31]: boolean;
 
 // Tabs 32-43, #1160 ff.
@@ -248,9 +254,15 @@ var
     edit_LogicalTab_UpperDB10toADSR[@edit_LogicalTab_UpperDBtoADSR + 10] : Boolean;  //
     edit_LogicalTab_UpperDB11toADSR[@edit_LogicalTab_UpperDBtoADSR + 11] : Boolean;  // #1171
 
-// Tabs 44-47, #1172 ff. Swap DACs und 2 Tabs Transpose Up/Down, OctaveShift Upper/Lower
+// Tabs 44-47, #1172 ff. 2 Tabs Transpose Up/Down, OctaveShift Upper/Lower
   edit_LogicalTab_ShiftBtns[@edit_LogicalTabs + 44]: Array[0..3] of Boolean;
+// Tabs 44-47, #1172 ff. Swap DACs
     edit_LogicalTab_SwapDACs[@edit_LogicalTab_ShiftBtns + 0] :  Boolean; // #1172
+// Tab 44, #1172, neu in HX3.6
+    edit_LogicalTab_InsertExternalEfx[@edit_LogicalTab_ShiftBtns + 0] :  Boolean; // #1172
+
+    edit_LogicalTab_DisableAO28[@edit_LogicalTab_ShiftBtns + 1] :  Boolean; // #1173
+
     edit_LogicalTab_Shift_upper[@edit_LogicalTab_ShiftBtns + 2] :  Boolean; // #1174
     edit_LogicalTab_Shift_lower[@edit_LogicalTab_ShiftBtns + 3] : Boolean;  // #1175
 
@@ -406,8 +418,8 @@ var
     edit_PreemphPhase[@edit_VibratoGroup + 15]:      byte;   // #1335
 
 // @80, #1336..#1351 TEMP!
-// Phasing Rotor, Reihenfolge wie FPGA, temporär aus PHR-Preset geladen
-// im Edit-Bereich für PHR-Programmerstellung über Editor
+// Phasing Rotor, Reihenfolge wie FPGA, temporï¿½r aus PHR-Preset geladen
+// im Edit-Bereich fï¿½r PHR-Programmerstellung ï¿½ber Editor
   edit_PhasingGroup[@edit_table_1 + 80]:Array[0..15] of byte;
     edit_PHR_SpeedVariSlow[@edit_PhasingGroup + 0]:     byte;   // #1336
     edit_PHR_SpeedVariFast[@edit_PhasingGroup + 1]:     byte;   // #1337
@@ -568,7 +580,7 @@ var
 
 // ab hier nur EEPROM mit persistenter Kopie
 
-// @240, #1496 ff. Defaults, alles mögliche, nur zum Start und Reset gelesen
+// @240, #1496 ff. Defaults, alles mï¿½gliche, nur zum Start und Reset gelesen
   edit_DefaultsGroup[@edit_table_1 + 240]: Array[0..15] of byte;
 
     edit_VibKnobMode[@edit_DefaultsGroup + 1]   :       byte;      // #1497
@@ -589,7 +601,7 @@ var
 
 
 // #############################################################################
-// außerhalb Tabelle, da nur temporär benutzt
+// auï¿½erhalb Tabelle, da nur temporï¿½r benutzt
 // #############################################################################
 
   CurrentPresetName: String[15];
@@ -617,7 +629,7 @@ var
 // ###          Sender-Flags bei Parser-, OSC- und MIDI-Empfang              ###
 // #############################################################################
 
-  //edit_array_sent: Array[0..511] of byte; // Gesamt-Array änderbarer Parameter 1000..1511
+  //edit_array_sent: Array[0..511] of byte; // Gesamt-Array ï¿½nderbarer Parameter 1000..1511
 
 // #############################################################################
 // ###                        Sendflags-Tabelle 0                            ###
@@ -625,21 +637,21 @@ var
 // #############################################################################
 
 // "Virtuelle" Bedienelemente (Schalter und Analogwerte)
-// Alle Änderungen seitens Bedienelemente werden hier zuerst eingetragen.
+// Alle ï¿½nderungen seitens Bedienelemente werden hier zuerst eingetragen.
 // Dann wird der neue Wert mit dem alten in_old verglichen, die entsprechende
-// Aktion ausgeführt bzw. Routine aufgerufen
-// und anschließend_old auf den neuen Wert gesetzt.
+// Aktion ausgefï¿½hrt bzw. Routine aufgerufen
+// und anschlieï¿½end_old auf den neuen Wert gesetzt.
   edit_voices_old: Array[0..3] of byte;
-    edit_CommonPreset_old[@edit_voices_old + 0]: byte;  // würde bei CommonPresets überschrieben
+    edit_CommonPreset_old[@edit_voices_old + 0]: byte;  // wï¿½rde bei CommonPresets ï¿½berschrieben
     edit_UpperVoice_old[@edit_voices_old + 1]: byte;
     edit_LowerVoice_old[@edit_voices_old + 2]: byte;
     edit_PedalVoice_old[@edit_voices_old + 3]: byte;
 
-  edit_array_flag: Array[0..511] of byte; // Gesamt-Array änderbarer Parameter 1000..1511
+  edit_array_flag: Array[0..511] of byte; // Gesamt-Array ï¿½nderbarer Parameter 1000..1511
   edit_array_flag_0[@edit_array_flag + 0]: table[0..255] of byte;
 
 // #############################################################################
-// Drawbar-Voices, nur für Live und EEPROM
+// Drawbar-Voices, nur fï¿½r Live und EEPROM
 // #############################################################################
 
 // @0, #1000 Upper Drawbars
@@ -679,8 +691,8 @@ var
 
 // @72, #1072
   edit_PedalDB4s_flag[@edit_array_flag + 72]: Array[0..3] of byte;
-    edit_PedalDB_B3_16_flag[@edit_PedalDB4s_flag + 0]: byte;  // für MIDI und Hammond,
-    edit_PedalDB_B3_16H_flag[@edit_PedalDB4s_flag + 1]:byte;  // werden später umgerechnet
+    edit_PedalDB_B3_16_flag[@edit_PedalDB4s_flag + 0]: byte;  // fï¿½r MIDI und Hammond,
+    edit_PedalDB_B3_16H_flag[@edit_PedalDB4s_flag + 1]:byte;  // werden spï¿½ter umgerechnet
     edit_PedalDB_B3_8_flag[@edit_PedalDB4s_flag + 2]:  byte;  // und auf 11 Drawbars verteilt
     edit_PedalDB_B3_8H_flag[@edit_PedalDB4s_flag + 3]: byte;  //
 
@@ -711,7 +723,7 @@ var
     edit_ModuleFrontVolume_flag[@edit_PreampGroup_flag + 14]:   byte;       //  + 94
     edit_ModuleRearVolume_flag[@edit_PreampGroup_flag + 15]:   byte;        //  + 95
 
-// @96, #1096 ff. getrennte DBs für elektronische Tastenkontakte mit ADSR, Upper
+// @96, #1096 ff. getrennte DBs fï¿½r elektronische Tastenkontakte mit ADSR, Upper
   edit_UpperEnvelopeDBs_flag[@edit_array_flag + 96]: Array[0..15] of byte;
     edit_UpperEnvelopeDB_16_flag[@edit_UpperEnvelopeDBs_flag + 0]:     byte;
     edit_UpperEnvelopeDB_5_13_flag[@edit_UpperEnvelopeDBs_flag + 1]:   byte;
@@ -749,7 +761,7 @@ var
     edit_EquTrebleDetentShift_flag[@edit_PotDetentShiftGroup_flag + 2]: byte;
     edit_PercVolDetentShift_flag[@edit_PotDetentShiftGroup_flag + 3]:  byte;
 
-// @128..191, #1128..1191 im Parser reserviert für Byte Tabs
+// @128..191, #1128..1191 im Parser reserviert fï¿½r Byte Tabs
 // Tabs 0-7, #1128 ff.
   edit_LogicalTabs_flag[@edit_array_flag + 128]: Array[0..63] of Byte;
     edit_LogicalTab_PercOn_flag[@edit_LogicalTabs_flag + 0] : Byte; // Perc ON, Reihenfolge wie B3
@@ -773,7 +785,7 @@ var
     edit_LogicalTab_SplitOn_flag[@edit_LogicalTabs_flag + 15] : Byte; // Split Lower
 
 // Tabs 16-23, #1144 ff.
-    edit_LogicalTab_PHR_WersiBoehm_flag[@edit_LogicalTabs_flag + 16]   : Byte;  // Böhm Phasing Rotor
+    edit_LogicalTab_PHR_WersiBoehm_flag[@edit_LogicalTabs_flag + 16]   : Byte;  // Bï¿½hm Phasing Rotor
     edit_LogicalTab_PHR_Ensemble_flag[@edit_LogicalTabs_flag + 17]: Byte;
     edit_LogicalTab_PHR_Celeste_flag[@edit_LogicalTabs_flag + 18] : Byte;
     edit_LogicalTab_PHR_Fading_flag[@edit_LogicalTabs_flag + 19]  : Byte;
@@ -790,7 +802,7 @@ var
     edit_LogicalTab_EG_TimeBendMode_flag[@edit_LogicalTabs_flag + 27]: Byte; // Electronic Gating Mode, EG Drawbars sind TimeBend DBs
     edit_LogicalTab_H100_2ndVoice_flag[@edit_LogicalTabs_flag + 28]: Byte;   // H100 Perc Bypass (2nd Voice)
     edit_LogicalTab_H100_HarpSustain_flag[@edit_LogicalTabs_flag + 29]: Byte;// H100 HarpSustain voice on DB 8'
-    edit_LogicalTab_EG_mask2dry_flag[@edit_LogicalTabs_flag + 30]: Byte;     // Electronic Gating Option, Enables => Fußlagen auf Dry
+    edit_LogicalTab_EG_mask2dry_flag[@edit_LogicalTabs_flag + 30]: Byte;     // Electronic Gating Option, Enables => Fuï¿½lagen auf Dry
     edit_LogicalTab_EqualizerBypass_flag[@edit_LogicalTabs_flag + 31]: Byte;
 
 // Tabs 32-47, #1160 ff.
@@ -864,7 +876,7 @@ var
   edit_SingleDBtoLower_flag[@edit_array_flag + 220]: Byte;    // #1220
   edit_SingleDBtoPedal_flag[@edit_array_flag + 221]: Byte;    // #1221
 
-// @224..223, #1128..1223 im Parser reserviert für Byte Tabs
+// @224..223, #1128..1223 im Parser reserviert fï¿½r Byte Tabs
 // Tabs 0-7, #1128 ff.
   edit_GMprogs_flag[@edit_array_flag + 224]: Array[0..23] of byte;
     edit_UpperGMprg_0_flag[@edit_GMprogs_flag + 0]: byte; // GM Layer 1 Voice #, 0 = OFF
@@ -900,7 +912,7 @@ var
 // @0..7, #1256 frei
   edit_array_flag_1[@edit_array_flag + 256]: Array[0..255] of byte;
 
-// #1260 ff. "Drehknöpfe", exklusive Stellungen, werden auf edit- oder Tab-Werte umgesetzt
+// #1260 ff. "Drehknï¿½pfe", exklusive Stellungen, werden auf edit- oder Tab-Werte umgesetzt
   edit_knobs_flag[@edit_array_flag_1 + 4]: Array[0..7] of byte;
     edit_GatingKnob_flag[@edit_knobs_flag + 1]: Byte;    // #1261
     edit_PercKnob_flag[@edit_knobs_flag + 2]: Byte;      // #1262
@@ -946,8 +958,8 @@ var
     edit_PreemphPhase_flag[@edit_VibratoGroup_flag + 15]:      byte;   // #1335
 
 // @80, #1336..#1351 TEMP!
-// Phasing Rotor, Reihenfolge wie FPGA, temporär aus PHR-Preset geladen
-// im Edit-Bereich für PHR-Programmerstellung über Editor
+// Phasing Rotor, Reihenfolge wie FPGA, temporï¿½r aus PHR-Preset geladen
+// im Edit-Bereich fï¿½r PHR-Programmerstellung ï¿½ber Editor
   edit_PhasingGroup_flag[@edit_array_flag_1 + 80]: Array[0..15] of byte;
     edit_PHR_SpeedVariSlow_flag[@edit_PhasingGroup_flag + 0]:     byte;   // #1336
     edit_PHR_SpeedVariFast_flag[@edit_PhasingGroup_flag + 1]:     byte;   // #1337
@@ -1095,11 +1107,11 @@ var
     edit_LED_PWM_flag[@edit_GM2group_flag + 7]: byte;                // #1495 LED Dimmer
 
 // #############################################################################
-// ###          Indirekte Drawbar-Sets für MIDI (Nord C2D etc)               ###
+// ###          Indirekte Drawbar-Sets fï¿½r MIDI (Nord C2D etc)               ###
 // #############################################################################
 
 // Daten werden an "richtige" Drawbars weitergereicht, wenn
-// edit_ActiveUpperIndirect und edit_ActiveLowerIndirect der übertragenen
+// edit_ActiveUpperIndirect und edit_ActiveLowerIndirect der ï¿½bertragenen
 // Drawbar-Parameternummer entspricht.
 
 
@@ -1127,7 +1139,7 @@ var
 // ###         Tabellen zum Zwischenspeichern der Live-Einstellungen         ###
 // #############################################################################
 
-  // für Common Presets
+  // fï¿½r Common Presets
   temp_common:      Array[0..511] of byte;
   temp_VoiceUpperDrawbars[@Temp_Common + c_UpperDBs]:  Array[0..11] of byte; // wie EEPROM-Tabellen
   temp_VoiceLowerDrawbars[@Temp_Common + c_LowerDBs]:  Array[0..11] of byte;
@@ -1175,7 +1187,7 @@ end;
 
 procedure MaskEventSource(start_idx, count: Word; delete_bitmask: Byte);
 // start_idx zeigt auf Edit-/Event-Tabelle 0..511
-// löscht Flags, die in delete_bitmask '1' sind
+// lï¿½scht Flags, die in delete_bitmask '1' sind
 var my_idx: Word;
 begin
   delete_bitmask:= not delete_bitmask;
@@ -1202,7 +1214,7 @@ begin
 end;
 
 procedure EC_ByteToLogicalTabs(my_tab_byte, idx: Byte);
-// Setzt LogicalTabs ab Index aus Byte (repäsentiert Bit-Array)
+// Setzt LogicalTabs ab Index aus Byte (repï¿½sentiert Bit-Array)
 begin
   for i:= 0 to 7 do // alle Bits durchlaufen
     edit_LogicalTabs[i + idx]:= Bit(my_tab_byte, i); // neues edit_LogicalTabs-Byte
@@ -1256,7 +1268,7 @@ end;
 // #############################################################################
 
 // Ausgabe-Prozeduren.
-// ACHTUNG: fertiger ParamStr wird für SysEx-Ausgabe gebraucht!
+// ACHTUNG: fertiger ParamStr wird fï¿½r SysEx-Ausgabe gebraucht!
 
 procedure WriteLongSer(const my_param: LongInt);
 begin

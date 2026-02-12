@@ -2,21 +2,24 @@
 // ###                 MIDI-DISPATCHER KEYSWERK SEMPRA                       ###
 // #############################################################################
 
-// Umfangreichster Dispatcher, mit sehr vielen Einstellungen
+// Keyswerk Sempra Dispatcher
+// Nur fÃ¼r Modul-Version SEMPRA, da viele Einstellungen nur dort Sinn machen
 
-// NRPN-Handling für SEMPRA:
+// NRPN-Handling fÃ¼r SEMPRA:
 
 // NRPN senden: Parameter-Nummer senden, Reihenfolge MSB/LSB egal.
 // Falls erforderlich, erst Data MSB (CC #6) auf Kanal 2 senden, macht noch nichts
-// Dann Data LSB (CC #6) auf Kanal 1 senden, setzt dann den gewünschten Wert
+// Dann Data LSB (CC #6) auf Kanal 1 senden, setzt dann den gewÃ¼nschten Wert
 // Data MSB wird danach automatisch wieder auf 0 gesetzt (sicherheitshalber)
 
+
+{$IFDEF MODULE}
 
 procedure DispatchNRP_sempra;
 var my_param, my_int: Integer; my_idx: Byte;
 begin
 //  if midi_nrpn_msb = 0 then  // Falls MSB noch nicht gesetzt
-//    midi_nrpn_msb:= $0B; // wahrscheinlich 1468 ff. gewünscht
+//    midi_nrpn_msb:= $0B; // wahrscheinlich 1468 ff. gewï¿½nscht
 //  endif;
   my_param:= MIDI_14_to_int(midi_nrpn_msb, midi_nrpn_lsb);
   my_int:= MIDI_14_to_int(midi_data_entry_msb, midi_data_entry_lsb);
@@ -38,11 +41,10 @@ begin
 end;
 
 
-
 procedure MIDI_Dispatch_sempra;
-// wird angesprungen, sobald ein vollständiger MIDI-Datensatz
+// wird angesprungen, sobald ein vollstÃ¤ndiger MIDI-Datensatz
 // (zwei oder drei Bytes, ja nach Command-Byte) im FIFO ist.
-// MIDI-Daten können von beiden MIDI-Schnittstellen stammen,
+// MIDI-Daten kÃ¶nnen von beiden MIDI-Schnittstellen stammen,
 // aber auch von der PicoBlaze-CPU im FPGA (Keyboard/MIDI-ScanCore) selbst.
 // mcmd = Command isoliert,
 // mch = Channel isoliert,
@@ -56,7 +58,7 @@ begin
 
   if valueinrange(mch, edit_MIDI_Channel, edit_MIDI_Channel+1) then // UPPER und LOWER
     if mcmd = $B0 then   // Control Change
-      // für beide Kanäle 1..2 gültig
+      // fÃ¼r beide KanÃ¤le 1..2 gÃ¼ltig
       case mp of
         $0B: // 11, Expression Pedal, Hammond AO28
           midi_swell128:= mv;
@@ -66,7 +68,7 @@ begin
 {$ENDIF}
           return;
           |
-        $1E: // Schweller-Lautstärke für Böhm
+        $1E: // Schweller-LautstÃ¤rke fÃ¼r BÃ¶hm
           midi_swell128:= mv;
           SwellPedalControlledByMIDI:= true;
           edit_ModuleSwellVolume:= mv;
@@ -98,17 +100,17 @@ begin
           DispatchNRP_sempra;
           // NRPN senden: Parameter-Nummer senden, Reihenfolge MSB/LSB egal.
           // Falls erforderlich, erst Data MSB (CC #6) auf Kanal 2 senden, macht noch nichts
-          // Dann Data LSB (CC #6) auf Kanal 1 senden, setzt dann den gewünschten Wert
+          // Dann Data LSB (CC #6) auf Kanal 1 senden, setzt dann den gewÃ¼nschten Wert
           // Data MSB wird danach automatisch wieder auf 0 gesetzt (sicherheitshalber)
           |
-        $07: // Kanal-Lautstärke
+        $07: // Kanal-LautstÃ¤rke
           edit_UpperVolumeWet:= mv;
           edit_UpperVolumeWet_flag:= c_midi_event_source;
 {$IFDEF DEBUG_SEMPRA}
           writeln(serout, '/ SemUprVol ' + ByteToStr(mv));
 {$ENDIF}
            |
-        $09: // Kanal-Lautstärke Perc/Dry-Kanal
+        $09: // Kanal-LautstÃ¤rke Perc/Dry-Kanal
           edit_UpperVolumeDry:= mv;
           edit_UpperVolumeDry_flag:= c_midi_event_source;
 {$IFDEF DEBUG_SEMPRA}
@@ -158,7 +160,7 @@ begin
           writeln(serout, '/ SemDataMSB ' + ByteToStr(mv));
 {$ENDIF}
           |
-        $07: // Kanal-Lautstärke, geht von 0..255!
+        $07: // Kanal-LautstÃ¤rke, geht von 0..255!
           edit_LowerVolume:= mv;
           edit_LowerVolume_flag:= c_midi_event_source;
 {$IFDEF DEBUG_SEMPRA}
@@ -209,7 +211,7 @@ begin
       m:= mv and 15;
       n:= mv shl 4;
       case mp of
-        $07: // Kanal-Lautstärke
+        $07: // Kanal-LautstÃ¤rke
           edit_PedalVolume:= mv;
           edit_PedalVolume_flag:= c_midi_event_source;
 {$IFDEF DEBUG_SEMPRA}
@@ -355,4 +357,5 @@ begin
     endif;
   endif;
 end;
+{$ENDIF}
 

@@ -14,35 +14,36 @@ program hx35_main_allinone;
 {$W+}
 
 // #############################################################################
-// ###      Schalter für bedingte Kompilierung verschiedener Versionen       ###
+// ###      Schalter fÃ¼r bedingte Kompilierung verschiedener Versionen       ###
 // #############################################################################
 
 {$DEFINE ALLINONE}
+{ $DEFINE MODULE}
 { $DEFINE SPARTAN7}
 
 { $DEFINE AUTO_FINALIZE}  // TO DO!   - nicht benutzen
 
-{ $DEFINE DEBUG_MSG}      // Ausführliche Meldungen bei vielen Aktionen
+{ $DEFINE DEBUG_MSG}      // AusfÃ¼hrliche Meldungen bei vielen Aktionen
 
 
 { $DEFINE DEBUG_MIDI_IN}
-{ $DEFINE DEBUG_FH}       // Ausführliche Meldungen bei
+{ $DEFINE DEBUG_FH}       // AusfÃ¼hrliche Meldungen bei
 { $DEFINE DEBUG_SWI}
 { $DEFINE DEBUG_AC}       // Apply Changes
 
 {$IFDEF DEBUG_MSG}
-  {$DEFINE DEBUG_DF}       // Ausführliche Meldungen bei Dataflash-Aktionen
-  {$DEFINE DEBUG_FH}       // Ausführliche Meldungen bei FPGA-Aktionen
-  {$DEFINE DEBUG_SD}       // Ausführliche Meldungen bei SDCARD-Aktionen
-  {$DEFINE DEBUG_DSP}      // Ausführliche Meldungen bei DSP
+  {$DEFINE DEBUG_DF}       // AusfÃ¼hrliche Meldungen bei Dataflash-Aktionen
+  {$DEFINE DEBUG_FH}       // AusfÃ¼hrliche Meldungen bei FPGA-Aktionen
+  {$DEFINE DEBUG_SD}       // AusfÃ¼hrliche Meldungen bei SDCARD-Aktionen
+  {$DEFINE DEBUG_DSP}      // AusfÃ¼hrliche Meldungen bei DSP
   {$DEFINE DEBUG_MIDI}
-  { $DEFINE DEBUG_SEMPRA}   // Ausführliche Meldungen bei SEMPRA-MIDI
-  {$DEFINE DEBUG_SR}       // Ausführliche Meldungen bei Save/Restore
+  { $DEFINE DEBUG_SEMPRA}   // AusfÃ¼hrliche Meldungen bei SEMPRA-MIDI
+  {$DEFINE DEBUG_SR}       // AusfÃ¼hrliche Meldungen bei Save/Restore
   {$DEFINE DEBUG_SWI}      // Button/Switch/Encoder-Aktionen
-  {$DEFINE DEBUG_DF}       // Ausführliche Meldungen bei Dataflash-Aktionen
-  { $DEFINE DEBUG_SD}       // Ausführliche Meldungen bei SDCARD-Aktionen
-  {$DEFINE DEBUG_SYSEX}    // Ausführliche Meldungen bei SysEx-Empfang
-  { $DEFINE DEBUG_DSP}      // Ausführliche Meldungen bei DSP
+  {$DEFINE DEBUG_DF}       // AusfÃ¼hrliche Meldungen bei Dataflash-Aktionen
+  { $DEFINE DEBUG_SD}       // AusfÃ¼hrliche Meldungen bei SDCARD-Aktionen
+  {$DEFINE DEBUG_SYSEX}    // AusfÃ¼hrliche Meldungen bei SysEx-Empfang
+  { $DEFINE DEBUG_DSP}      // AusfÃ¼hrliche Meldungen bei DSP
 {$ENDIF}
 { $DEFINE TIMING_PIN}       // LA-Zeitanalyse
 
@@ -104,7 +105,7 @@ program hx35_main_allinone;
 { $DEBDELAY}
 
 // #############################################################################
-// ###                ab hier keine DEFINEs mehr ändern!                     ###
+// ###                ab hier keine DEFINEs mehr ï¿½ndern!                     ###
 // #############################################################################
 
 Device = mega1284p, VCC = 5;
@@ -161,7 +162,7 @@ Implementation
 const
 
 // #############################################################################
-// ###                Encoder und Zeitgeber für MainTask                     ###
+// ###                Encoder und Zeitgeber fÃ¼r MainTask                     ###
 // #############################################################################
 
 procedure onSysTick;
@@ -170,15 +171,15 @@ begin
 // Selbstgemachter Inkrementalgeber
   IRQ_Incr0:= (PinA and 3);
   if IRQ_Incr0 <> IRQ_Incr1 then
-    if IRQ_Incr0 = 0 then // Rastpunkt überschritten
+    if IRQ_Incr0 = 0 then // Rastpunkt ï¿½berschritten
       if (IRQ_Incr2 = 3)then       // kommt aus Ruheposition
         if(IRQ_Incr1 = 1) then     // Rechtsdrehung
-          inc(IRQ_Incr_delta);     // Encoder-Änderung
-          inc(IRQ_Incr_acc);       // für Beschleunigung
+          inc(IRQ_Incr_delta);     // Encoder-ï¿½nderung
+          inc(IRQ_Incr_acc);       // fÃ¼r Beschleunigung
           IRQ_EncoderTouched:= true;
         elsif(IRQ_Incr1 = 2) then  // Linksdrehung
-          dec(IRQ_Incr_delta);     // Encoder-Änderung
-          dec(IRQ_Incr_acc);       // für Beschleunigung
+          dec(IRQ_Incr_delta);     // Encoder-ï¿½nderung
+          dec(IRQ_Incr_acc);       // fÃ¼r Beschleunigung
           IRQ_EncoderTouched:= true;
         endif;
       endif;
@@ -201,7 +202,7 @@ begin
   MainTasks_Init;
   SWI_ForceSwitchReload;
   ConnectMode:= t_disable;
-  AC_ExecEditChanges;   // Ohne MIDI-Ausgabe ausführen
+  AC_ExecEditChanges;   // Ohne MIDI-Ausgabe ausfÃ¼hren
 
 {$IFDEF DEBUG_MSG}
   write(serout,'/ Check SD Card');
@@ -212,13 +213,13 @@ begin
     writeln(serout,' - OK');
 {$ENDIF}
     if F16_FileExist('\', s_autorun_ini, faFilesOnly) then
-      // altes _autorun.ini vorhanden? Dann löschen, muss neu angelegt werden
+      // altes _autorun.ini vorhanden? Dann lï¿½schen, muss neu angelegt werden
       if F16_FileExist('\', s_autorun_ini_old, faFilesOnly) then
         F16_FileDelete('\', s_autorun_ini_old);
       endif;
       // Datei umbenennen, um erneuten Start zu vermeiden
       F16_FileRename('\', s_autorun_ini, s_autorun_ini_old);
-      PA_RunSDscript( s_autorun_ini_old); // ggf. Reboot, kommt dann nicht zurück!
+      PA_RunSDscript( s_autorun_ini_old); // ggf. Reboot, kommt dann nicht zurï¿½ck!
     endif;
     if F16_FileExist('\',s_config_ini, faFilesOnly) then
       if PA_RunSDscript(s_config_ini) then  // darf kein UPD enthalten!
@@ -245,7 +246,7 @@ begin
     MainTasks;
     if Timeslot = 7 then
       if LCDpresent then
-        MenuPanelHandling; // 250..370 µs ohne Bedienung
+        MenuPanelHandling; // 250..370 ï¿½s ohne Bedienung
       else
         mdelay(1);
       endif;

@@ -1,6 +1,17 @@
-// ############################################################################
-// ###                       FPGA LOWLEVEL-FUNKTIONEN                        ###
 // #############################################################################
+//
+//     ####### ######   #####     #
+//     #       #     # #     #   # #
+//     #       #     # #        #   #
+//     #####   ######  #  #### #     #
+//     #       #       #     # #######
+//     #       #       #     # #     #
+//     #       #        #####  #     #
+//
+// #############################################################################
+
+// FPGA LOWLEVEL-FUNKTIONEN
+
 unit fpga_if;
 
 interface
@@ -21,6 +32,7 @@ uses eeprom_def;
 
   function ReceiveFPGA(const myreg:byte): LongInt;
   procedure SendByteToFPGA(const myparam: byte; const myreg:byte);
+  // procedure SPI_fpga_send_byte(const myreg:byte; const myparam: byte); // KompatibiltÃ¤t zu HX3.6
 
   procedure SendDoubledByteToFPGA(const myparam: byte; const myreg:byte);
   procedure SendScaledByteToFPGA(const myparam: byte; const myreg, myscale: byte);
@@ -38,7 +50,7 @@ uses eeprom_def;
   procedure FI_GetScanCoreInfo;
 
 const
-  b_INT2:      byte = 2; // INT2 ausgelöst vom FPGA
+  b_INT2:      byte = 2; // INT2 ausgelï¿½st vom FPGA
   c_PROG:      byte = 6; // InOut Prog-Leitung FPGA Configuration
   c_DONE:      byte = 7; // Input Done-Leitung FPGA Configuration
 
@@ -72,7 +84,7 @@ var
 
 
 {$VALIDATE_ON}
-// Für Assembler-Routinen in DF_ benötigt!
+// Fï¿½r Assembler-Routinen in DF_ benï¿½tigt!
   FPGAsendword, FPGAreceiveword: word;
   FPGAsendWord0[@FPGAsendWord+0]: byte;
   FPGAsendWord1[@FPGAsendWord+1]: byte;
@@ -86,12 +98,12 @@ implementation
 // #############################################################################
 
 const
-  b_SCK:       byte = 7; // Takt für alle, SPI-Belegung!
+  b_SCK:       byte = 7; // Takt fï¿½r alle, SPI-Belegung!
   b_MISO:      byte = 6; // SPI Daten von allen
   b_MOSI:      byte = 5; // Daten an alle
-  // b_SS:        byte = 4; // für MMC-Karte benutzt, HW-SPI!
+  // b_SS:        byte = 4; // fï¿½r MMC-Karte benutzt, HW-SPI!
   b_DATASEL:   byte = 3; // FPGA 32-Bit-Register
-  // b_INT2:      byte = 2; // INT2 ausgelöst vom FPGA
+  // b_INT2:      byte = 2; // INT2 ausgelï¿½st vom FPGA
   b_REGSEL:    byte = 1; // FPGA Registerauswahl
   // b_DFCS:      byte = 0; // DataFlash Chipselect
 
@@ -165,7 +177,7 @@ end;
 // #############################################################################
 
 procedure SendFPGA8;
-//Sende und empfange ein Daten-Byte an den FPGA-Chip über SPI
+//Sende und empfange ein Daten-Byte an den FPGA-Chip ï¿½ber SPI
 begin
   asm;
 ;    cli ; Disable interrupts
@@ -177,14 +189,14 @@ begin
     sbrs _ACCA,7
     rjmp SPIwait8_1
     in _ACCA, SPDR
-    sts  fpga_if.FPGAreceiveByte, _ACCA  ;Lesewert zurück ins Datenbyte
+    sts  fpga_if.FPGAreceiveByte, _ACCA  ;Lesewert zurï¿½ck ins Datenbyte
     sbi  fpga_if.FPGAport, fpga_if.b_DATASEL
 ;    sei ; Enable interrupts
   endasm;
 end;
 
 procedure SendFPGA16;
-//Sende und empfange ein Daten-Wort (16 Bit-Register) an den FPGA-Chip über SPI
+//Sende und empfange ein Daten-Wort (16 Bit-Register) an den FPGA-Chip ï¿½ber SPI
 begin
   asm;
 ;    cli ; Disable interrupts
@@ -213,7 +225,7 @@ begin
 end;
 
 procedure SendFPGA32;
-//Sende und empfange ein Daten-Langwort (32 Bit-Register) an den FPGA-Chip über SPI
+//Sende und empfange ein Daten-Langwort (32 Bit-Register) an den FPGA-Chip ï¿½ber SPI
 begin
   asm;
 ;    cli ; Disable interrupts
@@ -299,7 +311,7 @@ begin
 end;
 
 procedure SendByteToFPGA(const myparam: byte; const myreg:byte);
-// schreib unskalierten Wert "myparam" nach SPI "myreg"
+// schreibe unskalierten Wert "myparam" nach SPI "myreg"
 begin
   lo(FPGAreg):= myreg;     // Schreib-Register
   hi(FPGAreg):= $80;       // mit Write Enable
@@ -308,6 +320,20 @@ begin
   lo(FPGAsendWord):= myparam;
   SendFPGA16;
 end;
+
+{
+procedure SPI_fpga_send_byte(const myreg:byte; const myparam: byte);
+// schreibe unskalierten Wert "myparam" nach SPI "myreg"
+// umgekehrte Reihenfolge, sonst wie vor
+begin
+  lo(FPGAreg):= myreg;     // Schreib-Register
+  hi(FPGAreg):= $80;       // mit Write Enable
+  SendFPGAreg;
+  hi(FPGAsendWord):= 0;
+  lo(FPGAsendWord):= myparam;
+  SendFPGA16;
+end;
+}
 
 procedure SendDoubledByteToFPGA(const myparam: byte; const myreg:byte);
 // schreib verdoppelten Wert "myparam" nach SPI "myreg"
@@ -343,7 +369,7 @@ begin
 end;
 
 procedure SendVolumeByteLogToFPGA(const myparam: byte; const myreg:byte);
-// schreibt "myparam" über DrawbarLog-Tabelle nach SPI "myreg"
+// schreibt "myparam" ï¿½ber DrawbarLog-Tabelle nach SPI "myreg"
 // 0..127 auf 0..252
 begin
   lo(FPGAreg):= myreg;     // Schreib-Register
@@ -496,7 +522,7 @@ begin
 end;
 
 procedure FI_AutoIncReset(my_target: byte);
-// AutoInc zurücksetzen, Core freigeben
+// AutoInc zurï¿½cksetzen, Core freigeben
 begin
   hi(FPGAreg):= $80;  // SPI Wite Enable
   lo(FPGAreg):= 129;  // Schreib-Register Adress-Reset
@@ -506,10 +532,10 @@ begin
 end;
 
 procedure FI_AutoIncSetup(my_target: byte);
-// AutoInc vorbereiten: Länge, Start an SPI übermitteln
+// AutoInc vorbereiten: Lï¿½nge, Start an SPI ï¿½bermitteln
 begin
   FI_AutoIncReset(my_target);
-  lo(FPGAreg):= 128;  // Schreib-Register Daten für DAT-Files
+  lo(FPGAreg):= 128;  // Schreib-Register Daten fï¿½r DAT-Files
   SendFPGAreg;
 end;
 

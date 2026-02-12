@@ -7,7 +7,7 @@
 
 
 // #############################################################################
-// ###  MIDI-DISPATCHER NONE, CCs ignorieren (außer Expression/Schweller)    ###
+// ###  MIDI-DISPATCHER NONE, CCs ignorieren (auï¿½er Expression/Schweller)    ###
 // #############################################################################
 
 procedure MIDI_Dispatch_none;

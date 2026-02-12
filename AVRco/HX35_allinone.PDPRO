@@ -5,8 +5,8 @@ DESC=c:\program files (x86)\avrco\avrco\PMEGA1284P.dsc
 
 [Status]
 Compile=true
-Assemble=true
-FuncCount=489
+Assemble=false
+FuncCount=487
 
 [SPECS]
 clock=16000000
@@ -37,28 +37,28 @@ flags=6
 Base=896
 
 [Entries]
-Library=$01AA90
-MainEntry=53937
+Library=$01AAD4
+MainEntry=53971
 UnitEntry=7636
 BootEntry=0
 
 [-MAINENTRY]
-PC=$01AB8C
+PC=$01ABD0
 
 [-I2CEXPSTAT]
-PC=$01AFEA
+PC=$01B02E
 
 [-I2CEXPOUTW]
-PC=$01AFF6
+PC=$01B03A
 
 [-I2CEXPOUTR]
-PC=$01B002
+PC=$01B046
 
 [-I2CEXPINP1]
-PC=$01B010
+PC=$01B054
 
 [-I2CEXPINP2]
-PC=$01B012
+PC=$01B056
 
 [Diverse]
 AppLeft=-4
@@ -1639,15 +1639,18 @@ Name=AC_SendMasterVolume
 
 [Func402]
 Name=AC_SendSwell
-0=swell_raw255|00008h|0000Dh
-1=swell_ranged|00007h|0000Dh
-2=swell_63hz|00006h|0000Dh
-3=swell_midrange|00005h|0000Dh
-4=swell_bypass|00004h|0000Dh
-5=swell_fullrange|00003h|0000Dh
-6=swell_pedal|00002h|0000Dh
-7=swell_final|00001h|0000Dh
-8=swell_changed|00000h|00003h
+0=swell_raw255|0000Bh|0000Dh
+1=swell_raw128|0000Ah|0000Dh
+2=swell_temp|00009h|0000Dh
+3=swell_final|00008h|0000Dh
+4=swell_midrange|00007h|0000Dh
+5=swell_midrange_response|00006h|0000Dh
+6=swell_midrange_shelf|00005h|0000Dh
+7=swell_bassboost|00004h|0000Dh
+8=swell_loudness_hi|00003h|0000Dh
+9=swell_pedal|00002h|0000Dh
+10=swell_final_response|00001h|0000Dh
+11=swell_changed|00000h|00003h
 
 [Func403]
 Name=AC_SendLeslieLiveParams
@@ -1890,29 +1893,16 @@ Name=MIDI_Dispatch_ni
 1=my_param|00000h|00004h
 
 [Func447]
-Name=DispatchNRP_sempra
-0=my_param|00003h|00004h
-1=my_int|00001h|00004h
-2=my_idx|00000h|0000Dh
-
-[Func448]
-Name=MIDI_Dispatch_sempra
-0=my_fac|00004h|0000Dh
-1=my_index|00003h|0000Dh
-2=my_byte|00002h|0000Dh
-3=my_param|00000h|00004h
-
-[Func449]
 Name=MIDI_SendSysEx_blockbuf
 0=my_param|00005h|08004h
 1=my_count|00003h|08004h
 2=calc_cs|00002h|0000Dh
 3=my_adr|00000h|00004h
 
-[Func450]
+[Func448]
 Name=midi_set_sysex_mode
 
-[Func451]
+[Func449]
 Name=MIDI_DispatchSysEx
 0=my_param|0000Fh|00004h
 1=my_val|0000Dh|00004h
@@ -1928,136 +1918,136 @@ Name=MIDI_DispatchSysEx
 11=block_page_cs|00001h|0000Dh
 12=calc_cs|00000h|0000Dh
 
-[Func452]
+[Func450]
 Name=MIDI_GetSysEx_int
 0=my_idx|00004h|0800Dh
 1=my_val|00002h|08004h
 2=msb|00001h|0000Dh
 3=lsb|00000h|0000Dh
 
-[Func453]
+[Func451]
 Name=MIDI_SendSysEx_status
 
-[Func454]
+[Func452]
 Name=MIDI_SendSysEx_cmderr
 
-[Func455]
+[Func453]
 Name=MIDI_SendSysExParamStr
 0=header_id|00000h|0000Dh
 
-[Func456]
+[Func454]
 Name=MIDI_SendSysExSernum
 
-[Func457]
+[Func455]
 Name=MIDI_SysExReceived
 0=sysex_byte|00000h|0000Dh
 
-[Func458]
+[Func456]
 Name=MIDI_SetGenosActive
 0=ch_idx|00001h|0000Dh
 1=my_bool|00000h|00003h
 
-[Func459]
+[Func457]
 Name=MIDI_Dispatch
 0=mch_is_valid|00002h|00003h
 1=mch_idx|00001h|0000Dh
 2=midi_prog|00000h|0000Dh
 
-[Func460]
+[Func458]
 Name=MT_HandleGMnameRequests
 0=gm_idx|00001h|0000Dh
 1=temp_idx|00000h|0000Dh
 
-[Func461]
+[Func459]
 Name=MT_ScheduledTasks
 0=my_bool|00002h|00003h
 1=my_idx|00001h|0000Dh
 2=my_val|00000h|0000Dh
 
-[Func462]
+[Func460]
 Name=MainTasks
 
-[Func463]
+[Func461]
 Name=MainTasks_Init
 
-[Func464]
+[Func462]
 Name=lcd_number2
 0=my_number|00000h|0000Dh
 
-[Func465]
+[Func463]
 Name=menu_WaitPanelButtonsReleased
 
-[Func466]
+[Func464]
 Name=menu_PanelButtonTimeout
 0=timeout|00002h|0000Dh
 1=loopcount|00001h|0000Dh
 2=my_result|00000h|00003h
 
-[Func467]
+[Func465]
 Name=menu_GetSaveDestination
 0=my_menu_idx|00005h|0000Dh
 1=save_mask|00003h|0000Eh
 2=save_dest|00002h|0000Dh
 3=idx|00000h|00004h
 
-[Func468]
+[Func466]
 Name=disp_arrow_clreol
 
-[Func469]
+[Func467]
 Name=MenuOnOffArrow
 0=my_bool|00000h|00003h
 
-[Func470]
+[Func468]
 Name=MenuDispValueArrow
 0=my_val|00000h|0000Dh
 
-[Func471]
+[Func469]
 Name=MenuDispValZeroOffArrow
 0=my_val|00000h|0000Dh
 
-[Func472]
+[Func470]
 Name=MenuDispPercussion
 0=my_percmode|00000h|0000Dh
 
-[Func473]
+[Func471]
 Name=MenuDispVibrato
 0=vibon_upr|00002h|00003h
 1=vibon_lwr|00001h|00003h
 2=knob_pos|00000h|0000Dh
 
-[Func474]
+[Func472]
 Name=DrawbarNumberScale
 0=my_dbval|00000h|0000Dh
 
-[Func475]
+[Func473]
 Name=MenuDispValueBarArrow
 0=my_val|00001h|0000Dh
 1=my_temp|00000h|0000Dh
 
-[Func476]
+[Func474]
 Name=MenuDispListItemArrow
 0=my_ptr|00003h|00010h
 1=my_idx|00002h|0000Dh
 2=my_bool|00001h|00003h
 3=my_len|00000h|0000Dh
 
-[Func477]
+[Func475]
 Name=display_frequ
 0=edit_val|00005h|0000Dh
 1=shifts|00004h|0000Dh
 2=offset|00002h|0000Eh
 3=frequ|00000h|0000Eh
 
-[Func478]
+[Func476]
 Name=MainPresetDisplay
 0=my_menutype|00001h|0000Ah
 1=my_dbval|00000h|0000Dh
 
-[Func479]
+[Func477]
 Name=MenuDispChangedStar
 0=my_bool|00000h|00003h
 
-[Func480]
+[Func478]
 Name=ApplyDelta
 0=my_val|00006h|0800Dh
 1=my_min|00005h|0000Dh
@@ -2066,7 +2056,7 @@ Name=ApplyDelta
 4=my_encoder_val|00001h|00004h
 5=ovr_dir|00000h|0000Ah
 
-[Func481]
+[Func479]
 Name=EditPresetName
 0=char_idx|00014h|0000Dh
 1=delta|00013h|0000Dh
@@ -2074,7 +2064,7 @@ Name=EditPresetName
 3=temp_arr|00002h|0003Dh
 4=len|00000h|0000Eh
 
-[Func482]
+[Func480]
 Name=EditBitfield
 0=bitfield|00005h|0800Eh
 1=my_len|00004h|0000Dh
@@ -2083,7 +2073,7 @@ Name=EditBitfield
 4=all_white_btns|00001h|00003h
 5=my_bool|00000h|00003h
 
-[Func483]
+[Func481]
 Name=DoMenuChange
 0=delta|00013h|0000Dh
 1=change_menu_only|00012h|00003h
@@ -2101,35 +2091,35 @@ Name=DoMenuChange
 13=my_bitfield_temp|00001h|0000Eh
 14=my_save_dest_char|00000h|0000Ch
 
-[Func484]
+[Func482]
 Name=menu_RequestNewPresetNumber
 0=old_preset|00003h|0000Dh
 1=max_preset|00002h|0000Dh
 2=my_dest|00001h|0000Ch
 3=new_preset|00000h|0000Dh
 
-[Func485]
+[Func483]
 Name=menu_RequestNewModel
 0=old_preset|00003h|0000Dh
 1=my_dest|00002h|0000Ch
 2=new_preset|00001h|0000Dh
 3=limit|00000h|0000Dh
 
-[Func486]
+[Func484]
 Name=MenuEnterButton
 0=old_val|00004h|0000Dh
 1=my_save_dest_char|00003h|0000Ch
 2=my_idx|00001h|00004h
 3=menu_type|00000h|0000Ah
 
-[Func487]
+[Func485]
 Name=MenuPanelHandling
 0=my_ovr_dir|00000h|0000Ah
 
-[Func488]
+[Func486]
 Name=onSysTick
 
-[Func489]
+[Func487]
 Name=$_Main
 
 [PROCESSES]
@@ -2160,20 +2150,20 @@ const_def=
 UFAT16_32=
 
 [Project_Files]
-0=hx35_main_allinone|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\HX35_main.pas|1548442694
+0=hx35_main_allinone|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\HX35_main.pas|1548503090
 1=UFAT16_32|c:\program files (x86)\avrco\avrco\System\UFAT16_32.PCU|1301779963
 2=eeprom_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\eeprom_def.pas|1496410959
-3=const_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\const_def.pas|1493134210
+3=const_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\const_def.pas|1548502835
 4=var_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\var_def.pas|1466134035
 5=nuts_and_bolts|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\nuts_and_bolts.pas|1464437516
 6=port_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\port_def.pas|1446547797
-7=edit_changes|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\edit_changes.pas|1485476757
-8=fpga_if|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\fpga_if.pas|1432903960
+7=edit_changes|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\edit_changes.pas|1548503933
+8=fpga_if|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\fpga_if.pas|1548504276
 9=dataflash|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\dataflash.pas|1464437509
 10=startup|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\startup.pas|1492667209
 11=sd_card|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\sd_card.pas|1535277232
 12=display_toolbox|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\display_toolbox.pas|1462734630
-13=apply_changes|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\apply_changes.pas|1485476757
+13=apply_changes|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\apply_changes.pas|1548504280
 14=MIDI_com|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_com.pas|1464437526
 15=fpga_hilevel|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\fpga_hilevel.pas|1493134183
 16=adc_touch_interface|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\adc_touch_interface.pas|1463583413
@@ -2183,46 +2173,7 @@ UFAT16_32=
 20=parser|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\parser.pas|1466134009
 21=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\midi_sysex.pas|1548442892
 22=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_Custom.pas|1466138482
-23=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_ni.pas|1466138044
-24=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_sempra.pas|1548442919
-25=menu_system|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\menu_system.pas|1466462875
-
-[-SYSTICKENTRY]
-PC=$01AB8E
-
-[-SYSTICKEXIT]
-PC=$01AC6E
-
-[-LCDBUSY_RD]
-PC=$01AE74
-
-[-LCDCTRL_WR]
-PC=$01AE9E
-
-[-LCDOUT_M]
-PC=$01AEAA
-
-[-I2CSTAT_M]
-PC=$01AEBE
-
-[-FAT16ENTER]
-PC=$01B27A
-
-[-FAT16EXIT]
-PC=$01B2CE
-
-[-Execute]
-off0=$01B3CE
-on0=$01B3DE
-off1=$01B3E4
-on1=$01B3E4
-off2=$01B3FE
-on2=$01B43E
-off3=$01B46C
-on3=$01B48C
-off4=$01B4A6
-on4=$01B4B4
-
-[-DEBDELAY]
-PC=$01B4FA
+23=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_ni.pas|1548443930
+24=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_sempra.pas|1548503080
+25=menu_system|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\menu_system.pas|1548502183
 

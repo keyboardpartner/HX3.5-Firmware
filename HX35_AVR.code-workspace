@@ -1,0 +1,32 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.exclude": {
+        "**/*.bak": true,
+        "**/*.ini": true,
+				"**/*.asm": true,
+				"**/*.err": true,
+				"**/*.lst": true,
+				"**/*.pld": true,
+				"**/*.sym": true,
+				"**/*.log": true,
+				"**/*.bak1": true,
+				"**/*.bak0": true,
+				"**/*.lnk": true,
+				"**/*.x": true,
+				"**/*.DSM": true,
+				"**/*.struct": true,
+				"**/*.obj": true,
+				"**/*.bin": true,
+				"**/*.Rept": true,
+				"**/*.u": true,
+				"**/*.unuV": true,
+				"**/*.opt": true,
+				"**/*.fas": true,
+    },
+	}
+}

@@ -4,8 +4,8 @@ FirstAccess=0
 LastAccess=46064.4916339815
 CurAccount=8.4031375578852
 TotAccount=0
-PROJECTBUILD=2
-LastCompile=11.02.2026 11:41:30
+PROJECTBUILD=5
+LastCompile=12.02.2026 09:39:39
 DeviceID=$1E9705
 CPUname=MEGA1284P
 FlashMax=131072
@@ -70,6 +70,28 @@ var_def=var_def.pas
 [Conditionals]
 0=
 
+[Files]
+File1=..\..\..\Bass25\AVRco\Bass25.pas
+TopLine1=71
+CaretY1=77
+ReadOnly1=False
+File2=HX35_main.pas
+TopLine2=91
+CaretY2=110
+ReadOnly2=False
+File3=HX35_main.asm
+TopLine3=95766
+CaretY3=95832
+ReadOnly3=False
+File4=MIDI_sempra.pas
+TopLine4=1
+CaretY4=12
+ReadOnly4=False
+File5=midi_sysex.pas
+TopLine5=1090
+CaretY5=1119
+ReadOnly5=False
+File=HX35_main.pas
 
 [Interrupts]
 count=34
@@ -108,25 +130,3 @@ count=34
 33=TIMER3COMPB
 34=TIMER3
 
-[Files]
-File1=..\..\..\Bass25\AVRco\Bass25.pas
-TopLine1=71
-CaretY1=77
-ReadOnly1=False
-File2=HX35_main.pas
-TopLine2=91
-CaretY2=110
-ReadOnly2=False
-File3=HX35_main.asm
-TopLine3=95766
-CaretY3=95832
-ReadOnly3=False
-File4=MIDI_sempra.pas
-TopLine4=1
-CaretY4=12
-ReadOnly4=False
-File5=midi_sysex.pas
-TopLine5=1090
-CaretY5=1119
-ReadOnly5=False
-File=HX35_main.pas

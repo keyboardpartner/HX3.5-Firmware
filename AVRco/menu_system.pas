@@ -1,3 +1,14 @@
+// #############################################################################
+//       __ ________  _____  ____  ___   ___  ___
+//      / //_/ __/\ \/ / _ )/ __ \/ _ | / _ \/ _ \
+//     / ,< / _/   \  / _  / /_/ / __ |/ , _/ // /
+//    /_/|_/___/_  /_/____/\____/_/_|_/_/|_/____/
+//      / _ \/ _ | / _ \/_  __/ |/ / __/ _ \
+//     / ___/ __ |/ , _/ / / /    / _// , _/
+//    /_/  /_/ |_/_/|_| /_/ /_/|_/___/_/|_|
+//
+// #############################################################################
+
 unit menu_system;
 
 interface
@@ -5,6 +16,19 @@ uses var_def, const_def, port_def, edit_changes, nuts_and_bolts,
      apply_changes, display_toolbox, parser, dataflash, main_tasks;
 
 procedure MenuPanelHandling;
+
+// #############################################################################
+//
+//     #     # ####### #     # #     #    #####  #     #  #####
+//     ##   ## #       ##    # #     #   #     #  #   #  #     #
+//     # # # # #       # #   # #     #   #         # #   #
+//     #  #  # #####   #  #  # #     #    #####     #     #####
+//     #     # #       #   # # #     #         #    #          #
+//     #     # #       #    ## #     #   #     #    #    #     #
+//     #     # ####### #     #  #####     #####     #     #####
+//
+// #############################################################################
+
 
 implementation
 
@@ -35,7 +59,7 @@ end;
 
 function menu_PanelButtonTimeout(timeout: byte): Boolean;
 // Warten auf Loslassen einer Panel-Taste.
-// Liefert TRUE, wenn länger als "timeout" * 10 ms gedrückt
+// Liefert TRUE, wenn lï¿½nger als "timeout" * 10 ms gedrï¿½ckt
 // Ruft in der Schleife MainTasks auf
 var
   loopcount: byte;
@@ -95,7 +119,7 @@ end;
 procedure disp_arrow_clreol;
 begin
   LCDOut_M(#7);
-  LCDclrEOL_M(LCD_m1);  // Rest der unteren Zeile löschen
+  LCDclrEOL_M(LCD_m1);  // Rest der unteren Zeile lï¿½schen
 end;
 
 
@@ -138,7 +162,7 @@ begin
     else
       write(LCDOut_M, 'SLW ');
     endif;
-    if (edit_GatingKnob >= 1) and (CurrentADSRmask <> 0) then  // H100-Modus, Fußlagen über Enable-Bits
+    if (edit_GatingKnob >= 1) and (CurrentADSRmask <> 0) then  // H100-Modus, Fuï¿½lagen ï¿½ber Enable-Bits
         LCDOut_M('H');
     else
       if Bit(my_percmode, 0) then
@@ -164,7 +188,7 @@ begin
     LCDOut_M('V');
   endif;
   LCDOut_M(char(49 + (knob_pos shr 1)));
-  LCDclrEOL_M(LCD_m1);  // Rest der unteren Zeile löschen
+  LCDclrEOL_M(LCD_m1);  // Rest der unteren Zeile lï¿½schen
 end;
 
 function DrawbarNumberScale(const my_dbval: byte): byte;
@@ -174,7 +198,7 @@ begin
 end;
 
 procedure MenuDispValueBarArrow(my_val: byte);
-// 0..127 in Balkenlänge umrechnen
+// 0..127 in Balkenlï¿½nge umrechnen
 var my_temp: byte;
 begin
   LCDsetBar;
@@ -198,7 +222,7 @@ begin
 end;
 
 procedure MenuDispListItemArrow(my_ptr: pointer; const my_idx: byte);
-// Display-Text zweite Zeile über Pointer zum Array
+// Display-Text zweite Zeile ï¿½ber Pointer zum Array
 var my_bool: boolean; my_len: byte;
 begin
   my_len:= FlashPtr(my_ptr)^;
@@ -331,7 +355,7 @@ begin
 end;
 
 function ApplyDelta(var my_val: Byte; const my_min, my_max: byte; const delta: Int8): t_ovr;
-// Encoder-Änderung auf einzelne Variable anwenden
+// Encoder-ï¿½nderung auf einzelne Variable anwenden
 // Liefert TRUE wenn innerhalb Bereich
 // type t_ovr = (t_inrange, t_overrange, t_underrange);
 var
@@ -354,14 +378,14 @@ end;
 // #############################################################################
 
 function EditPresetName(char_idx: Byte; delta: Int8): Byte;
-// liefert neue Länge des Strings
+// liefert neue Lï¿½nge des Strings
 var my_val: Byte;
   temp_arr: Array[0..15] of Byte;
   len: Word;
 begin
-  inc(char_idx); // wg. Pascal-Längenbyte
+  inc(char_idx); // wg. Pascal-Lï¿½ngenbyte
   len:= Word(CurrentPresetNameLen) + 1;
-  FillBlock(@temp_arr, 16, 32); // mit Leerzeichen #32 füllen
+  FillBlock(@temp_arr, 16, 32); // mit Leerzeichen #32 fï¿½llen
   CopyBlock(@CurrentPresetName, @temp_arr, len);
   temp_arr[0]:= 14;
   if delta <> 0 then
@@ -373,7 +397,7 @@ begin
   CurrentPresetName:= TrimRight(CurrentPresetName);
   LCDxy_M(LCD_m1, 0, 1);
   write(LCDOut_M, CurrentPresetName);
-  LCDclrEOL_M(LCD_m1);  // Rest der unteren Zeile löschen
+  LCDclrEOL_M(LCD_m1);  // Rest der unteren Zeile lï¿½schen
   return(CurrentPresetNameLen);
 end;
 
@@ -394,7 +418,7 @@ begin
       else
         LCDOut_M(#0);
       endif;
-    else         // "graue" Buttons für DBs?
+    else         // "graue" Buttons fï¿½r DBs?
       if Bit(bitfield, i) then
         LCDOut_M(#3);
       else
@@ -406,11 +430,11 @@ end;
 
 // #############################################################################
 // ###       Spezielle Anzeigefunktionen bei Vibrato und Percussion etc.     ###
-// ###           Zusätzliche Anzeigefunktionen für EDIT-MODUS                ###
+// ###           Zusï¿½tzliche Anzeigefunktionen fï¿½r EDIT-MODUS                ###
 // #############################################################################
 
 procedure DoMenuChange(delta: Int8; change_menu_only, invert: Boolean);
-// wenn change_menu_only TRUE, wird nur Menu geändert, aber nicht der Wert.
+// wenn change_menu_only TRUE, wird nur Menu geï¿½ndert, aber nicht der Wert.
 var my_menutype: t_menuType;
     my_pointer: pointer;
     my_bool, value_changed: Boolean;
@@ -450,12 +474,12 @@ begin
 
   if DT_MenuEntryValid(MenuIndex) <= t_menu_invalid then
     DisplayBottom('(invalid)');
-    LCDclrEOL_M(LCD_m1);  // Rest der unteren Zeile löschen
+    LCDclrEOL_M(LCD_m1);  // Rest der unteren Zeile lï¿½schen
     return;
   endif;
 
   if my_menutype = tm_perc then
-    // Menü-Anfangswert korrigieren (min)
+    // Menï¿½-Anfangswert korrigieren (min)
     NB_TabsToPercKnob;
   endif;
 
@@ -467,7 +491,7 @@ begin
 
   my_bool:= (my_val <> 0);
 
-  if value_changed then // Änderungen
+  if value_changed then // ï¿½nderungen
     if delta > 0 then
       my_bool:= true;
     elsif delta < 0 then
@@ -487,7 +511,7 @@ begin
   endif;
 }
   LCDxy_M(LCD_m1, 14, 0);
-  LCDOut_M(my_save_dest_char); // Zusätzlicher Buchstabe U/L/D
+  LCDOut_M(my_save_dest_char); // Zusï¿½tzlicher Buchstabe U/L/D
 
   LCDxy_M(LCD_m1, 0, 1);
   my_pointer:= nil;
@@ -502,17 +526,17 @@ begin
       // upper_0, lower_0, pedal_0, xxx, upper_1, lower_1, pedal_1, xxx
       // xxx taucht als my_menutype nicht auf!
       n:= ord(my_menutype) - ord(tm_gm_prg0);   // 0..6!
-      // Platz für Namen freilassen, wird von MT_HandleGMnameRequests gefüllt
+      // Platz fï¿½r Namen freilassen, wird von MT_HandleGMnameRequests gefï¿½llt
       LCDxy_M(LCD_m1, 0, 1);
       if (delta = 0) then
         write(LCDOut_M, GM_VoiceNames[n]); // vorbelegter Name
-        LCDclrEOL_M(LCD_m1);  // Rest der unteren Zeile löschen
+        LCDclrEOL_M(LCD_m1);  // Rest der unteren Zeile lï¿½schen
       endif;
       GM_VoiceNameToDisplaySema[n]:= true;
       LCDxy_M(LCD_m1, 13, 1);
       disp_arrow_clreol;
       |
-    // Spezieller Editor nötig
+    // Spezieller Editor nï¿½tig
     tm_adsrena_upr:
       if edit_GatingKnob = 1 then
         LCDxy_M(LCD_m1, 0, 0);
@@ -560,7 +584,7 @@ begin
       disp_arrow_clreol;
       |
     tm_editname: //
-      EditPresetName(EditFieldIndex, delta); // liefert neue Länge
+      EditPresetName(EditFieldIndex, delta); // liefert neue Lï¿½nge
       my_val:= 0;
       value_changed:= false;
       |
@@ -569,13 +593,13 @@ begin
       |
     tm_perc:
 //      if (edit_GatingKnob = 1) then    // GEHT NICHT!
-        // ungerade Einträge (2nd/3rd wechselt) überspringen
+        // ungerade Eintrï¿½ge (2nd/3rd wechselt) ï¿½berspringen
 //        ApplyDelta(edit_MenuPercMode, 7, my_max, delta);
 //      endif;
       MenuDispPercussion(edit_PercKnob);
       |
     tm_vibknob:
-      // geänderten edit_VibKnob-Wert anzeigen
+      // geï¿½nderten edit_VibKnob-Wert anzeigen
       MenuDispVibrato(edit_LogicalTab_VibOnUpper, edit_LogicalTab_VibOnLower, my_val);
       LCDxy_M(LCD_m1, 15, 0);
       LCDOut_M_space;
@@ -808,7 +832,7 @@ end;
 // #############################################################################
 
 procedure MenuEnterButton;
-// Enter-Button gedrückt: Entweder zurück zur DB-Anzeige
+// Enter-Button gedrï¿½ckt: Entweder zurï¿½ck zur DB-Anzeige
 // oder gerade aufgerufenen Eintrag speichern
 var
   old_val: Byte;
@@ -835,12 +859,12 @@ begin
       |
 
     tm_setupfile:
-      // Sondefall: INI-File-Menü ist kein Default, Skript ausführen
+      // Sondefall: INI-File-Menï¿½ ist kein Default, Skript ausfï¿½hren
       if NumberOfIniFiles > 0  then
         SerInpStr:= BlockArrayDirFileNames[edit_CardSetup];
         PA_RunSDscript(SerInpStr);
         menu_WaitPanelButtonsReleased;
-        MenuIndex_Requested:= MenuIndex;       // zurück
+        MenuIndex_Requested:= MenuIndex;       // zurï¿½ck
       endif;
       return;
       |
@@ -853,7 +877,7 @@ begin
       DisplayBottom('Re-config WiFi!');
       LED_blink(5);
       LCDclr_M(LCD_m1);
-      MenuIndex_Requested:= MenuIndex;  // zurück
+      MenuIndex_Requested:= MenuIndex;  // zurï¿½ck
       return;
       |
     tm_bootloader:
@@ -879,7 +903,7 @@ begin
       endfor;
       LED_blink(5);
       LCDclr_M(LCD_m1);
-      MenuIndex_Requested:= MenuIndex;  // zurück
+      MenuIndex_Requested:= MenuIndex;  // zurï¿½ck
       return;
       |
     endcase;
@@ -917,7 +941,7 @@ begin
         // sind nie 0-Parameter-Indexe, immer ins EEPROM
         my_idx:= c_Index2ParamArr[MenuIndex];
         PA_GetParamByte(my_idx, old_val, false); // aus edit_table
-        PA_NewParamEvent(my_idx, old_val, true, 0);  // in EEPROM für edit_CommonPreset 0 Startup
+        PA_NewParamEvent(my_idx, old_val, true, 0);  // in EEPROM fï¿½r edit_CommonPreset 0 Startup
         |
     endcase;
     DT_MsgSaveDoneBlink(my_save_dest_char);
@@ -929,14 +953,14 @@ begin
       PresetPreview:= false;
       // DT_InitLCD;
       ValueChangeMode:= false;
-      // kein Save-Timeout, Wechsel zurück auf Common Preset
-      MenuIndex:= c_MenuCommonPreset;    // wieder zurück
+      // kein Save-Timeout, Wechsel zurï¿½ck auf Common Preset
+      MenuIndex:= c_MenuCommonPreset;    // wieder zurï¿½ck
       IsInMainMenu:= true;
     endif;
     if DFUrunning then
       ValueByte:= 0;
       PA_SetParam(8209, false);  // DFU Modus beenden
-      MenuIndex_Requested:= MenuIndex;  // zurück
+      MenuIndex_Requested:= MenuIndex;  // zurï¿½ck
     endif;
   endif;
 end;
@@ -945,8 +969,8 @@ end;
 
 
 procedure MenuPanelHandling;
-// Menü-Bedienung und Einstellungen über Display, Buttons und Drehgeber
-// wertet DisplayDisplayRequest aus und setzt dieses zurück, sobald angezeigt
+// Menï¿½-Bedienung und Einstellungen ï¿½ber Display, Buttons und Drehgeber
+// wertet DisplayDisplayRequest aus und setzt dieses zurï¿½ck, sobald angezeigt
 // type t_ovr = (t_inrange, t_overrange, t_underrange);
 // type t_menuvalid = (t_menu_hidden, t_menu_invalid, t_menu_valid);
 var
@@ -958,7 +982,7 @@ begin
     return;
   endif;
 
-  if MenuPanelLEDsPresent then  // großes MenuPanel mit 7 LEDs
+  if MenuPanelLEDsPresent then  // groï¿½es MenuPanel mit 7 LEDs
     m:= EC_LogicalTabsToByte(0) xor $FF;
     if edit_LogicalTab_LeslieRun then
       if SpeedBlinkToggle then
@@ -984,48 +1008,48 @@ begin
       menu_WaitPanelButtonsReleased;
       DT_ResetEncoderKnob;
       EncoderDelta:= 0;
-      DT_GetMenuStatus;       // Menu könnte sich komplett geändert haben
-      DoMenuChange(0, true, false);  // Menüpunkt geändert
+      DT_GetMenuStatus;       // Menu kï¿½nnte sich komplett geï¿½ndert haben
+      DoMenuChange(0, true, false);  // Menï¿½punkt geï¿½ndert
     endif;
     DT_SetUpDownArrows;
   endif;
 
-  // Menü oder Bitfield-Index ändern
+  // Menï¿½ oder Bitfield-Index ï¿½ndern
   if ButtonPressed then
     MIDI_SendController(0, 123, 127);
     MIDI_SendController(1, 123, 127);
     MIDI_SendController(2, 123, 127);
     PresetNameEdit:= false;
     if (ButtonDelta > 0) and (IsInMainMenu) then
-      // nach oben, Hauptmenü-Anfang
-      MenuIndex:= c_MenuCommonPreset;    // wieder zurück
+      // nach oben, Hauptmenï¿½-Anfang
+      MenuIndex:= c_MenuCommonPreset;    // wieder zurï¿½ck
     elsif (ButtonDelta > 0) and (not IsInMainMenu) then
-      // nach oben, zurück zum Hauptmenü
+      // nach oben, zurï¿½ck zum Hauptmenï¿½
       MenuIndex:= LastMainMenuIndex;
     elsif (ButtonDelta < 0) and (IsInMainMenu) then
-      // nach unten: Aus Haupmenü in Submenü-Anfang
+      // nach unten: Aus Haupmenï¿½ in Submenï¿½-Anfang
       LastMainMenuIndex:= MenuIndex;
       MenuIndex:= c_MenuGotoArr[MenuIndex];  // nur 0..c_MainMenuEnd
       DT_GetNextValidMenuIndex(0);
       EditFieldIndex:= 0;
     elsif (ButtonDelta < 0) and (not IsInMainMenu) then
-      // nochmal nach unten, Submenü-Anfang
+      // nochmal nach unten, Submenï¿½-Anfang
       MenuIndex:= c_MenuGotoArr[LastMainMenuIndex];  // nur 0..c_MainMenuEnd
       DT_GetNextValidMenuIndex(0);
       EditFieldIndex:= 0;
     endif;
     ValueChangeMode:= false;  // immer mit Scroll-Modus beginnen
-    DT_GetMenuStatus;         // Menu könnte sich komplett geändert haben
-    DoMenuChange(0, true, false);    // Menüpunkt geändert
+    DT_GetMenuStatus;         // Menu kï¿½nnte sich komplett geï¿½ndert haben
+    DoMenuChange(0, true, false);    // Menï¿½punkt geï¿½ndert
     DT_SetUpDownArrows;
     menu_WaitPanelButtonsReleased;
     EncoderDelta:= 0;
   endif;
 
-  // Wert-Änderungen, auch für Bitfields
+  // Wert-ï¿½nderungen, auch fï¿½r Bitfields
   if EncoderChanged then
     if ValueChangeMode then
-      DoMenuChange(EncoderDelta, false, false);  // Wert geändert
+      DoMenuChange(EncoderDelta, false, false);  // Wert geï¿½ndert
     else
       if (IsInEditName or IsInBitField) then
         // in Bitfield, Buttons scrollen immer
@@ -1038,7 +1062,7 @@ begin
       else
         // nicht in Bitfield
         DT_GetNextValidMenuIndex(EncoderDelta);
-        DT_GetMenuStatus;         // Menu könnte sich komplett geändert haben
+        DT_GetMenuStatus;         // Menu kï¿½nnte sich komplett geï¿½ndert haben
         if EncoderDelta > 0 then  // nach oben gescrollt
           EditFieldIndex:= 0;
           // writeln(serout,'/ Menu up, 0');
@@ -1047,47 +1071,47 @@ begin
           // writeln(serout,'/ Menu dwn, 11');
         endif;
       endif;
-      DT_GetMenuStatus;       // Menu könnte sich komplett geändert haben
-      DoMenuChange(0, true, false);  // Menüpunkt geändert
+      DT_GetMenuStatus;       // Menu kï¿½nnte sich komplett geï¿½ndert haben
+      DoMenuChange(0, true, false);  // Menï¿½punkt geï¿½ndert
     endif;
     DT_SetUpDownArrows;
     ResetSysTimer(ActivityTimer);
   endif;
 
   if Bit(edit_ConfBits, 7) and (MenuIndex_SplashIfEnabled <> 255) then
-    // kurz auf MenuIndex_SplashIfEnabled wechseln, danach wieder zurück
+    // kurz auf MenuIndex_SplashIfEnabled wechseln, danach wieder zurï¿½ck
     // nur wenn ConfBit 7 gesetzt ist
     MenuIndex_Splash:= MenuIndex_SplashIfEnabled;
     MenuIndex_SplashIfEnabled:= 255;
   endif;
 
   if (MenuIndex_Splash <> 255) then
-    // kurz auf #MenuIndex_Splash wechseln, danach wieder zurück
+    // kurz auf #MenuIndex_Splash wechseln, danach wieder zurï¿½ck
     MenuIndex_Requested:= MenuIndex;
     MenuIndex:= MenuIndex_Splash;
-    DT_GetMenuStatus;       // Menu könnte sich komplett geändert haben
-    DoMenuChange(0, true, false);  // Menüpunkt geändert
-    setSysTimer(ActivityTimer, 500); // zurück nach 1 Sekunde
+    DT_GetMenuStatus;       // Menu kï¿½nnte sich komplett geï¿½ndert haben
+    DoMenuChange(0, true, false);  // Menï¿½punkt geï¿½ndert
+    setSysTimer(ActivityTimer, 500); // zurï¿½ck nach 1 Sekunde
     MenuIndex:= MenuIndex_Requested;
     MenuIndex_Splash:= 255;
   endif;
 
   if isSystimerzero(ActivityTimer) then
-    // Neues Menü angefordert: Wenn ActivityTimer abgelaufen ist,
+    // Neues Menï¿½ angefordert: Wenn ActivityTimer abgelaufen ist,
     // Anzeige auf #MenuIndex setzen und Wert neu anzeigen
     if (MenuIndex_Requested <> 255) then
       MenuIndex:= MenuIndex_Requested;
-      DT_GetMenuStatus;       // Menu könnte sich komplett geändert haben
-      DoMenuChange(0, true, false);  // Menüpunkt geändert
+      DT_GetMenuStatus;       // Menu kï¿½nnte sich komplett geï¿½ndert haben
+      DoMenuChange(0, true, false);  // Menï¿½punkt geï¿½ndert
       // auf aktuelle Anzeige #MenuIndex wechseln und aktualisieren
       MenuIndex_Requested:= 255;
       MenuRefresh:= true;  // ggf. angezeigten Wert aktualisieren
     endif;
     // Wenn ActivityTimer abgelaufen ist,
-    // nur Wert aktualisieren (z.B. wenn extern geändert)
+    // nur Wert aktualisieren (z.B. wenn extern geï¿½ndert)
     if MenuRefresh then
       //aktuelle Anzeige #MenuIndex aktualisieren
-      DoMenuChange(0, False, false);  // nur Wert geändert
+      DoMenuChange(0, False, false);  // nur Wert geï¿½ndert
       DT_SetUpDownArrows;
       setSysTimer(ActivityTimer, 50); // Update alle 50 ms reicht
       MenuRefresh:= false;
