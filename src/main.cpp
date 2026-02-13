@@ -19,6 +19,7 @@
 #include <Arduino.h>
 #include <EEPROM.h>
 #include <TimerOne.h>
+#include "global_vars.h"
 #include "FPGA_SPI.h"
 
 // Define used modules here, comment out unused modules to save program memory
@@ -26,44 +27,8 @@
 #define ANLG_MPX
 #define PANEL16
 
-#define VERSION "HX3.5 v0.01"
-
-// ATMEL ATMEGA644P / SANGUINO
-//
-//                     +---\/---+
-// 0  INT0 (D 0) PB0  1|        |40  PA0 (AI 0 / D31)	31
-// 1  INT1 (D 1) PB1  2|        |39  PA1 (AI 1 / D30)	30
-// 2  INT2 (D 2) PB2  3|        |38  PA2 (AI 2 / D29)	39
-// 3   PWM (D 3) PB3  4|        |37  PA3 (AI 3 / D28)	28
-// 4   PWM (D 4) PB4  5|        |36  PA4 (AI 4 / D27)	27
-// 5  MOSI (D 5) PB5  6|        |35  PA5 (AI 5 / D26)	26
-// 6  MISO (D 6) PB6  7|        |34  PA6 (AI 6 / D25)	25
-// 7   SCK (D 7) PB7  8|        |33  PA7 (AI 7 / D24)	24
-//               RST  9|        |32  AREF
-//               VCC 10|        |31  GND
-//               GND 11|        |30  AVCC
-//             XTAL2 12|        |29  PC7 (D 23)		23
-//             XTAL1 13|        |28  PC6 (D 22)		22
-// 8  RX0 (D 8)  PD0 14|        |27  PC5 (D 21) TDI	21
-// 9  TX0 (D 9)  PD1 15|        |26  PC4 (D 20) TDO	20
-//10  RX1 (D 10) PD2 16|        |25  PC3 (D 19) TMS	19
-//11  TX1 (D 11) PD3 17|        |24  PC2 (D 18) TCK	18
-//12  PWM (D 12) PD4 18|        |23  PC1 (D 17) SDA	17
-//13  PWM (D 13) PD5 19|        |22  PC0 (D 16) SCL	16
-//14  PWM (D 14) PD6 20|        |21  PD7 (D 15) PWM	15
-//                     +--------+
-//
-
-#define LED_PIN 10 // Pin für LED
-#define PWR_GOOD 15 // Pin für DSP-Reset
-
-
-#define _NOP_DLY asm volatile ("nop")
-
-
 volatile uint8_t Timer1Semaphore = 0;
 volatile uint8_t Timer1RoundRobin = 0;
-
 
 #ifdef LCD_I2C
   // Für LCD mit I2C-Interface
@@ -71,6 +36,8 @@ volatile uint8_t Timer1RoundRobin = 0;
   #include "MenuItems.h"
 #endif
 bool lcdPresent = false;
+
+#include "FPGA_hilevel.h"
 
 #ifdef PANEL16
   // Für LCD mit I2C-Interface
@@ -404,59 +371,7 @@ void setup() {
     mpxPots.resetMPX(); // MPX-SR 74HC164 zurücksetzen
   #endif
 
-  spi_write8(68, 0); // Tuning Byte
-  spi_write8(246, 0); // DSP Bits
-
-  digitalWrite(LED_PIN, LOW); // sets the LED on
-
-  digitalWrite(PWR_GOOD, HIGH); // DSP-Reset deaktivieren
-  delay(150); // DSP booten lassen
-
-  uint32_t fpga_version= spi_read32(3); // SPI-Transfer, lese Version aus
-  Serial.print(F("/ FPGA Version: "));
-  Serial.println(fpga_version, HEX);
-
-  spi_read8(240); // hier nur DNA-Auslese-Trigger
-  uint32_t fpga_serial = spi_read32(242); // lese Seriennummer aus
-  Serial.print(F("/ FPGA Serial: "));
-  Serial.println(fpga_serial);
-
-  // Serial Number: 2821432, Licence Organ: 9523781  Extended: 3316044
-  spi_write32(240, 9523781);
-  spi_write32(241, 3316044);
-
-  uint32_t fpga_organ = spi_read32(240); // lese Lizenznummer aus
-  Serial.print(F("/ FPGA Organ License: "));
-  Serial.println(fpga_organ);
-
-  uint32_t fpga_rotary = spi_read32(241); // lese Lizenznummer aus
-  Serial.print(F("/ FPGA Rotary License: "));
-  Serial.println(fpga_rotary);
-
-  uint8_t fpga_valid = spi_read32(244); // muss in 32 Bit-Register gelesen werden
-  Serial.println(fpga_valid);
-
-  df_send_core(15, 2, 1);  // FIR Koeffizienten Horn (+15 auf Reg. 2), 1 Block
-  df_send_core(0, 0, 2);   // Test: DF-Transfer, sende 8 KByte aus Blockbuffer an Core #0
-
-  spi_clearfifo();
-  spi_autoIncReset(0); // Scan core zurücksetzen
-  delay(10);
-  uint32_t scan_info = spi_read32(MIDI_FIFO_RDREG); // Test: SPI-Transfer, lese erstes Wort von Core #0, sollte 0x12345678 sein
-  Serial.print(F("/ Scan Core response: "));
-  Serial.println(scan_info, HEX);
-  digitalWrite(LED_PIN, HIGH); // sets the LED off
-
-  #ifdef LCD_I2C
-    lcd.cursorXY(0,1);
-    lcd.print(fpga_serial, HEX);
-    lcd.clearEOL();
-    delay(1500);
-    displayMenuItem(MenuItemActive); // Hauptmenü anzeigen
-  #endif
-
-  spi_write8(177, 40); // Test: SPI-Transfer, schreibe LeslieHornSpeed
-  spi_write8(178, 40); // Test: SPI-Transfer, schreibe LeslieRotorSpeed
+  fpga_setup();
 }
 
 // #############################################################################

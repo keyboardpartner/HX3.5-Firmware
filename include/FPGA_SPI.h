@@ -14,6 +14,7 @@
 // #############################################################################
 
 #include <Arduino.h>
+#include "global_vars.h"
 
 // PB0 = F_CSO_B, PB1 = F_RS, PB2 = F_INT, PB3 = F_DS, PB4 = F_AUX
 #define _DF_CS PORTB0
@@ -40,14 +41,6 @@
 #define DDRBINIT_FPGACONF B00111010
 
 #define MIDI_FIFO_RDREG 0x02
-
-const uint16_t c_core_base_DF = 0x3B0;    // 944, erster 4k-Block nach FPGA-Image(s)
-const uint16_t c_scan_base_DF = 0x3B0;    // 944, erster 4k-Block nach FPGA-Image(s)
-const uint16_t c_voice_base_DF = c_core_base_DF + 2;    // 946, Zugriegel-Arrays, Länge 1 Block
-const uint16_t c_defaults_base_DF = c_core_base_DF + 3;    // 947, EEPROM-simulation bei ARM
-const uint16_t c_taper_base_DF = c_core_base_DF + 11;   // 955..958, Länge 4 x 1 Block
-const uint16_t c_coeff_base_DF = c_core_base_DF + 15;   // 959, Länge 1 Block
-const uint16_t c_waveset_base_DF = 0x3C0;   // 960, Länge 32 (8 x 4 Blocks)
 
 // define a union of the same array in byte and word representation for easier access to the 4KByte block buffer
 union {
@@ -275,7 +268,7 @@ bool df_writeblock(uint16_t block_4k, uint16_t df_blocklen) {
 // #############################################################################
 
 
-void df_send_blocks(uint16_t block_4k, uint8_t core_target, uint16_t block_count) {
+void df_send_blocks(uint16_t block_4k, uint8_t core_target, uint16_t block_count, uint8_t data_width) {
   // 4k-Blocks aus DF laden und an AutoInc-Reg senden
   // 4096 Bytes = 1 BlockRAM
   uint16_t block_idx, array_idx;
@@ -284,36 +277,84 @@ void df_send_blocks(uint16_t block_4k, uint8_t core_target, uint16_t block_count
   for (block_idx = 0; block_idx < block_count; block_idx++) {
     df_readblock(block_4k + block_idx, 4096);
 #ifdef DEBUG
-    Serial.print("/ Read block #");
-    Serial.println(block_4k + block_idx);
+    Serial.print("/ DF block #");
+    Serial.print(block_4k + block_idx);
+    Serial.print(" to LC #");
+    Serial.println(core_target);
 #endif
-    for (array_idx = 0; array_idx < 1024; array_idx++) {
-      _DS_ON; // Daten
-      spi_xfer32(spi_blockbuffer.dword[array_idx]);
-      _DS_OFF;
-#ifdef DEBUG
-      // Debug-Ausgabe der ersten 4 Worte
-      if (array_idx < 4) {
-        Serial.print(array_idx, HEX);
-        Serial.write(' ');
-        Serial.println(spi_blockbuffer.dword[array_idx], HEX);
-      }
-#endif
+    switch (data_width) {
+      case 8:
+        for (array_idx = 0; array_idx < 4096; array_idx++) {
+          _DS_ON; // Daten
+          spi_xfer8(spi_blockbuffer.byte[array_idx]);
+          _DS_OFF;
+        }
+        break;
+      case 16:
+        for (array_idx = 0; array_idx < 2048; array_idx++) {
+          _DS_ON; // Daten
+          spi_xfer16(spi_blockbuffer.word[array_idx]);
+          _DS_OFF;
+        }
+        break;
+      case 32:
+      default:
+        for (array_idx = 0; array_idx < 1024; array_idx++) {
+          _DS_ON; // Daten
+          spi_xfer32(spi_blockbuffer.dword[array_idx]);
+          _DS_OFF;
+        }
+        break;
     }
   }
-#ifdef DEBUG
-  Serial.println("/ Read blocks done");
-#endif
   spi_autoIncReset(core_target);
 }
 
-void df_send_core(uint16_t core, uint8_t core_target, uint16_t block_count) {
+// AutoInc-Register FPGA-SPI
+// LC#    Breite   Länge Bytes  LC Core
+// 0        32        8192      PicoBlaze       (Datei/DF-Blocks)
+// 1        32        1024      Taper-RAM (Datei/DF in 32 Bit, nur unterste 8 übertragen)
+// 2        16        2048      FIR-Coeff       (Datei/DF-Blocks)
+// 3         8        1024      Keymap-RAM      (berechnet!)
+// 4        16       16384      Wave-RAM        (Datei/DF-Blocks)
+// berechnete Cores: 5..13, je nach LC
+// 5        16          96      Frequenz/Tuning (berechnet)
+// 6        16        1024      Highpass-Filter (berechnet)
+// 7 NEU    16         512      TubeAmp Steps/Slopes,je 256 Werte (aus Tabelle)
+// 8         8          16      Upper DBs       (berechnet)
+// 9         8          16      Lower DB        (berechnet)
+// 10        8          16      Pedal DB        (berechnet)
+// 11       16          64      ADSR Upper      (berechnet)
+// 12       16          64      ADSR Lower      (berechnet)
+// 13       16          64      ADSR Pedal      (berechnet)
+
+// Block-Offsets zu Block c_scan_base
+// 0..1: Scan Core,
+// 11..14: Tapering
+// 15: FIR filter
+// 16 ff.: Wavesets, je 4 Blocks!
+
+const uint16_t c_core_base_DF = 0x3B0;    // 944, erster 4k-Block nach FPGA-Image(s)
+const uint16_t c_scan_base_DF = 0x3B0;    // 944, erster 4k-Block nach FPGA-Image(s)
+const uint16_t c_voice_base_DF = c_core_base_DF + 2;    // 946, Zugriegel-Arrays, Länge 1 Block
+const uint16_t c_defaults_base_DF = c_core_base_DF + 3; // 947, EEPROM-simulation bei ARM
+const uint16_t c_taper_base_DF = c_core_base_DF + 11;   // 955..958, Länge 4 x 1 Block
+const uint16_t c_coeff_base_DF = c_core_base_DF + 15;   // 959, Länge 1 Block
+const uint16_t c_waveset_base_DF = 0x3C0;   // 960, Länge 32 (8 x 4 Blocks)
+
+const uint16_t c_target_datawidth[] = {32, 32, 16,  8, 16, 16, 16, 16,  8,  8,  8, 16, 16, 16, 16};
+const uint16_t c_core_blockcount[]  = { 2,  1,  1,  0,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
+
+void df_send_core(uint8_t lc_target, uint8_t block_offset) {
   // PicoBlaze- oder Tapering-Core #core aus DF laden und an AutoInc-Reg senden
   // 4096 Bytes = 1 BlockRAM
   // 0..1: Scan Core,
   // 11..14: Tapering
   // 15: FIR filter
-  df_send_blocks(c_core_base_DF + core, core_target, block_count);
+  if (c_core_blockcount[lc_target] == 0) return; // nur LC #0..2 und #4 haben Daten in DF
+  df_send_blocks(c_core_base_DF + (uint16_t)block_offset, lc_target, c_core_blockcount[lc_target],
+                c_target_datawidth[lc_target]);
 }
+
 
 #endif // FPGA_SPI_H

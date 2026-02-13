@@ -14,6 +14,7 @@
 #define MPX_POTS_H
 
 #include <Arduino.h>
+#include "global_vars.h"
 
 // MPX Functions for reading analog inputs via MPX and 74HC164 shift register
 
@@ -37,7 +38,6 @@
   #define _SET_MPX_CLK  asm volatile("sbi %0,%1 " : : "I" (_SFR_IO_ADDR(PORTC)), "I" (MPX_CLK))
   #define _CLR_MPX_CLK  asm volatile("cbi %0,%1 " : : "I" (_SFR_IO_ADDR(PORTC)), "I" (MPX_CLK))
 #endif
-#define _NOP_DLY asm volatile ("nop")
 
 #define MPX_ACTIVE_TIMEOUT 10 // Anzahl der kompletten Durchläufe, die ein geänderter Potentiometerwert als aktiv gilt, höher = länger aktiv
 #define MPX_INTEGRATOR_FACTOR 4 // Faktor für die Integration der MPX-Werte, höher = stärker geglättet, aber auch träger

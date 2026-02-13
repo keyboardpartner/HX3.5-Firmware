@@ -19,6 +19,7 @@
 #include <Wire.h>
 #include "MenuPanel.h"
 #include <EEPROM.h>
+#include "global_vars.h"
 
 #define EEPROM_MENUDEFAULTS 16 // Startadresse im EEPROM für gespeicherte Werte
 
