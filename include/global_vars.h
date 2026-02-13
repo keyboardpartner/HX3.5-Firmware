@@ -1,6 +1,9 @@
 #ifndef global_vars_h
 #define global_vars_h
 
+#include <Arduino.h>
+#include "MenuPanel.h"
+
 #define VERSION "HX3.5 v0.01"
 
 // ATMEL ATMEGA644P / SANGUINO
@@ -34,7 +37,34 @@
 
 #define _NOP_DLY asm volatile ("nop")
 
+#ifdef DEBUG
+#define DPRINT(...)    Serial.print(__VA_ARGS__)
+//OR, #define DPRINT(args...)    Serial.print(args)
+#define DPRINTLN(...)  Serial.println(__VA_ARGS__)
+#define DPRINTF(...)    Serial.print(F(__VA_ARGS__))
+#define DPRINTLNF(...) Serial.println(F(__VA_ARGS__)) //printing text using the F macro
+#else
+#define DPRINT(...)     //blank line
+#define DPRINTLN(...)   //blank line
+#define DPRINTF(...)    //blank line
+#define DPRINTLNF(...)  //blank line
+#define DBEGIN(...)     //blank line
+#endif
 
+struct {
+  uint32_t fpga_version;
+  uint32_t fpga_serial;
+  uint32_t fpga_organ;
+  uint32_t fpga_rotary;
+  uint8_t fpga_valid;
+  uint8_t scan_id;
+  uint8_t scan_version;
+  uint8_t scan_validflag;
+} board_info;
 
+volatile uint8_t Timer1Semaphore = 0;
+volatile uint8_t Timer1RoundRobin = 0;
+
+MenuPanel lcd(LCD_I2C_ADDR, 16, 2);
 
 #endif

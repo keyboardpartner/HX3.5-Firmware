@@ -17,7 +17,6 @@
 #include "FPGA_SPI.h"
 #include "global_vars.h"
 
-
 void fpga_setup() {
   spi_write8(68, 0); // Tuning Byte
   spi_write8(246, 0); // DSP Bits
@@ -26,31 +25,31 @@ void fpga_setup() {
   digitalWrite(PWR_GOOD, HIGH); // DSP-Reset deaktivieren
   delay(150); // DSP booten lassen
 
-  uint32_t fpga_version= spi_read32(3); // SPI-Transfer, lese Version aus
-  Serial.print(F("/ FPGA Version: "));
-  Serial.println(fpga_version, HEX);
+  board_info.fpga_version= spi_read32(3); // SPI-Transfer, lese Version aus
+  DPRINTF("/ FPGA Version: ");
+  DPRINTLN(board_info.fpga_version, HEX);
 
   spi_read8(240); // hier nur DNA-Auslese-Trigger
-  uint32_t fpga_serial = spi_read32(242); // lese Seriennummer aus
-  Serial.print(F("/ FPGA Serial:  "));
-  Serial.println(fpga_serial);
+  board_info.fpga_serial = spi_read32(242); // lese Seriennummer aus
+  DPRINTF("/ FPGA Serial:  ");
+  DPRINTLN(board_info.fpga_serial);
 
   // For Serial Number 2821432, Licence Organ: 9523781  Extended: 3316044
   // These will not work on other boards!
   spi_write32(240, 9523781);
   spi_write32(241, 3316044);
 
-  uint32_t fpga_organ = spi_read32(240); // lese Lizenznummer aus
-  Serial.print(F("/ FPGA Organ License:  "));
-  Serial.println(fpga_organ);
+  board_info.fpga_organ = spi_read32(240); // lese Lizenznummer aus
+  DPRINTF("/ FPGA Organ License:  ");
+  DPRINTLN(board_info.fpga_organ);
 
-  uint32_t fpga_rotary = spi_read32(241); // lese Lizenznummer aus
-  Serial.print(F("/ FPGA Rotary License: "));
-  Serial.println(fpga_rotary);
+  board_info.fpga_rotary = spi_read32(241); // lese Lizenznummer aus
+  DPRINTF("/ FPGA Rotary License: ");
+  DPRINTLN(board_info.fpga_rotary);
 
-  uint8_t fpga_valid = spi_read32(244); // muss in 32 Bit-Register gelesen werden
-  Serial.print(F("/ FPGA License valid flags: "));
-  Serial.println(fpga_valid);
+  board_info.fpga_valid = spi_read32(244); // muss in 32 Bit-Register gelesen werden
+  DPRINTF("/ FPGA License valid flags: ");
+  DPRINTLN(board_info.fpga_valid);
 
   df_send_core(0, 0);  // PicoBlaze Core #0
   df_send_core(1, 11);  // 1. Taper-Set, Block Offset 11 (nur unterste 8 Bit übertragen)
@@ -65,14 +64,14 @@ void fpga_setup() {
   Serial.println(scan_info, HEX);
   digitalWrite(LED_PIN, HIGH); // sets the LED off
 
-  uint8_t scan_id = scan_info & 0xFF;
-  uint8_t scan_version = (scan_info >> 8) & 0xFF;
-  uint8_t scan_validflag = (scan_info >> 16) & 0xFF;
+  board_info.scan_id = scan_info & 0xFF;
+  board_info.scan_version = (scan_info >> 8) & 0xFF;
+  board_info.scan_validflag = (scan_info >> 16) & 0xFF;
   //$60=SR4014, $61=Fatar, $62=Opto, $63=MIDI, $64=OrganScan61, $65=XB2-5, $66=Fatar61 (neu), $67=Fatar73 (neu, mit Presets)
-  if (scan_validflag == 0xAA) {
+  if (board_info.scan_validflag == 0xAA) {
     Serial.print("/ Scan Core valid, version ");
-    Serial.print(scan_version, HEX);
-    switch(scan_id &0x0F) {
+    Serial.print(board_info.scan_version, HEX);
+    switch(board_info.scan_id &0x0F) {
       case 0x00:
         Serial.println(F(", Scan16/SR4014"));
         break;

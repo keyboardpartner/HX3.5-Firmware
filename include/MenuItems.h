@@ -10,7 +10,7 @@
 //
 // #############################################################################
 */
-// MIDI Controller Menu Item IDs
+// Dieses Menü-System hat noch nichts mit dem HX3.5 C++ Framework zu tun!
 
 
 #ifndef MenuItems_h
@@ -507,8 +507,6 @@ int8_t MenuStart;
 int8_t MenuEnd;
 int8_t MenuItemActive;
 int8_t MenuItemReturn;   // speichert bei Untermenüs die Rücksprungposition
-
-MenuPanel lcd(LCD_I2C_ADDR, 16, 2);
 
 bool menuInit() {
   // Initialisiere Menü, setze Start- und Endpunkt und zeige Version an

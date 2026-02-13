@@ -42,7 +42,8 @@
 
 #define MIDI_FIFO_RDREG 0x02
 
-// define a union of the same array in byte and word representation for easier access to the 4KByte block buffer
+// define a union of the same array in byte and word representation
+// for easier access to the 4KByte block buffer
 union {
   uint8_t byte[4096];
   uint16_t word[2048];

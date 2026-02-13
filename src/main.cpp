@@ -27,9 +27,6 @@
 #define ANLG_MPX
 #define PANEL16
 
-volatile uint8_t Timer1Semaphore = 0;
-volatile uint8_t Timer1RoundRobin = 0;
-
 #ifdef LCD_I2C
   // Für LCD mit I2C-Interface
   #include "MenuPanel.h"
@@ -67,7 +64,7 @@ void configurePorts(uint8_t driverType) {
   PORTC = B11111111; //
 
   DDRD  = B11111110; //
-  PORTD = B01111100; // Pull-ups für Eingänge aktivieren, LED PD2 off
+  PORTD = B01111100; // Pull-ups für Eingänge aktivieren, LED PD2 off PWR_GOOD PD3 LOW
 
   // Während der FPGA-Konfiguration müssen einige Pins als Inputs konfiguriert werden,
   // damit das FPGA nicht gestört wwird.
@@ -89,7 +86,6 @@ void configurePorts(uint8_t driverType) {
   digitalWrite(LED_PIN, HIGH);  // sets the LED off
   DDRB  = DDRBINIT; // PB0 = F_CSO_B, PB1 = F_RS, PB2 = F_INT, PB3 = F_DS, PB4 = F_AUX
   _FPGA_PROG_OFF;
-
 
   // SPI initialisieren, wie bei MMC
   SPCR  = B01011100;  // Enable SPI, Master, CPOL/CPHA=1,1 Mode 3
@@ -372,6 +368,7 @@ void setup() {
   #endif
 
   fpga_setup();
+  displayMenuItem(0);
 }
 
 // #############################################################################
