@@ -168,6 +168,8 @@ uint8_t spi_read8(uint8_t spi_reg) {
 // #############################################################################
 
 void spi_clearfifo() {
+  // Clears the MIDI IN FIFO of the Scan-Core by reading until empty
+  // or until 1024 bytes have been read (to prevent infinite loop in case of error)
   for (uint16_t i=0; i<1024; i++) {
     spi_read32(MIDI_FIFO_RDREG);
     if (_FIFO_EMPTY) {
