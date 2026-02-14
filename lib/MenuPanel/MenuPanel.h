@@ -157,6 +157,7 @@ private:
   uint8_t _lastState = B00000011; // Initialer Zustand der Encoder-Bits
   int16_t _encoderPosition = 0;
   int16_t _encoderDelta = 0;
+  uint32_t _encoderMillis = millis();
 };
 
 #endif

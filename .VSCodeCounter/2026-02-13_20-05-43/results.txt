@@ -1,0 +1,84 @@
+Date : 2026-02-13 20:05:43
+Directory : e:\Dropbox\HOAX_35\HX3.5-Firmware
+Total : 48 files,  23833 codes, 5230 comments, 2898 blanks, all 31961 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| Pascal             |         33 |     21,709 |      4,675 |      2,547 |     28,931 |
+| C++                |         12 |      2,021 |        543 |        338 |      2,902 |
+| JSON with Comments |          1 |         49 |          0 |          0 |         49 |
+| Ini                |          1 |         43 |         12 |          3 |         58 |
+| Markdown           |          1 |         11 |          0 |         10 |         21 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                            | files      | code       | comment    | blank      | total      |
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                               |         48 |     23,833 |      5,230 |      2,898 |     31,961 |
+| . (Files)                                                       |          3 |        103 |         12 |         13 |        128 |
+| AVRco                                                           |         33 |     21,709 |      4,675 |      2,547 |     28,931 |
+| include                                                         |          6 |      1,189 |        200 |        164 |      1,553 |
+| lib                                                             |          5 |        662 |        256 |        129 |      1,047 |
+| lib\MenuPanel                                                   |          2 |        333 |        130 |         69 |        532 |
+| lib\MpxPots                                                     |          1 |        133 |         40 |         25 |        198 |
+| lib\Panel16                                                     |          2 |        196 |         86 |         35 |        317 |
+| src                                                             |          1 |        170 |         87 |         45 |        302 |
++-----------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++-----------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                        | language           | code       | comment    | blank      | total      |
++-----------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\BootLoaderSD_1284.pas   | Pascal             |        131 |          9 |         30 |        170 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\HX35_main.pas           | Pascal             |        122 |         91 |         47 |        260 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\MIDI_custom.pas         | Pascal             |        261 |         80 |         16 |        357 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\MIDI_hammond.pas        | Pascal             |        267 |         30 |         18 |        315 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\MIDI_ni.pas             | Pascal             |         31 |         17 |         12 |         60 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\MIDI_sempra.pas         | Pascal             |        248 |         92 |         22 |        362 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\adc_touch_interface.pas | Pascal             |        468 |        144 |         63 |        675 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\apply_changes.pas       | Pascal             |      1,943 |        305 |        209 |      2,457 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\apply_changes_old.pas   | Pascal             |      2,383 |        365 |        189 |      2,937 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\const_def.pas           | Pascal             |      2,565 |        286 |        140 |      2,991 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\dataflash.pas           | Pascal             |        350 |         96 |         49 |        495 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\debug_midi_inc.pas      | Pascal             |        514 |          1 |          2 |        517 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\debug_sempra_inc.pas    | Pascal             |        514 |          1 |          2 |        517 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\display_toolbox.pas     | Pascal             |        405 |         91 |         69 |        565 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\edit_changes.pas        | Pascal             |        864 |        274 |        190 |      1,328 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\eeprom_def.pas          | Pascal             |      1,017 |        255 |        170 |      1,442 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\fpga_hilevel.pas        | Pascal             |      1,186 |        410 |        184 |      1,780 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\fpga_hilevel_module.pas | Pascal             |        936 |        282 |        150 |      1,368 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\fpga_if.pas             | Pascal             |        393 |         82 |         69 |        544 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\main_tasks.pas          | Pascal             |        280 |         51 |         37 |        368 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\main_tasks_module.pas   | Pascal             |         67 |         34 |         19 |        120 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\menu_system.pas         | Pascal             |        905 |        147 |         72 |      1,124 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\midi_com.pas            | Pascal             |        299 |        115 |         54 |        468 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\midi_sysex.pas          | Pascal             |        730 |        334 |         93 |      1,157 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\nuts_and_bolts.pas      | Pascal             |        499 |        126 |         79 |        704 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\parser.pas              | Pascal             |      1,580 |        238 |        115 |      1,933 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\port_def.pas            | Pascal             |         96 |         34 |         44 |        174 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\preset_interface.pas    | Pascal             |        282 |         45 |         32 |        359 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\save_restore.pas        | Pascal             |        443 |        143 |         65 |        651 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\sd_card.pas             | Pascal             |        286 |         60 |         35 |        381 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\startup.pas             | Pascal             |        349 |        110 |         81 |        540 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\switch_interface.pas    | Pascal             |      1,098 |        252 |        121 |      1,471 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\AVRco\var_def.pas             | Pascal             |        197 |         75 |         69 |        341 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\HX35_AVR.code-workspace       | JSON with Comments |         49 |          0 |          0 |         49 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\README.md                     | Markdown           |         11 |          0 |         10 |         21 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\include\FPGA_MIDI.h           | C++                |         54 |         13 |          9 |         76 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\include\FPGA_SPI.h            | C++                |        271 |         77 |         54 |        402 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\include\FPGA_hilevel.h        | C++                |        255 |         23 |         38 |        316 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\include\global_vars.h         | C++                |        124 |         33 |         30 |        187 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\include\menu_items.h          | C++                |        326 |         23 |         17 |        366 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\include\menu_system.h         | C++                |        159 |         31 |         16 |        206 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\lib\MenuPanel\MenuPanel.cpp   | C++                |        216 |        104 |         49 |        369 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\lib\MenuPanel\MenuPanel.h     | C++                |        117 |         26 |         20 |        163 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\lib\MpxPots\MpxPots.h         | C++                |        133 |         40 |         25 |        198 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\lib\Panel16\Panel16.cpp       | C++                |        146 |         58 |         20 |        224 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\lib\Panel16\Panel16.h         | C++                |         50 |         28 |         15 |         93 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\platformio.ini                | Ini                |         43 |         12 |          3 |         58 |
+| e:\Dropbox\HOAX_35\HX3.5-Firmware\src\main.cpp                  | C++                |        170 |         87 |         45 |        302 |
+| Total                                                           |                    |     23,833 |      5,230 |      2,898 |     31,961 |
++-----------------------------------------------------------------+--------------------+------------+------------+------------+------------+

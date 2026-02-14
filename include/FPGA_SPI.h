@@ -60,6 +60,16 @@ uint8_t spi_xfer8(uint8_t data) {
   return SPDR;
 }
 
+uint8_t spi_xfer8_ds(uint8_t data) {
+  // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
+  _DS_ON; // Daten
+  SPDR = data;
+  asm volatile("nop"); // See transfer(uint8_t) function
+  while (!(SPSR & _BV(SPIF))) ;
+  _DS_OFF;
+  return SPDR;
+}
+
 uint16_t spi_xfer16(uint16_t data) {
   // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
   union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } in, out;
@@ -75,6 +85,14 @@ uint16_t spi_xfer16(uint16_t data) {
   return out.val;
 }
 
+uint16_t spi_xfer16_ds(uint16_t data) {
+  // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
+  _DS_ON; // Daten
+  uint16_t result = spi_xfer16(data);
+  _DS_OFF;
+  return result;
+}
+
 uint32_t spi_xfer24(uint32_t data) {
   // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
   uint8_t highByte = (data >> 16) & 0xFF;
@@ -84,6 +102,14 @@ uint32_t spi_xfer24(uint32_t data) {
   return ((uint32_t)recv_hb << 16) | recv_lw;
 }
 
+uint32_t spi_xfer24_ds(uint32_t data) {
+  // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
+  _DS_ON; // Daten
+  uint32_t result = spi_xfer24(data);
+  _DS_OFF;
+  return result;
+}
+
 uint32_t spi_xfer32(uint32_t data) {
   // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
   uint16_t highWord = (data >> 16) & 0xFFFF;
@@ -91,6 +117,14 @@ uint32_t spi_xfer32(uint32_t data) {
   uint16_t recv_hw = spi_xfer16(highWord);
   uint16_t recv_lw = spi_xfer16(lowWord);
   return ((uint32_t)recv_hw << 16) | recv_lw;
+}
+
+uint32_t spi_xfer32_ds(uint32_t data) {
+  // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
+  _DS_ON; // Daten
+  uint32_t result = spi_xfer32(data);
+  _DS_OFF;
+  return result;
 }
 
 // -----------------------------------------------------------------------------
@@ -111,9 +145,7 @@ void spi_sendreg_wr(uint8_t spi_reg) {
 
 void spi_write32(uint8_t spi_reg, uint32_t data) {
   spi_sendreg_wr(spi_reg); // Write-Flag 1, Register senden
-  _DS_ON; // Daten
-  spi_xfer32(data);
-  _DS_OFF;
+  spi_xfer32_ds(data);
 }
 
 void spi_write24(uint8_t spi_reg, uint32_t data) {
@@ -125,16 +157,39 @@ void spi_write24(uint8_t spi_reg, uint32_t data) {
 
 void spi_write16(uint8_t spi_reg, uint16_t data) {
   spi_sendreg_wr(spi_reg); // Write-Flag 1, Register senden
-  _DS_ON; // Daten
-  spi_xfer16(data);
-  _DS_OFF;
+  spi_xfer16_ds(data);
 }
 
 void spi_write8(uint8_t spi_reg, uint8_t data) {
   spi_sendreg_wr(spi_reg); // Write-Flag 1, Register senden
-  _DS_ON; // Daten
-  spi_xfer8(data);
-  _DS_OFF;
+  spi_xfer8_ds(data);
+}
+
+// Kompatibiltätsfunktionen für 8 Bit Register
+
+void spi_write8_scaled(uint8_t spi_reg, uint8_t data, uint8_t percent) {
+  // Wert mit Prozentzahl skalieren
+  spi_sendreg_wr(spi_reg); // Write-Flag 1, Register senden
+  uint16_t scaled_data = (data * percent) / 100;
+  spi_xfer8_ds(scaled_data);
+}
+
+void spi_write8_doubled(uint8_t spi_reg, uint8_t data) {
+  spi_sendreg_wr(spi_reg); // Write-Flag 1, Register senden
+  spi_xfer8_ds(data << 1); // Daten verdoppeln
+}
+
+void spi_write16_volume(uint8_t spi_reg, uint8_t data) {
+  // 0..127 auf 0..252 quadriert für Lautstärkeregelung
+  spi_sendreg_wr(spi_reg); // Write-Flag 1, Register senden
+  uint16_t scaled_data = (data * data) / 64;
+  spi_xfer16_ds(scaled_data >> 8); // Daten quadriert
+}
+
+void spi_write16_log(uint8_t spi_reg, uint8_t data) {
+  spi_sendreg_wr(spi_reg); // Write-Flag 1, Register senden
+  uint16_t log_data = c_DrawbarLogTable[data] * 2;
+  spi_xfer16_ds(log_data); // Daten aus Tabelle
 }
 
 // -----------------------------------------------------------------------------
@@ -143,26 +198,17 @@ void spi_write8(uint8_t spi_reg, uint8_t data) {
 
 uint32_t spi_read32(uint8_t spi_reg) {
   spi_sendreg(spi_reg); // Write-Flag 0, Register senden
-  _DS_ON; // Daten
-  uint32_t result = spi_xfer32(0x00000000);
-  _DS_OFF;
-  return result;
+  return spi_xfer32_ds(0x00000000);
 }
 
 uint32_t spi_read16(uint8_t spi_reg) {
   spi_sendreg(spi_reg); // Write-Flag 0, Register senden
-  _DS_ON; // Daten
-  uint16_t result = spi_xfer16(0x0000);
-  _DS_OFF;
-  return result;
+  return spi_xfer16_ds(0x0000);
 }
 
 uint8_t spi_read8(uint8_t spi_reg) {
   spi_sendreg(spi_reg); // Write-Flag 0, Register senden
-  _DS_ON; // Daten
-  uint8_t result = spi_xfer8(0x00);
-  _DS_OFF;
-  return result;
+  return spi_xfer8_ds(0x00);
 }
 
 // #############################################################################
@@ -192,47 +238,79 @@ void spi_autoIncSetup(uint8_t my_target) {
 }
 
 // #############################################################################
+//
+//     ######  #       #######  #####  #    # ######  #     # #######
+//     #     # #       #     # #     # #   #  #     # #     # #
+//     #     # #       #     # #       #  #   #     # #     # #
+//     ######  #       #     # #       ###    ######  #     # #####
+//     #     # #       #     # #       #  #   #     # #     # #
+//     #     # #       #     # #     # #   #  #     # #     # #
+//     ######  ####### #######  #####  #    # ######   #####  #
+//
+// #############################################################################
 
-void spi_send_blockbuffer(uint16_t length, uint8_t data_width) {
+void spi_send_blockbuffer(uint16_t count, uint8_t data_width, bool debug_print = false) {
   // Sende BlockBuffer an AutoInc-Register, Länge length in Bytes,
   // data_width in Bits (8, 16, 24 oder 32) oder Bytes (1, 2, 3 oder 4)
   // Universell verwendbar für alle Cores, die Daten in 8, 16 oder 32 Bit Breite erwarten
+  if (debug_print) {
+    DPRINTF(", Data (hex): ");
+  }
   uint16_t array_idx;
   switch (data_width) {
   case 1:
   case 8:
-    for (array_idx = 0; array_idx < length; array_idx++) {
-      _DS_ON; // Daten
-      spi_xfer8(spi_blockbuffer.byte[array_idx]);
-      _DS_OFF;
+    for (array_idx = 0; array_idx < count; array_idx++) {
+      spi_xfer8_ds(spi_blockbuffer.byte[array_idx]);
+      if (debug_print && array_idx < 10) { // nur die ersten 10 Werte drucken
+        DPRINT(spi_blockbuffer.byte[array_idx], HEX);
+        DPRINTF(", ");
+      }
     }
     break;
   case 2:
   case 16:
-    for (array_idx = 0; array_idx < (length / 2); array_idx++) {
-      _DS_ON; // Daten
-      spi_xfer16(spi_blockbuffer.word[array_idx]);
-      _DS_OFF;
+    // Länge in 16 Bit Wörtern
+    for (array_idx = 0; array_idx < count; array_idx++) {
+      spi_xfer16_ds(spi_blockbuffer.word[array_idx]);
+      if (debug_print && array_idx < 10) { // nur die ersten 10 Werte drucken
+        DPRINT(spi_blockbuffer.word[array_idx], HEX);
+        DPRINTF(", ");
+      }
     }
     break;
   case 3:
   case 24:
     // bei 24 Bit Breite werden die Daten in 32 Bit Blöcken gesendet, die oberen 8 Bit werden ignoriert
-    for (array_idx = 0; array_idx < (length / 4); array_idx++) {
-      _DS_ON; // Daten
-      spi_xfer24(spi_blockbuffer.dword[array_idx]);
-      _DS_OFF;
+    // Länge in 32 Bit Blöcken
+    for (array_idx = 0; array_idx < count; array_idx++) {
+      spi_xfer24_ds(spi_blockbuffer.dword[array_idx]);
+      if (debug_print && array_idx < 10) { // nur die ersten 10 Werte drucken
+        DPRINT(spi_blockbuffer.dword[array_idx], HEX);
+        DPRINTF(", ");
+      }
     }
+    break;
   case 4:
   case 32:
   default:
-    for (array_idx = 0; array_idx < (length / 4); array_idx++) {
-      _DS_ON; // Daten
-      spi_xfer32(spi_blockbuffer.dword[array_idx]);
-      _DS_OFF;
+    // Länge in 32 Bit Blöcken
+    for (array_idx = 0; array_idx < count; array_idx++) {
+      spi_xfer32_ds(spi_blockbuffer.dword[array_idx]);
+      if (debug_print && array_idx < 10) { // nur die ersten 10 Werte drucken
+        DPRINT(spi_blockbuffer.dword[array_idx], HEX);
+        DPRINTF(", ");
+      }
     }
     break;
   }
+  if (debug_print) {
+    DPRINTF("...");
+  }
+  DPRINTF(", count: ");
+  DPRINT(count);
+  DPRINTF(", width: ");
+  DPRINTLN(data_width);
 }
 
 
@@ -337,66 +415,18 @@ bool df_writeblock(uint16_t block_4k, uint16_t df_blocklen) {
 
 // #############################################################################
 
-
-void df_send_blocks(uint16_t block_4k, uint8_t core_target, uint8_t block_count, uint8_t data_width) {
-  // 4k-Blocks aus DF laden und an AutoInc-Reg senden, maximal 256 Blocks
-  // 4096 Bytes = 1 BlockRAM
-  uint8_t block_idx;
-  spi_autoIncSetup(core_target); // for Write
-  for (block_idx = 0; block_idx < block_count; block_idx++) {
-    df_readblock(block_4k + block_idx, 4096);
-#ifdef DEBUG
-    Serial.print("/ DF block #");
-    Serial.print(block_4k + (uint16_t)block_idx);
-    Serial.print(" to LC #");
-    Serial.println(core_target);
-#endif
-    spi_send_blockbuffer(4096, data_width);
+void df_send_core(uint8_t lc_target, uint16_t block_number) {
+  // PicoBlaze-, FIR- oder Tapering-Core #core aus DF laden und an AutoInc-Reg senden, 4096 Bytes = 1 BlockRAM
+  if (c_target_blockcount[lc_target] == 0) return; // nur LC #0..2 und #4 haben Daten in DF
+  spi_autoIncSetup(lc_target); // for Write
+  uint16_t block_size = c_target_count_per_block[lc_target] * (c_target_datawidth[lc_target]);
+  for (uint16_t block_idx = 0; block_idx < c_target_blockcount[lc_target]; block_idx++) {
+    DPRINTF("/ Send Block #");
+    DPRINT(block_number + block_idx);
+    df_readblock(block_number + block_idx, block_size);
+    spi_send_blockbuffer(c_target_count_per_block[lc_target], c_target_datawidth[lc_target]);
   }
-  spi_autoIncReset(core_target);
+  spi_autoIncReset(lc_target);
 }
-
-// AutoInc-Register FPGA-SPI
-// LC#    Breite   Länge Bytes  LC Core
-// 0        32        8192      PicoBlaze       (Datei/DF-Blocks)
-// 1        32        1024      Taper-RAM (Datei/DF in 32 Bit, nur unterste 8 übertragen)
-// 2        16        2048      FIR-Coeff       (Datei/DF-Blocks)
-// 3         8        1024      Keymap-RAM      (berechnet!)
-// 4        16       16384      Wave-RAM        (Datei/DF-Blocks)
-// berechnete Cores: 5..13, je nach LC
-// 5        16          96      Frequenz/Tuning (berechnet)
-// 6        16        1024      Highpass-Filter (berechnet)
-// 7 NEU    16         512      TubeAmp Steps/Slopes,je 256 Werte (aus Tabelle)
-// 8         8          16      Upper DBs       (berechnet)
-// 9         8          16      Lower DB        (berechnet)
-// 10        8          16      Pedal DB        (berechnet)
-// 11       16          64      ADSR Upper      (berechnet)
-// 12       16          64      ADSR Lower      (berechnet)
-// 13       16          64      ADSR Pedal      (berechnet)
-
-// Block-Offsets zu Block c_scan_base
-// 0..1: Scan Core,
-// 11..14: Tapering
-// 15: FIR filter
-// 16 ff.: Wavesets, je 4 Blocks!
-
-const uint16_t c_core_base_DF = 0x3B0;    // 944, erster 4k-Block nach FPGA-Image(s)
-const uint16_t c_scan_base_DF = 0x3B0;    // 944, erster 4k-Block nach FPGA-Image(s)
-const uint16_t c_voice_base_DF = c_core_base_DF + 2;    // 946, Zugriegel-Arrays, Länge 1 Block
-const uint16_t c_defaults_base_DF = c_core_base_DF + 3; // 947, EEPROM-simulation bei ARM
-const uint16_t c_taper_base_DF = c_core_base_DF + 11;   // 955..958, Länge 4 x 1 Block
-const uint16_t c_coeff_base_DF = c_core_base_DF + 15;   // 959, Länge 1 Block
-const uint16_t c_waveset_base_DF = 0x3C0;   // 960, Länge 32 (8 x 4 Blocks)
-
-const uint8_t c_target_datawidth[] =  {32, 32, 16,  8, 16, 16, 16, 16,  8,  8,  8, 16, 16, 16, 16};
-const uint16_t c_core_blockcount[]  = { 2,  1,  1,  0,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0};
-
-void df_send_core(uint8_t lc_target, uint8_t block_offset) {
-  // PicoBlaze- oder Tapering-Core #core aus DF laden und an AutoInc-Reg senden, 4096 Bytes = 1 BlockRAM
-  if (c_core_blockcount[lc_target] == 0) return; // nur LC #0..2 und #4 haben Daten in DF
-  df_send_blocks(c_core_base_DF + (uint16_t)block_offset, lc_target, c_core_blockcount[lc_target],
-                c_target_datawidth[lc_target]);
-}
-
 
 #endif // FPGA_SPI_H

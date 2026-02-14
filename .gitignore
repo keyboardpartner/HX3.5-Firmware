@@ -6,7 +6,7 @@
 .vscode/numbered-bookmarks.json
 *.bak
 *.tmp
-.gitignore
+~*.*
 # AVRco compiled files
 _sccs_/*.*
 *.u

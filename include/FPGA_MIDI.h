@@ -33,20 +33,6 @@ void midi_sendword(uint16_t my_word) {
   midi_sendbyte(lsb);
 }
 
-void midi_sendnrpn(uint16_t my_nrpn, uint8_t my_val) {
-  // benötigt für GM Piano-, Equalizer und Reverb-Fernsteuerung
-  if ((my_nrpn & 0x8080) == 0) { // $0000..$7F7F
-    midi_sendbyte(0xB0); // Control Change, Kanal 0
-    midi_sendbyte(0x62); // NRPN LSB
-    midi_sendbyte(my_nrpn & 0x7F);
-    midi_sendbyte(0x63); // NRPN MSB
-    midi_sendbyte((my_nrpn >> 7) & 0x7F);
-    midi_sendbyte(6); // Data Entry MSB
-    midi_sendbyte(my_val & 0x7F);
-    delayMicroseconds(40); // MIDI-Übertragung abwarten
-  }
-}
-
 void midi_sendboolean(uint8_t my_channel_offset, uint8_t my_ctrl, bool my_bool) {
   // MIDI-Controller mit Wert 0 oder 1 senden
   uint8_t send_ch; // default: Kanal 0
@@ -71,6 +57,17 @@ void midi_sendcontroller(uint8_t my_channel_offset, uint8_t my_ctrl, uint8_t my_
   midi_sendbyte(0xB0 + send_ch); // Control Change
   midi_sendbyte(my_ctrl);
   midi_sendbyte(my_val & 0x7F);
+}
+
+
+void midi_sendnrpn(uint16_t my_nrpn, uint8_t my_val) {
+  // benötigt für GM Piano-, Equalizer und Reverb-Fernsteuerung
+  if ((my_nrpn & 0x8080) == 0) { // $0000..$7F7F
+    midi_sendcontroller(0, 0x62, (uint8_t)my_nrpn);
+    midi_sendcontroller(0, 0x63, (uint8_t)(my_nrpn >> 8));
+    midi_sendcontroller(0, 0x06, my_val);
+    delayMicroseconds(400);
+  }
 }
 
 #endif

@@ -16,7 +16,7 @@ function  DF_eraseblock_4k(const block_4k: Word): boolean;
 procedure DF_readblock(const block_4k: Word; const df_blocklen: word);
 function DF_EraseWriteblock(const block_4k: Word; const df_blocklen: word): boolean;
 
-// kopiert 4K-Blöcke von first_block bis einschl. last_block nach dest_block:
+// kopiert 4K-Blï¿½cke von first_block bis einschl. last_block nach dest_block:
 procedure DF_CopyBlocks(const first_block, last_block, dest_block: Word);
 
 // PicoBlaze- oder Tapering-Core #x aus DF laden und an AutoInc-Reg senden
@@ -28,17 +28,17 @@ procedure DFtoEEPROM(block, start_adr: Word);
 procedure DF_FWupdateFromFlashAndReboot;
 
 // 4K-Block seriell empangen und in BlockBuffer8 speichern, eigenes Protokoll.
-// Liefert TRUE wenn Transfer erfolgreich (Prüfsumme OK)
+// Liefert TRUE wenn Transfer erfolgreich (Prï¿½fsumme OK)
 // Format: $55 AA CC cc <4K data> mit CC cc = 16-Bit-Summe aller Datenbytes
 function DF_SerReceive4kBlock(const num_bytes: Integer): boolean;
 
-// vorhandenen 4K-Block aus BlockBuffer8 in DataFlash übertragen
+// vorhandenen 4K-Block aus BlockBuffer8 in DataFlash ï¿½bertragen
 // Liefert TRUE wenn Store erfolgreich (kein Speicherfehler)
 function DF_Store4kBlock(const block_4k, block_len: Word): boolean;
 
-// Prüfsumme Firmware direkt aus DF
-// df_first_block: erster zu berücksichtigender 4K-Block
-// df_last_block: letzter zu berücksichtigender 4K-Block
+// Prï¿½fsumme Firmware direkt aus DF
+// df_first_block: erster zu berï¿½cksichtigender 4K-Block
+// df_last_block: letzter zu berï¿½cksichtigender 4K-Block
 function DF_getChecksum(const df_first_block, df_last_block: Word):word;
 
 function DF_GetPresetNameStr(const common_preset: Byte): Boolean;
@@ -50,7 +50,7 @@ const
 
 var
 {$PData}
-  F_DFCS[@PortB, b_DFCS]: bit;    // CS für AT25DF021
+  F_DFCS[@PortB, b_DFCS]: bit;    // CS fï¿½r AT25DF021
 
 {$IData}
   DF_send, DF_receive  : byte;  // externer DataFlash-Speicher
@@ -66,7 +66,7 @@ var
 // #############################################################################
 
 procedure DF_sr;
-// Sende/empfange ein Byte über SPI an DF (F_DFCS muss entspr. gesetzt sein)
+// Sende/empfange ein Byte ï¿½ber SPI an DF (F_DFCS muss entspr. gesetzt sein)
 begin
   asm;
 ;    cli ; Disable interrupts
@@ -77,7 +77,7 @@ begin
     sbrs _ACCA,7 ; SPIF?
     rjmp DF_waitReg     ;  auf Ende des SPI-Transfer warten
     in _ACCA, SPDR
-    sts  dataflash.DF_receive, _ACCA  ;Lesewert zurück ins Datenbyte
+    sts  dataflash.DF_receive, _ACCA  ;Lesewert zurï¿½ck ins Datenbyte
 ;    sei ; Enable interrupts
   endasm;
 end;
@@ -101,7 +101,7 @@ end;
 }
 
 procedure DF_busy;
-// Warte, bis DF nicht mehr beschäftigt ist
+// Warte, bis DF nicht mehr beschï¿½ftigt ist
 begin
   F_DFCS:= low;
   DF_send:=$05; // Read Status
@@ -150,7 +150,7 @@ end;
 // #############################################################################
 
 function DF_eraseblock_4k(const block_4k: Word): boolean;
-// Lösche 4-KByte-Block bzw. 64-KByte-Sektor im DF
+// Lï¿½sche 4-KByte-Block bzw. 64-KByte-Sektor im DF
 // liefert TRUE wenn erfolgreich
 begin
   DF_wen;
@@ -170,7 +170,7 @@ begin
 end;
 
 function DF_erase: boolean;
-// DataFlash löschen, warten bis Ende
+// DataFlash lï¿½schen, warten bis Ende
 // liefert TRUE wenn erfolgreich
 begin
   DF_wen;
@@ -186,7 +186,7 @@ function DF_writeblock(const block_4k: Word; const df_blocklen: word): boolean;
 // Sende BlockBuffer8 mit (df_count) Bytes an DataFlash
 // liefert TRUE wenn erfolgreich
 // df_blocklen sollte Vielfaches von 256 sein,
-// es können max. 256 Bytes auf einmal geschrieben werden
+// es kï¿½nnen max. 256 Bytes auf einmal geschrieben werden
 var my_idx: word;
   df_adr: LongInt;
 begin
@@ -243,7 +243,7 @@ begin
   DF_sr;
   DF_send:=DF_long0; // Adr Bits 7..0
   DF_sr;
-  DF_send:=0; // dummy für $0B read mode
+  DF_send:=0; // dummy fï¿½r $0B read mode
   DF_sr;
   for df_idxw:= 0 to df_blocklen-1 do
     DF_sr;
@@ -253,8 +253,8 @@ begin
 end;
 
 function DF_getChecksum(const df_first_block, df_last_block: Word):word;
-// df_first_block: erster zu berücksichtigender 4K-Block
-// df_last_block: letzter zu berücksichtigender 4K-Block
+// df_first_block: erster zu berï¿½cksichtigender 4K-Block
+// df_last_block: letzter zu berï¿½cksichtigender 4K-Block
 // c_firmware_startblock_w: Word  = $3E0;       // 992 (944 + 48)
 var
   block_idx, my_addr, my_checksum: Word;
@@ -264,7 +264,7 @@ begin
   if LCDpresent then
     LCDclr_M(LCD_m1);
     write(LCDOut_M, 'Get DF Checksum');
-    MenuIndex_Requested:= MenuIndex; // zurück zum letzen Menü
+    MenuIndex_Requested:= MenuIndex; // zurï¿½ck zum letzen Menï¿½
   endif;
 {$ENDIF}
   my_checksum:= 0;
@@ -280,40 +280,35 @@ end;
 
 // #############################################################################
 
-procedure DF_SendToAutoinc(const block_4k : Word; const my_target: byte; const my_len: word);
+procedure DF_SendToAutoinc(const block_4k : Word; my_target: byte; my_len: word);
 // PicoBlaze- oder Tapering-Core #x aus DF laden und an AutoInc-Reg senden
 // Relative 4k-Blocknummer ab c_scan_base!
 // 4096 Bytes = 1 BlockRAM
 // 0..1: Scan Core,
 // 11..14: Tapering
-// 15: FIR filter
-
-var block_count, block_idx, array_idx, loop_count, read_len: Word;
+// 15: FIR filter (32 Bit breite Daten!)
+var block_num, block_last, dword_count, read_len: Word;
 begin
 //  AutoIncSel:= myDF_4K_block - c_scan_base; // Core-Nr. wird Blocknummer-Offset
 {$IFDEF DEBUG_DF}
     writeln(serout,'/ (DF) Core block ' + bytetostr(block_offs)
                     + ' to FPGA (' + bytetostr(my_target) + ')');
 {$ENDIF}
-  block_count:= 0;
-  block_idx:= 0;
   if my_len < 4096 then
-    loop_count:= (my_len div 4) - 1;
+    dword_count:= (my_len div 4);
     read_len:= my_len;
   else
-    loop_count:= 1023;
+    dword_count:= 1024;
     read_len:= 4096;
   endif;
   FI_AutoIncSetup(my_target); // for Write
+  block_num:= block_4k;
+  block_last:= block_4k + (my_len div 4096);
   repeat
-    DF_readblock(block_4k + block_count, read_len); // , false
-    for array_idx:= 0 to loop_count do
-      FPGAsendLong:= Blockarray_lw[array_idx];
-      SendFPGA32;
-    endfor;
-    inc(block_idx, 4096);
-    inc(block_count);
-  until block_idx >= my_len;
+    DF_readblock(block_num, read_len); // 4 KByte lesen, 1024 Worte!
+    FI_SendBlockBuffer(dword_count, 32); // 1024 Worte senden
+    inc(block_num);
+  until block_num >= block_last;
   FI_AutoIncReset(my_target);
 end;
 
@@ -359,7 +354,7 @@ end;
 
 
 procedure DF_FWupdateFromFlashAndReboot;
-//Firmware aus DataFlash holen, per Bootloader in AVR übertragen und Reboot
+//Firmware aus DataFlash holen, per Bootloader in AVR ï¿½bertragen und Reboot
 begin
   LEDactivity:=low;
 {$IFNDEF MODULE}
@@ -378,9 +373,9 @@ begin
   mdelay(100);
   MCUCR:=0; EICRA:=0; EIMSK:=0; PCICR:=0;
   WDTCSR:=0; CLKPR:=0; MCUSR:=0;
-  // Flash-Programmierung im Bootblock anspringen. Lädt ROM aus SPI-Flash
-  // und startet anschließend neu. Da update.ini inzwischen umbenannt
-  // ist, wird dieser Vorgang nur einmal ausgeführt. Bei
+  // Flash-Programmierung im Bootblock anspringen. Lï¿½dt ROM aus SPI-Flash
+  // und startet anschlieï¿½end neu. Da update.ini inzwischen umbenannt
+  // ist, wird dieser Vorgang nur einmal ausgefï¿½hrt. Bei
   // einem weiteren Start werden nur die Parameter gesetzt, da
   // EEPROM-Flag EE_skip_flashload noch TRUE ist.
   asm;
@@ -390,7 +385,7 @@ end;
 
 function DF_SerReceive4kBlock(const num_bytes: Integer): boolean;
 // 4K-Block seriell empangen und in BlockBuffer8 speichern, eigenes Protokoll.
-// Liefert TRUE wenn Transfer erfolgreich (Prüfsumme OK)
+// Liefert TRUE wenn Transfer erfolgreich (Prï¿½fsumme OK)
 // Format: $55 AA CC cc <4K data> mit CC cc = 16-Bit-Summe aller Datenbytes
 // Alle 128 Bytes empfangener Nutzdaten wird ein ACK (#6) gesendet
 var is_ok: Boolean; byte_received: byte;
@@ -428,7 +423,7 @@ begin
 end;
 
 function DF_Store4kBlock(const  block_4k, block_len: Word): boolean;
-// vorhandenen 4K-Block aus BlockBuffer8 in DataFlash übertragen
+// vorhandenen 4K-Block aus BlockBuffer8 in DataFlash ï¿½bertragen
 // Liefert TRUE wenn Transfer erfolgreich (kein Speicherfehler)
 var is_ok: Boolean;
 begin
@@ -448,7 +443,7 @@ begin
 end;
 
 procedure DF_CopyBlocks(const first_block, last_block, dest_block: Word);
-// kopiert 4K-Blöcke von first_block bis einschl. last_block nach dest_block
+// kopiert 4K-Blï¿½cke von first_block bis einschl. last_block nach dest_block
 var my_block_idx, my_block_count: Word;
 begin
   LEDactivity:=low;
@@ -459,7 +454,7 @@ begin
     write(LCDOut_M, 'Copy shadow DF');
     LCDxy_M(LCD_m1, 0, 1);
     write(LCDOut_M, LongToHex(ValueLong));
-    MenuIndex_Requested:= MenuIndex; // zurück zum letzen Menü
+    MenuIndex_Requested:= MenuIndex; // zurï¿½ck zum letzen Menï¿½
   endif;
 {$ENDIF}
   for my_block_idx:= 0 to my_block_count do

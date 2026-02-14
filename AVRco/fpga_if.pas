@@ -45,6 +45,7 @@ uses eeprom_def;
 
   procedure FI_AutoIncSetup(my_target: byte);
   procedure FI_AutoIncReset(my_target: byte);
+  procedure FI_SendBlockBuffer(count: Word; width: byte);
 
   procedure FI_FPGAconfig(force_init: Boolean);
   procedure FI_GetScanCoreInfo;
@@ -538,6 +539,37 @@ begin
   lo(FPGAreg):= 128;  // Schreib-Register Daten f�r DAT-Files
   SendFPGAreg;
 end;
+
+procedure FI_SendBlockBuffer(count: Word; width: byte);
+// Sende BlockBuffer an AutoInc-Register, Länge length in Bytes,
+// data_width in Bits (8, 16, 24 oder 32) oder Bytes (1, 2, 3 oder 4)
+// Universell verwendbar für alle Cores, die Daten in 8, 16 oder 32 Bit Breite erwarten
+var buf_idx: Word;
+begin
+  case width of
+    1, 8:
+      for buf_idx:= 0 to count - 1 do
+        FPGAsendByte:= BlockBuffer8[buf_idx];
+        SendFPGA8;
+      endfor;
+    |
+    2, 16:
+      // Länge in LongWords - nicht in Bytes! - übergeben, da Blockarray_lw verwendet wird
+      for buf_idx:= 0 to count - 1 do
+        FPGAsendWord:= Blockarray_w[buf_idx];
+        SendFPGA16;
+      endfor;
+    |
+    4, 32:
+      // Länge in LongWords - nicht in Bytes! - übergeben, da Blockarray_lw verwendet wird
+      for buf_idx:= 0 to count - 1 do
+        FPGAsendLong:= Blockarray_lw[buf_idx];
+        SendFPGA32;
+      endfor;
+    |
+  endcase;
+end;
+
 
 end fpga_if.
 

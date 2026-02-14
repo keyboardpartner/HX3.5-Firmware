@@ -316,6 +316,18 @@ uint8_t MenuPanel::getButtonsWaitReleased(uint16_t timeout_ms) {
 //
 // #############################################################################
 
+/*
+// https://github.com/lazlyhu/RotaryEncoderAccel/tree/master
+
+const int8_t c_knobdir[] = {
+  0, -1,  1,  0,
+  1,  0,  0, -1,
+ -1,  0,  0,  1,
+	0,  1, -1,  0 };
+
+#define LATCHSTATE 3
+*/
+
 int16_t MenuPanel::getEncoderDelta() {
   int16_t delta = 0;
 	#ifdef HX35_BOARD
@@ -325,12 +337,28 @@ int16_t MenuPanel::getEncoderDelta() {
   #endif
   if (currentState != _lastState) {
     // Zustandsänderung erkannt, nur ganze Schritte zählen
+
     if ((_lastState == 0b00 && currentState == 0b10)) {
       delta = 1; // Vorwärts
+			_encoderPosition++;
     } else if ((_lastState == 0b00  && currentState == 0b01)) {
       delta = -1; // Rückwärts
+			_encoderPosition--;
     }
     _lastState = currentState;
+  }
+	// Da diese Funktion sehr häufig aufgerufen wird, implementieren wir hier eine einfache Beschleunigungsfunktion, die den Delta-Wert erhöht, wenn die Encoderänderungen schnell hintereinander auftreten.
+	if (delta != 0) {
+		uint32_t now = millis();
+		uint32_t diff = now - _encoderMillis;
+		if (diff < 80) { // Wenn die letzte Änderung weniger als 80 ms her ist, erhöhen wir den Delta-Wert
+			if (diff < 40) { // Wenn die letzte Änderung weniger als 40 ms her ist, erhöhen wir den Delta-Wert weiter
+				delta *= 5; // Beschleunigungseffekt: Verfünffache den Delta-Wert
+			} else {
+				delta *= 2; // Beschleunigungseffekt: Verdopple den Delta-Wert
+			}
+		}
+		_encoderMillis = now;
   }
   return delta;
 }

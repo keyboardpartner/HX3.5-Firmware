@@ -20,7 +20,6 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 #include "global_vars.h"
-#include "FPGA_SPI.h"
 
 // Define used modules here, comment out unused modules to save program memory
 #define LCD_I2C
@@ -29,8 +28,7 @@
 
 #ifdef LCD_I2C
   // Für LCD mit I2C-Interface
-  #include "MenuPanel.h"
-  #include "MenuItems.h"
+  #include "menu_system.h"
 #endif
 bool lcdPresent = false;
 
@@ -53,7 +51,7 @@ bool panel16Present = false;
 
 // #############################################################################
 
-void configurePorts(uint8_t driverType) {
+void configurePorts() {
   DDRA  = B01111000; // Encoder-Eingänge PA0 und PA1, MPX-Reset PA3 als Ausgang
   PORTA = B00111111; // Pull-ups für Encoder-Eingänge PA0 und PA1, MPX-Reset PA3 auf HIGH
 
@@ -91,7 +89,6 @@ void configurePorts(uint8_t driverType) {
   SPCR  = B01011100;  // Enable SPI, Master, CPOL/CPHA=1,1 Mode 3
   SPSR  = B00000000;  // %00000001 = Double Rate, %00000000 = Normal Rate
 }
-
 
 // #############################################################################
 //
@@ -132,125 +129,15 @@ void onPanel16releaseWait(uint8_t button) {
 
 // #############################################################################
 //
-//     #     # ####### #     # #     #
-//     ##   ## #       ##    # #     #
-//     # # # # #       # #   # #     #
-//     #  #  # #####   #  #  # #     #
-//     #     # #       #   # # #     #
-//     #     # #       #    ## #     #
-//     #     # ####### #     #  #####
+//      #####  #     # ### #######  #####  #     # #######  #####
+//     #     # #  #  #  #     #    #     # #     # #       #     #
+//     #       #  #  #  #     #    #       #     # #       #
+//      #####  #  #  #  #     #    #       ####### #####    #####
+//           # #  #  #  #     #    #       #     # #             #
+//     #     # #  #  #  #     #    #     # #     # #       #     #
+//      #####   ## ##  ###    #     #####  #     # #######  #####
 //
 // #############################################################################
-
-
-void blinkLED(uint8_t times) {
-  // Board-LED blinkt zur Bestätigung von Aktionen, z.B. Speichern von Werten im EEPROM
-  for (uint8_t i=0; i<times; i++) {
-    digitalWrite(LED_PIN, LOW); // sets the LED on
-    delay(150);
-    digitalWrite(LED_PIN, HIGH);  // sets the LED off
-    delay(150);
-  }
-}
-
-#ifdef LCD_I2C
-
-void handleEncoder(int16_t encoderDelta, bool forceDisplay) {
-  // Menü-Handling bei Encoder-Änderungen: Wert ändern,
-  // bei Änderung des Treibertyps Ports neu konfigurieren, Dynamiktabelle neu erstellen
-  if (MenuLink[MenuItemActive] != 0) return; // im Untermenü-Link, Encoder hat keine Funktion
-  if ((encoderDelta != 0) || forceDisplay) {
-    // Encoder hat sich bewegt
-    int8_t oldValue = MenuValues[MenuItemActive];
-    if (oldValue + encoderDelta < MenuValueMin[MenuItemActive]) {
-      MenuValues[MenuItemActive] = MenuValueMin[MenuItemActive]; // Unterlauf verhindern
-    } else if (oldValue + encoderDelta > MenuValueMax[MenuItemActive]) {
-      MenuValues[MenuItemActive] = MenuValueMax[MenuItemActive]; // Maximalwert
-    } else {
-      MenuValues[MenuItemActive] = oldValue + encoderDelta;
-    }
-    displayMenuValue(MenuItemActive);
-    if (MenuItemActive == m_driver_type) {
-      // PortD neu konfigurieren
-      configurePorts(MenuValues[m_driver_type]);
-      if (MenuValues[m_driver_type] >= drv_fatar1) {
-        Timer1.setPeriod(500);  // Timer1 auf 500 us einstellen
-      } else {
-        Timer1.setPeriod(1000); // Timer1 auf 1000 us einstellen
-      }
-    }
-  }
-}
-
-void handleMenuButtons() {
-  // Menü-Handling bei Button-Änderungen: Menupunkt wechseln oder Wert in EEPROM speichern
-  uint8_t buttons = lcd.getButtons(); // benötigt etwa 130 µs (inkl. I2C Overhead) bei 400 kHz
-  int8_t menu_link = MenuLink[MenuItemActive];
-
-  if (buttons != 0) {
-    if (buttons & LCD_BTNUP_MASK) {
-      // Up-Taste mit Autorepeat
-      uint16_t timeout = 750; // Startwert für getButtonsWaitReleased, wird nach erstem Durchlauf verkürzt für schnelleres Scrollen, wenn Taste gehalten wird
-      do {
-        if (MenuItemActive > MenuStart) {
-          MenuItemActive--;
-        } else {
-          MenuItemActive = MenuEnd; // wrap around
-        }
-        displayMenuItem(MenuItemActive);
-        buttons = lcd.getButtonsWaitReleased(timeout); // Warte bis losgelassen
-        timeout = 250; // verkürze Wartezeit für schnelleres Scrollen, wenn Taste gehalten wird
-      } while (buttons);
-    }
-
-    if (buttons & LCD_BTNDN_MASK) {
-      // Down-Taste mit Autorepeat
-      uint16_t timeout = 750; // Startwert für getButtonsWaitReleased, wird nach erstem Durchlauf verkürzt für schnelleres Scrollen, wenn Taste gehalten wird
-      do {
-       if (MenuItemActive < MenuEnd) {
-          MenuItemActive++;
-        } else {
-          MenuItemActive = MenuStart; // wrap around
-        }
-        displayMenuItem(MenuItemActive);
-        buttons = lcd.getButtonsWaitReleased(timeout); // Warte bis losgelassen
-        timeout = 250; // verkürze Wartezeit für schnelleres Scrollen, wenn Taste gehalten wird
-      } while (buttons);
-    }
-
-    if (buttons & LCD_BTNENTER_MASK) {
-      // Enter-Taste, Wert in EEPROM speichern oder Submenu aufrufen
-      if (menu_link < 0) {
-        // Link zurück zum Hauptmenü, wechsle zurück
-        MenuItemActive = MenuItemReturn; // Link ist negativ, also zurück zum Hauptmenü
-        MenuStart = 0;
-        MenuEnd = m_end - 1;
-        displayMenuItem(MenuItemActive);
-      } else if (menu_link > 0) {
-        // Link zu Untermenü, wechsle zu diesem
-        MenuItemReturn = MenuItemActive; // speichere Rücksprungposition
-        MenuItemActive = menu_link;
-        displayMenuItem(MenuItemActive);
-        // Untermenü, finde Start- und Endindex der Menupunkte
-        MenuStart = menu_link;
-        for (MenuEnd = menu_link; MenuEnd < MENU_ITEMCOUNT; MenuEnd++) {
-          if (MenuLink[MenuEnd] < 0) {
-            break; // Ende des Untermenüs erreicht
-          }
-        }
-      } else {
-        // Kein Link, speichere Wert im EEPROM
-        EEPROM.update(MenuItemActive + EEPROM_MENUDEFAULTS, MenuValues[MenuItemActive]);
-        displayMenuItem(MenuItemActive);
-        // Kurzes Blinken als Bestätigung
-        blinkLED(1);
-      }
-      lcd.getButtonsWaitReleased(0); // Warte bis losgelassen
-    }
-  }
-}
-
-#endif
 
 // ------------------------------------------------------------------------------
 
@@ -261,24 +148,19 @@ void handlePanel16(uint8_t row) {
   uint8_t bnt_number = panel16.getButtonRow(row); // benötigt etwa 550 µs für Button-Abfrage bei 400 kHz
   if (bnt_number != 0xFF) {
     uint8_t btn_onoff = panel16.getLEDonOff(bnt_number) ? 0 : 127;
-    switch (MenuValues[m_btnmode1 + bnt_number]) {
-      case btnmode_send_cc_val:
+    switch (buttonModes[bnt_number]) {
+      case bm_toggle:
         // Button Mode 0 = Toggle, sendet MIDI-CC mit 127 bei ON und 0 bei OFF
         panel16.toggleLEDstate(bnt_number);
+        midi_sendcontroller(0, bnt_number, btn_onoff); // MIDI-CC-Nummer = Button-Nummer, Testweise
         break;
-      case btnmode_send_cc_evt:
-        // Button Mode 1 = Event, sendet immer MIDI-CC mit 127 bei ON und bei OFF
-        break;
-      case btnmode_send_prg_ch:
-        // Button Mode 2 = Program Change, sendet ein MIDI Program Change mit der Nummer aus MenuValues[m_btn1 + bnt_number]
-        break;
-      case btnmode_send_note:
-        // Button Mode 3 = Note On/Off, sendet MIDI Note On mit Velocity 64 bei ON und Note Off bei OFF, Note Nummer aus MenuValues[m_btn1 + bnt_number]
-        //MidiSendNoteOnNoDyn(MenuValues[m_upper_channel], MenuValues[m_btn1 + bnt_number]);
+      case bm_press:
+        // Button Mode 3 = Note On/Off, sendet MIDI Note On mit Velocity 64 bei ON und Note Off bei OFF, Note Nummer aus EditValues[m_btn1 + bnt_number]
+        //MidiSendNoteOnNoDyn(EditValues[m_upper_channel], EditValues[m_btn1 + bnt_number]);
         panel16.getButtonRowWaitReleased(0);
         break;
     }
-    panel16.getButtonRowWaitReleased(0);
+    panel16.getButtonRowWaitReleased(row);
     #ifdef LCD_I2C
       if (lcdPresent) displayMenuItem(MenuItemActive);
     #endif
@@ -317,16 +199,18 @@ void setup() {
   // set led port as output
   pinMode(LED_PIN, OUTPUT);
   // Defaults aus EEPROM lesen
-  for (uint8_t i = 0; i < MENU_ITEMCOUNT; i++) {
-    uint8_t eep_val = EEPROM.read(i + EEPROM_MENUDEFAULTS);
-    if ((eep_val < MenuValueMin[i]) || (eep_val > MenuValueMax[i])) {
-      // ungültiger Wert, auf default zurücksetzen
-      eep_val = MenuValues[i]; // sind noch Default-Werte aus Menü-Definition
-      EEPROM.update(i + EEPROM_MENUDEFAULTS, eep_val);
+  if (EEPROM.read(EEPROM_VERSION_IDX) != FIRMWARE_VERSION) {
+    // EEPROM enthält ungültige Werte, z.B. nach erstem Flashen oder bei Firmware-Update, also mit Default-Werten initialisieren
+    for (uint8_t i = 0; i < MENU_ITEMCOUNT; i++) {
+      EEPROM.update(i + EEPROM_MENUDEF_IDX, EditValues[i]);
     }
-    MenuValues[i] = eep_val;
+    EEPROM.update(EEPROM_VERSION_IDX, FIRMWARE_VERSION); // Schreibe Vergleichswert für zukünftige Gültigkeitsprüfung
+  } else {
+    for (uint8_t i = 0; i < MENU_ITEMCOUNT; i++) {
+      EditValues[i] = EEPROM.read(i + EEPROM_MENUDEF_IDX);
+    }
   }
-  configurePorts(MenuValues[m_driver_type]); // Port Initialisierung je nach Treibertyp
+  configurePorts(); // Port Initialisierung je nach Treibertyp
 
   Timer1.attachInterrupt(timer1SemaphoreISR); // timer1SemaphoreISR to run every 0.5 milliseconds
   Timer1.initialize(2000); // Timer1 auf 2000 us einstellen
@@ -368,14 +252,22 @@ void setup() {
   #endif
 
   fpga_setup();
-  displayMenuItem(0);
+  #ifdef LCD_I2C
+    if (lcdPresent) displayMenuItem(0);
+  #endif
 }
 
 // #############################################################################
 
 void loop() {
+  if (!_FIFO_EMPTY) {
+    // MIDI-Daten vom FPGA empfangen
+   // Serial.print (F("/ MIDI RX: "));
+  //  Serial.println(spi_read32(MIDI_FIFO_RDREG), HEX);
+  }
+
   while (Timer1Semaphore) {
-    // wird alle 500µs neu gesetzt durch Timer1 ISR, hier wird die eigentliche Arbeit erledigt
+    // wird alle 2000µs neu gesetzt durch Timer1 ISR, hier wird die eigentliche Arbeit erledigt
     Timer1Semaphore--;
 
     #ifdef LCD_I2C
