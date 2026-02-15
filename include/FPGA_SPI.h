@@ -50,6 +50,63 @@ union {
   uint32_t dword[1024];
 } spi_blockbuffer;
 
+uint8_t verifyBlock[4096];
+
+// #############################################################################
+//
+//     ######  ####### ######  #######  #####  
+//     #     # #     # #     #    #    #     # 
+//     #     # #     # #     #    #    #       
+//     ######  #     # ######     #     #####  
+//     #       #     # #   #      #          # 
+//     #       #     # #    #     #    #     # 
+//     #       ####### #     #    #     #####  
+//                                             
+// #############################################################################
+
+void configurePorts() {
+  DDRA  = B01111000; // Encoder-Eingänge PA0 und PA1, MPX-Reset PA3 als Ausgang
+  PORTA = B00111111; // Pull-ups für Encoder-Eingänge PA0 und PA1, MPX-Reset PA3 auf HIGH
+
+  DDRB  = DDRBINIT_FPGACONF; // PB0 = F_CSO_B, PB1 = F_RS, PB2 = F_INT, PB3 = F_DS, PB4 = F_AUX
+  PORTB = B10011111; //
+
+  DDRC  = B01100000; // MPX Data PC0 und MPX-Clk PC1 als Ausgänge
+  PORTC = B11111111; //
+
+  DDRD  = B11111110; //
+  PORTD = B01111100; // Pull-ups für Eingänge aktivieren, LED PD2 off PWR_GOOD PD3 LOW
+
+  // Während der FPGA-Konfiguration müssen einige Pins als Inputs konfiguriert werden,
+  // damit das FPGA nicht gestört wwird.
+  // Nach der FPGA-Konfiguration können die Pins wieder als SPI-Pins konfiguriert werden
+  DDRB  = DDRBINIT_FPGACONF; // PB0 = F_CSO_B, PB1 = F_RS, PB2 = F_INT, PB3 = F_DS, PB4 = F_AUX
+  digitalWrite(LED_PIN, LOW); // sets the LED on
+  _FPGA_PROG_ON;
+  delayMicroseconds(5);
+  _FPGA_PROG_OFF;
+  uint8_t my_time = 0;
+  do {  // Konfiguration abwarten, max 2,5 Sek
+    delay(10);
+    my_time++;
+  } while (!_FPGA_DONE && (my_time < 250));
+
+  if (_FPGA_DONE) {
+    fpgaOK = true;
+    Serial.println("/ FPGA done");
+  } else {
+    fpgaOK = false;
+    Serial.println("/ ERROR: FPGA configuration failed");
+    _FPGA_PROG_ON; // FPGA abgeschaltet lassen
+  }
+  DDRB  = DDRBINIT; // PB0 = F_CSO_B, PB1 = F_RS, PB2 = F_INT, PB3 = F_DS, PB4 = F_AUX
+  digitalWrite(LED_PIN, HIGH);  // sets the LED off
+
+  // SPI initialisieren, wie bei MMC
+  SPCR  = B01011100;  // Enable SPI, Master, CPOL/CPHA=1,1 Mode 3
+  SPSR  = B00000000;  // %00000001 = Double Rate, %00000000 = Normal Rate
+}
+
 // #############################################################################
 
 uint8_t spi_xfer8(uint8_t data) {
@@ -234,7 +291,7 @@ void spi_autoIncReset(uint8_t my_target) {
 void spi_autoIncSetup(uint8_t my_target) {
 // AutoInc vorbereiten: Länge, Start an SPI übermitteln
   spi_autoIncReset(my_target);
-  spi_sendreg_wr(128); // Write-Flag 1, Register senden
+  spi_sendreg_wr(128); // Write-Flag 1, nur SPI-Registernummer senden
 }
 
 // #############################################################################
@@ -344,22 +401,39 @@ void df_wen() {
 }
 
 void df_unprotect() {
+  df_wen();
   _DF_ON;
   spi_xfer8(0x01);
   spi_xfer8(0x00); // Write 0, Global Unprotect
   _DF_OFF;
+
 }
 
 void df_protect() {
+  df_wen();
   _DF_ON;
   spi_xfer8(0x01);
-  spi_xfer8(0x3F); // Write $3F, Global Protect
+  spi_xfer8(0x1C); // Write $1C, Global Protect
   _DF_OFF;
 }
 
+bool df_chiperase() {
+  DPRINTF("/ CHIP ERASE...");
+  df_unprotect();
+  df_wen();
+  _DF_ON;
+  spi_xfer8(0xC7);
+  _DF_OFF;
+  delay(100); 
+  uint8_t status = df_busy();
+  DPRINT(status, HEX);
+  DPRINTLNF(" Done.");
+  return ((status & 0x20) == 0);
+}
+
 bool df_eraseblock_4k(uint16_t block_4k) {
-// Lösche 4-KByte-Block bzw. 64-KByte-Sektor im DF
-// liefert TRUE wenn erfolgreich
+  // Lösche 4-KByte-Block bzw. 64-KByte-Sektor im DF
+  // liefert TRUE wenn erfolgreich
   df_wen();
   _DF_ON;
   uint32_t addr = (uint32_t)block_4k * 4096;
@@ -368,14 +442,43 @@ bool df_eraseblock_4k(uint16_t block_4k) {
   spi_xfer8((addr >> 8) & 0xFF); // Adr Bits 15..8
   spi_xfer8(addr & 0xFF); // Adr Bits 7..0
   _DF_OFF;
+  delayMicroseconds(1); // Wartezeit für internen Schreibvorgang, damit df_busy() nicht sofort 1 zurückgibt
   uint8_t status = df_busy();
+  if ((status & 0x20) != 0) {
+    DPRINTF(" ERASE_ERR: ");
+    DPRINT(status, HEX);
+  }
   return ((status & 0x20) == 0);
+}
+
+bool df_verifyblock_4k(uint16_t block_4k, uint16_t df_blocklen) {
+  // Vergleiche BlockBuffer8 mit DataFlash, max. 4096 bytes
+  uint32_t addr = (uint32_t)block_4k * 4096;
+  _DF_ON;
+  spi_xfer8(0x0B); // Read Page
+  spi_xfer8((addr >> 16) & 0xFF); // Adr Bits 23..16
+  spi_xfer8((addr >> 8) & 0xFF); // Adr Bits 15..8
+  spi_xfer8(addr & 0xFF); // Adr Bits 7..0
+  spi_xfer8(0x00); // dummy für $0B read mode
+  for (uint16_t df_idxw = 0; df_idxw < df_blocklen; df_idxw++) {
+    uint8_t verify_byte = spi_xfer8(0x00);
+    if (spi_blockbuffer.byte[df_idxw] != verify_byte) {
+      _DF_OFF;
+      DPRINTF(" VERIFY_ERR @");
+      DPRINT(df_idxw);
+      DPRINTF(" SD: ");
+      DPRINT(spi_blockbuffer.byte[df_idxw], HEX);
+      DPRINTF(" DF: ");
+      DPRINT(verify_byte, HEX);
+      return false;
+    }
+  }
+  _DF_OFF;
+  return true;
 }
 
 void df_readblock(uint16_t block_4k, uint16_t df_blocklen) {
   // Lese BlockBuffer8 aus DataFlash, max. 4096 bytes
-
-  df_busy();
   uint32_t addr = (uint32_t)block_4k * 4096;
   _DF_ON;
   spi_xfer8(0x0B); // Read Page
@@ -394,21 +497,27 @@ bool df_writeblock(uint16_t block_4k, uint16_t df_blocklen) {
   // liefert TRUE wenn erfolgreich
   // df_blocklen sollte Vielfaches von 256 sein,
   // es können max. 256 Bytes auf einmal geschrieben werden
-  df_wen();
-  uint8_t status;
+  uint8_t status = 0;
   uint32_t addr = (uint32_t)block_4k * 4096;
+  uint16_t idx = 0;
   for (uint16_t page = 0; page < (df_blocklen / 256); page++) {
+    df_wen();
     _DF_ON;
-    spi_xfer8(0x84); // Write Page, Buffer 1
+    spi_xfer8(0x02); // Write Page, Buffer 1
     spi_xfer8((addr >> 16) & 0xFF); // Adr Bits 23..16
     spi_xfer8((addr >> 8) & 0xFF); // Adr Bits 15..8
     spi_xfer8(addr & 0xFF); // Adr Bits 7..0
     for (uint16_t i = 0; i < 256; i++) {
-      spi_xfer8(spi_blockbuffer.byte[page * 256 + i]);
+      spi_xfer8(spi_blockbuffer.byte[idx++]);
     }
     _DF_OFF;
-    status = df_busy();
+    delayMicroseconds(1); // Wartezeit für internen Schreibvorgang, damit df_busy() nicht sofort 1 zurückgibt
+    status |= df_busy();
     addr += 256;
+  }
+  if ((status & 0x20) != 0) {
+    DPRINTF(" WR_ERR ");
+    DPRINT(status, HEX);
   }
   return ((status & 0x20) == 0);
 }

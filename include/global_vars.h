@@ -4,12 +4,13 @@
 #include <Arduino.h>
 #include "MenuPanel.h"
 #include <avr/io.h> // add "platformio/framework-arduino-avr-mightycore@^3.0.2" to platformio.ini!
+#include <SdFat.h>
 
 #define VERSION "HX3.5 v0.01"
 
-#define FIRMWARE_VERSION 0x01 // Vergleichswert für EEPROM, um ungültige Werte zu erkennen
-#define EEPROM_VERSION_IDX 01 // Vergleichwert
-#define EEPROM_MENUDEF_IDX 16 // Startadresse im EEPROM für gespeicherte Werte
+#define FIRMWARE_VERSION 0x01 // Vergleichswert für EEPROM, um veraltete Versionen zu erkennen
+#define EEPROM_VERSION_IDX 0x08 // Adresse des Vergleichwerts
+#define EEPROM_MENUDEF_IDX 0x10 // Startadresse im EEPROM für gespeicherte Werte
 
 #define MIDI_MINDYN 10
 #define MIDI_DYNSLOPE 12
@@ -163,24 +164,19 @@ const uint8_t c_TuningTable[] = {
 
 
 enum { bm_toggle = 0,  bm_press = 1 };
-const uint8_t buttonModes[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+const uint8_t buttonModes[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, bm_press, bm_press, bm_press, bm_press};
 
 volatile uint8_t Timer1Semaphore = 0;
 volatile uint8_t Timer1RoundRobin = 0;
+bool fpgaOK = false;
 
 MenuPanel lcd(LCD_I2C_ADDR, 16, 2);
 
 
 
-void blinkLED(uint8_t times) {
-  // Board-LED blinkt zur Bestätigung von Aktionen, z.B. Speichern von Werten im EEPROM
-  for (uint8_t i=0; i<times; i++) {
-    digitalWrite(LED_PIN, LOW); // sets the LED on
-    delay(150);
-    digitalWrite(LED_PIN, HIGH);  // sets the LED off
-    delay(150);
-  }
-}
+File myFile;
+
+
 
 // Defines für SPI-Register, siehe FPGA-Hilevel.h und FPGA_SPI.h
 
@@ -342,20 +338,22 @@ void blinkLED(uint8_t times) {
 // Größere Datenmengen werden nicht als SPI-Register egesetzt, sondern an
 // einen "LoadCore"-Buffer mit Auto-Inkrement im FPGA übertragen,
 // siehe FPGA_Hilevel.h
-#define LCTARGET_SCAN_DRIVER 0
-#define LCTARGET_TAPERING 1
-#define LCTARGET_FIR_COEFF 2
-#define LCTARGET_KEYMAP 3
-#define LCTARGET_WAVESET 4
-#define LCTARGET_TUNING_VALS 5
-#define LCTARGET_HP_FILTER 6
-#define LCTARGET_TUBE_AMP_SLOPE 7
-#define LCTARGET_UPPER_DRAWBARS 8
-#define LCTARGET_LOWER_DRAWBARS 9
-#define LCTARGET_PEDAL_DRAWBARS 10
-#define LCTARGET_ADSR_UPPER 11
-#define LCTARGET_ADSR_LOWER 12
-#define LCTARGET_ADSR_PEDAL 13
+#define LCTARGET_SCAN_DRIVER 0  // aus DataFlash
+#define LCTARGET_TAPERING 1  // aus DataFlash
+#define LCTARGET_FIR_COEFF 2  // aus DataFlash
+#define LCTARGET_KEYMAP 3  // berechnet
+#define LCTARGET_WAVESET 4  // aus DataFlash
+#define LCTARGET_TUNING_VALS 5  // berechnet
+#define LCTARGET_HP_FILTER 6  // berechnet
+#define LCTARGET_TUBE_AMP_SLOPE 7  // berechnet
+#define LCTARGET_UPPER_DRAWBARS 8  // berechnet
+#define LCTARGET_LOWER_DRAWBARS 9  // berechnet
+#define LCTARGET_PEDAL_DRAWBARS 10  // berechnet
+#define LCTARGET_ADSR_UPPER 11  // berechnet
+#define LCTARGET_ADSR_LOWER 12  // berechnet
+#define LCTARGET_ADSR_PEDAL 13  // berechnet
+
+
 
 // Wortbreite Anzahl Bytes für Datenübertragung an LoadCore-Buffer, siehe FPGA_Hilevel.h
 const uint8_t c_target_datawidth[] =  {4, 4, 4, 1, 2, 2, 2, 2,  1,  1,  1, 2, 2, 2, 2};
@@ -368,26 +366,47 @@ const uint16_t c_target_count_per_block[]  = {1024,  1024,  512,  0,  2048,
 // auch diverse Daten wie Scan Driver, Taperings etc.,
 // die über den "LoadCore"-Mechanismus an die FPGA-Cores übertragen werden
 // Block-Nummern im DataFlash ab 0x3B0, siehe FPGA_Hilevel.h
-#define BLOCK_CORE_BASE 944
-#define BLOCK_SCAN 944
-#define BLOCK_VOICE 946
-#define BLOCK_DEFAULTS 947
-#define BLOCK_EEPROM 953
-#define BLOCK_TAPER_BASE 955
-#define BLOCK_TAPER_0 955
-#define BLOCK_TAPER_1 956
-#define BLOCK_TAPER_2 957
-#define BLOCK_TAPER_3 958
-#define BLOCK_FIR_COEFF 959
-#define BLOCK_WAVESET_BASE 960
-#define BLOCK_WAVESET_0 960
-#define BLOCK_WAVESET_1 964
-#define BLOCK_WAVESET_2 968
-#define BLOCK_WAVESET_3 972
-#define BLOCK_WAVESET_4 976
-#define BLOCK_WAVESET_5 980
-#define BLOCK_WAVESET_6 984
-#define BLOCK_WAVESET_7 988
+#define BLOCK_FPGA 0  // XC6S25 Binary, 196 Blöcke
+#define BLOCK_FAILSAFE_BASE 320  // Sicherungskopie
+#define BLOCK_UPDATE_INFO 637  // Update List
+#define BLOCK_BOARD_INFO 639  // 
+#define BLOCK_SPEAKER_MODEL_BASE 768  // 16 Blöcke
+#define BLOCK_ORGAN_MODEL_BASE 784  // 16 Blöcke
+#define BLOCK_PRESET_BASE 800  // 100 Blöcke
+#define BLOCK_MIDI_CC_BASE 928  // 16 Blöcke
+#define BLOCK_CORE_BASE 944  // 
+#define BLOCK_SCAN 944  // 
+#define BLOCK_VOICE 946  // 
+#define BLOCK_DEFAULTS 947  // HX3 Edit Array
+#define BLOCK_EEPROM 953  // 
+#define BLOCK_TAPER_BASE 955  // 4 Taperings
+#define BLOCK_TAPER_0 955  // 
+#define BLOCK_TAPER_1 956  // 
+#define BLOCK_TAPER_2 957  // 
+#define BLOCK_TAPER_3 958  // 
+#define BLOCK_FIR_COEFF 959  // Filterkoeffizienten
+#define BLOCK_WAVESET_BASE 960  // 8 Wavesets
+#define BLOCK_WAVESET_0 960  // 
+#define BLOCK_WAVESET_1 964  // 
+#define BLOCK_WAVESET_2 968  // 
+#define BLOCK_WAVESET_3 972  // 
+#define BLOCK_WAVESET_4 976  // 
+#define BLOCK_WAVESET_5 980  // 
+#define BLOCK_WAVESET_6 984  // 
+#define BLOCK_WAVESET_7 988  // 
+#define BLOCK_FIRMWARE 992  // Buffer für Update
+
+
+void blinkLED(uint8_t times) {
+  // Board-LED blinkt zur Bestätigung von Aktionen, z.B. Speichern von Werten im EEPROM
+  for (uint8_t i=0; i<times; i++) {
+    digitalWrite(LED_PIN, LOW); // sets the LED on
+    delay(150);
+    digitalWrite(LED_PIN, HIGH);  // sets the LED off
+    delay(150);
+  }
+}
+
 
 
 #endif

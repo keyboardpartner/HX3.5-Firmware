@@ -203,6 +203,7 @@ uint8_t Panel16::getButtonRow(uint8_t row) {
       return _btnNumber + row * 8;
     }
   }
+  return 0xFF; // kein Button gedrückt
 }
 
 

@@ -22,27 +22,82 @@
 #include "menu_items.h"
 #include "FPGA_hilevel.h"
 
-void menuActionDispatch(uint8_t itemIndex, uint8_t new_value) {
+void menuActionDispatch(uint8_t itemIndex, bool enter_btn) {
   // Hier wird entschieden, was bei einer Wertänderung eines Menüpunktes passieren soll
-  switch (EditAction[itemIndex]) {
-    case ac_upper_db:
-      fpga_send_upper_db();
-      break;
-    case ac_lower_db:
-      fpga_send_lower_db();
-      break;
-    case ac_pedal_db:
-      fpga_send_pedal_db();
-      break;
-    case ac_volume:
-      DPRINTF("/ Set Volume: ");
-      DPRINTLN(new_value);
-      midi_sendnrpn(0x3560, EditValues[m_master_volume]);
-      midi_sendnrpn(0x3564, EditValues[m_amp_gain]);
-      break;
-    default:
-      // Keine Aktion definiert
-      break;
+  if (MenuValueMax[itemIndex] > 0) {
+     // Bei Änderung von DBs oder Volume müssen die entsprechenden Werte an das FPGA oder MIDI gesendet werden
+    switch (EditAction[itemIndex]) {
+      case ac_upper_db:
+        fpga_send_upper_db();
+        break;
+      case ac_lower_db:
+        fpga_send_lower_db();
+        break;
+      case ac_pedal_db:
+        fpga_send_pedal_db();
+        break;
+      case ac_volume:
+        DPRINTF("/ Set Volume: ");
+        DPRINTLN(EditValues[m_master_volume]);
+        midi_sendnrpn(0x3560, EditValues[m_master_volume]);
+        midi_sendnrpn(0x3564, EditValues[m_amp_gain]);
+        break;
+      case ac_pitchwheel_pot:
+        DPRINTF("/ TESTPOINT: ");
+        DPRINTLN(EditValues[m_pitchwheel_pot]);
+        spi_write8(65, EditValues[m_pitchwheel_pot]); // Pitchwheel Pot an FPGA senden, Core #0, Register 65
+        break;
+    }
+  } else if (enter_btn) {
+      // Hier wird entschieden, was bei einem Druck auf den Encoderknopf passieren soll
+    if (!sdReady) {
+      initSDcard();
+    }
+    switch (EditAction[itemIndex]) {
+      case ac_sd_card_init:
+        listCardDirectory();
+        break;
+      case ac_load_sd_scan:
+        DPRINTLN("/ Load SD Scan");
+        sendSDcore(2, false);
+        break;
+      case ac_flash_sd_scan:
+        DPRINTLN("/ Flash SD Scan");
+        lcd.setCursor(0, 1);
+        lcd.print(F("Flash Scan"));
+        sendSDcore(2, true);
+        break;
+      case ac_flash_fpga:
+        DPRINTLN("/ Flash FPGA");
+        lcd.setCursor(0, 1);
+        lcd.print(F("Flash FPGA"));
+        sendSDcore(0, true);
+        break;
+      case ac_flash_other:
+        DPRINTLN("/ Flash Other");
+        for (uint8_t i = 2; i < 20; i++) {
+          updateFileType fileItem = getFileItem(i);
+          DPRINTF("/ Flashing file: ");
+          DPRINTLN(fileItem.filename);
+          lcd.setCursor(0, 1);
+          lcd.print(fileItem.filename);
+          lcd.clearEOL();
+          sendSDcore(i, true);
+        }
+        break;
+      case ac_reload_fpga:
+        DPRINTLN("/ Reload FPGA");
+        configurePorts(); // Port Initialisierung je nach Treibertyp
+        if (fpgaOK) fpga_setup();
+        break;
+      case ac_test:
+        DPRINTLN("/ Test");
+        df_chiperase();
+        break;
+      default:
+        // Keine Aktion definiert
+        break;
+    }
   }
 }
 
@@ -115,15 +170,19 @@ void displayMenuItem(uint8_t itemIndex) {
     lcd.print(F("Settings "));
     lcd.write(LCD_ARW_RT); // Untermenü mit Pfeil nach rechts markieren
     lcd.clearEOL(); // Lösche evtl. alte Zeichen
-  } else {
+  } else if (MenuValueMax[MenuItemActive] > 0){
     displayMenuValue(itemIndex);
+  } else {
+    lcd.setCursor(0, 1);
+    lcd.print(F("<ENTER>"));
+    lcd.clearEOL(); // Lösche evtl. alte Zeichen
   }
 }
 
 void handleEncoder(int16_t encoderDelta, bool forceDisplay) {
   // Menü-Handling bei Encoder-Änderungen: Wert ändern,
   // bei Änderung des Treibertyps Ports neu konfigurieren, Dynamiktabelle neu erstellen
-  if (MenuLink[MenuItemActive] != 0) return; // im Untermenü-Link, Encoder hat keine Funktion
+  if ((MenuLink[MenuItemActive] != 0) || (MenuValueMax[MenuItemActive] <= 0)) return; // im Untermenü-Link oder kein Wert zum Ändern, Encoder hat keine Funktion
   if ((encoderDelta != 0) || forceDisplay) {
     // Encoder hat sich bewegt
     int16_t oldValue = EditValues[MenuItemActive];
@@ -137,7 +196,7 @@ void handleEncoder(int16_t encoderDelta, bool forceDisplay) {
     }
     EditValues[MenuItemActive] = (int8_t)newValue;
     displayMenuValue(MenuItemActive);
-    menuActionDispatch(MenuItemActive, (int8_t)newValue);
+    menuActionDispatch(MenuItemActive, false);
   }
 }
 
@@ -200,6 +259,7 @@ void handleMenuButtons() {
       } else {
         // Kein Link, speichere Wert im EEPROM
         EEPROM.update(MenuItemActive + EEPROM_MENUDEF_IDX, EditValues[MenuItemActive]);
+        menuActionDispatch(MenuItemActive, true);
         displayMenuItem(MenuItemActive);
         // Kurzes Blinken als Bestätigung
         blinkLED(1);

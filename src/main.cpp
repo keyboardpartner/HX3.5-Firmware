@@ -20,6 +20,7 @@
 #include <EEPROM.h>
 #include <TimerOne.h>
 #include "global_vars.h"
+#include "files.h"
 
 // Define used modules here, comment out unused modules to save program memory
 #define LCD_I2C
@@ -50,45 +51,6 @@ bool panel16Present = false;
 #endif
 
 // #############################################################################
-
-void configurePorts() {
-  DDRA  = B01111000; // Encoder-Eingänge PA0 und PA1, MPX-Reset PA3 als Ausgang
-  PORTA = B00111111; // Pull-ups für Encoder-Eingänge PA0 und PA1, MPX-Reset PA3 auf HIGH
-
-  DDRB  = DDRBINIT_FPGACONF; // PB0 = F_CSO_B, PB1 = F_RS, PB2 = F_INT, PB3 = F_DS, PB4 = F_AUX
-  PORTB = B10011111; //
-
-  DDRC  = B01100000; // MPX Data PC0 und MPX-Clk PC1 als Ausgänge
-  PORTC = B11111111; //
-
-  DDRD  = B11111110; //
-  PORTD = B01111100; // Pull-ups für Eingänge aktivieren, LED PD2 off PWR_GOOD PD3 LOW
-
-  // Während der FPGA-Konfiguration müssen einige Pins als Inputs konfiguriert werden,
-  // damit das FPGA nicht gestört wwird.
-  // Nach der FPGA-Konfiguration können die Pins wieder als SPI-Pins konfiguriert werden
-  DDRB  = DDRBINIT_FPGACONF; // PB0 = F_CSO_B, PB1 = F_RS, PB2 = F_INT, PB3 = F_DS, PB4 = F_AUX
-  digitalWrite(LED_PIN, LOW); // sets the LED on
-  _FPGA_PROG_ON;
-  delayMicroseconds(5);
-  _FPGA_PROG_OFF;
-  uint8_t my_time = 0;
-  do {  // Konfiguration abwarten, max 2,5 Sek
-    delay(10);
-    my_time++;
-  } while (!_FPGA_DONE || (my_time > 250));
-
-  if (_FPGA_DONE) {
-    Serial.println("/ FPGA done");
-  }
-  digitalWrite(LED_PIN, HIGH);  // sets the LED off
-  DDRB  = DDRBINIT; // PB0 = F_CSO_B, PB1 = F_RS, PB2 = F_INT, PB3 = F_DS, PB4 = F_AUX
-  _FPGA_PROG_OFF;
-
-  // SPI initialisieren, wie bei MMC
-  SPCR  = B01011100;  // Enable SPI, Master, CPOL/CPHA=1,1 Mode 3
-  SPSR  = B00000000;  // %00000001 = Double Rate, %00000000 = Normal Rate
-}
 
 // #############################################################################
 //
@@ -160,6 +122,23 @@ void handlePanel16(uint8_t row) {
         panel16.getButtonRowWaitReleased(0);
         break;
     }
+    #ifdef FILES_H
+      switch (bnt_number) {
+        case 12:
+          sendSDcore(0, true);
+          break;
+        case 13:
+          sendSDcore(2, true);
+          break;
+        case 14:
+          sendSDcore(2, false);
+          break;
+        case 15:
+          initSDcard();
+          listCardDirectory();
+          break;
+      }
+    #endif
     panel16.getButtonRowWaitReleased(row);
     #ifdef LCD_I2C
       if (lcdPresent) displayMenuItem(MenuItemActive);
@@ -211,6 +190,7 @@ void setup() {
     }
   }
   configurePorts(); // Port Initialisierung je nach Treibertyp
+  // initSDcard();  // SD-Karte initialisieren
 
   Timer1.attachInterrupt(timer1SemaphoreISR); // timer1SemaphoreISR to run every 0.5 milliseconds
   Timer1.initialize(2000); // Timer1 auf 2000 us einstellen
@@ -251,7 +231,7 @@ void setup() {
     mpxPots.resetMPX(); // MPX-SR 74HC164 zurücksetzen
   #endif
 
-  fpga_setup();
+  if (fpgaOK) fpga_setup();
   #ifdef LCD_I2C
     if (lcdPresent) displayMenuItem(0);
   #endif
@@ -260,10 +240,10 @@ void setup() {
 // #############################################################################
 
 void loop() {
-  if (!_FIFO_EMPTY) {
+  if (!_FIFO_EMPTY && fpgaOK) {
     // MIDI-Daten vom FPGA empfangen
-   // Serial.print (F("/ MIDI RX: "));
-  //  Serial.println(spi_read32(MIDI_FIFO_RDREG), HEX);
+    Serial.print (F("/ MIDI RX: "));
+    Serial.println(spi_read32(MIDI_FIFO_RDREG), HEX);
   }
 
   while (Timer1Semaphore) {
