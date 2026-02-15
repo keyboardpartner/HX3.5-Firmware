@@ -46,6 +46,12 @@
 #define MIDI_CH_LWR 2
 #define MIDI_CH_PED 3
 
+
+struct {
+  bool vibUpper = false;
+  bool vibLower = false;
+} inserts;
+
 struct {
   uint32_t fpga_version;
   uint32_t fpga_serial;
@@ -58,17 +64,66 @@ struct {
 } board_info;
 
 struct {
-  uint8_t generator_size = 91;
-  uint8_t tuning_val = 7; // CycleSteal-Tabelleneintrag, A 440 = 7 (433 .. 447 Hz)
+  uint8_t contFlex = 4;
+  uint8_t contDamping = 7;
+  uint8_t keyTranspose = 0;  // nur MIDI OUT eigene Tastatur
+  uint8_t genTranspose = 0;  // MIDI IN/Generator Transpose
+  uint8_t fatarVelocityFactor = 20; // 20 = Nominalwert, <100 = weichere Ansprache, >100 = härtere Ansprache
+  bool earlyKeyCont = false;
+  
+  uint8_t percNormLvl = 100;
+  uint8_t percSoftLvl = 75;
+  uint8_t percLongTime = 55;
+  uint8_t percShortTime = 36;
+  uint8_t percMutedLvl = 64; // (all Drawbars muted by this value when PERC NORMAL)
+  uint8_t percPrechargeTime = 36; //Perc Precharge Time (sets time to fully charge decay capacitor when all keys released)
+  
   uint8_t tuning_set = 0; // 0: Hammond, 1: Hammond Spread, 2: Even, 3..n: detuned sets
+  uint8_t generator_size = 91;
+  uint8_t fixed_taper = 32; // 32 = Nominalwert
+  uint8_t waveset = 0; // 0..n, Index für Waveset in DataFlash
+  uint8_t flutter = 7; // 0..7, Stärke des Flutters
+  uint8_t leakage = 3; // 0..7, Stärke der Leckage
+  uint8_t tuning_val = 7; // CycleSteal-Tabelleneintrag, A 440 = 7 (433 .. 447 Hz)
+  uint8_t taperset = 0; // 0..n, Index für Taper-Set in DataFlash
+  uint8_t lc_filter_fac = 36; // LC Cutoff frequency calculation factor
+  uint8_t bottom_oct_taper = 23; // Tapering value for first octave 16' Drawbar
   bool has_foldback = false;
-  uint8_t waveset = 0;
-  uint8_t taperset = 0;
+  bool lubed_contacts = false;
+  bool tg_sag = false; // Ri-Simulation des Generator-Innenwiderstands (nur HX3.6/3.7)
+
   uint8_t busbar_offsets[16] = {0, 19, 12, 24, 31, 36, 40, 43, 48, 46, 50, 51, 54, 55, 44, 0};
   uint8_t busbar_levels[16] = {110, 115, 115, 115, 115, 110, 110, 110, 115, 105, 100, 100, 100, 100, 100, 0};
   uint8_t pedal_fac16[16] = {110, 122, 127, 95, 35, 20, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   uint8_t pedal_fac8[16] = {0, 0, 120, 127, 75, 65, 55, 55, 20, 0, 0, 0, 0, 0, 0, 0};
-} organ_model;
+  union {
+    uint8_t array[16] = {95, 33, 25, 30, 71, 71, 66, 89, 62, 30, 55, 77, 15, 49, 42, 112,} ;
+    struct {
+      uint8_t preEmphasis;
+      uint8_t lineAge;
+      uint8_t feedback;
+      uint8_t reflection;
+      uint8_t lineCutoff;
+      uint8_t phaseShelvLvl;
+      uint8_t gearing;
+      uint8_t chorusDryLvl;
+      uint8_t chorusWetLvl;
+      uint8_t modV1C1;
+      uint8_t modV2C2;
+      uint8_t modV3C3;
+      uint8_t chorusEnhance;
+      uint8_t segmentFlutter; // HX3.6/3.7 only
+      uint8_t hipassCutoff;
+      uint8_t unuslopeNoiseBits;
+    };
+  } vibrato;  
+} organModel;
+
+struct {
+  uint8_t life_ctrl[16] = {15, 14, 91, 75, 2, 12, 3, 20, 66, 80, 60, 255, 3, 3};
+  uint8_t levels[16] = {0, 0, 15, 14, 91, 75, 2, 12, 3, 20, 66, 80, 60, 255, 3, 3};
+  uint8_t phases[16] = {10, 80, 58, 138, 148, 228, 92, 172, 122, 64, 0, 114, 23, 0,0,0};
+} speakerModel;
 
 struct {
   uint8_t db_upper[16] = {127, 127, 127, 127, 115, 110, 110, 110, 115, 0, 0, 0, 0, 0, 0, 0};
@@ -99,7 +154,7 @@ struct {
   uint8_t channel = 0;
   uint8_t channel_lower = 1;
   uint8_t channel_pedal = 2;
- } midi_settings;
+ } midiSettings;
 
 struct {
   uint8_t bass = 64;
@@ -111,6 +166,7 @@ struct {
   uint8_t treble = 64;
   uint8_t treble_freq = 70;
   uint8_t treble_peak = 25;
+  bool equ_bypass = false;
  } equalizer;
 
 // aus DrawbarLogTable_std_neu.xls importiert

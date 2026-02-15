@@ -50,7 +50,6 @@ union {
   uint32_t dword[1024];
 } spi_blockbuffer;
 
-uint8_t verifyBlock[4096];
 
 // #############################################################################
 //
@@ -65,6 +64,8 @@ uint8_t verifyBlock[4096];
 // #############################################################################
 
 void configurePorts() {
+  // Ports für FPGA-Konfiguration und SPI initialisieren, FPGA laden,
+  // danach Ports für normalen Betrieb konfigurieren
   DDRA  = B01111000; // Encoder-Eingänge PA0 und PA1, MPX-Reset PA3 als Ausgang
   PORTA = B00111111; // Pull-ups für Encoder-Eingänge PA0 und PA1, MPX-Reset PA3 auf HIGH
 
@@ -112,16 +113,15 @@ void configurePorts() {
 uint8_t spi_xfer8(uint8_t data) {
   // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
   SPDR = data;
-  asm volatile("nop"); // See transfer(uint8_t) function
+  _NOP_DLY;
   while (!(SPSR & _BV(SPIF))) ;
   return SPDR;
 }
 
 uint8_t spi_xfer8_ds(uint8_t data) {
-  // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
   _DS_ON; // Daten
   SPDR = data;
-  asm volatile("nop"); // See transfer(uint8_t) function
+  _NOP_DLY;
   while (!(SPSR & _BV(SPIF))) ;
   _DS_OFF;
   return SPDR;
@@ -132,18 +132,17 @@ uint16_t spi_xfer16(uint16_t data) {
   union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } in, out;
   in.val = data;
   SPDR = in.msb;
-  asm volatile("nop"); // See transfer(uint8_t) function
+  _NOP_DLY;
   while (!(SPSR & _BV(SPIF))) ;
   out.msb = SPDR;
   SPDR = in.lsb;
-  asm volatile("nop");
+  _NOP_DLY;
   while (!(SPSR & _BV(SPIF))) ;
   out.lsb = SPDR;
   return out.val;
 }
 
 uint16_t spi_xfer16_ds(uint16_t data) {
-  // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
   _DS_ON; // Daten
   uint16_t result = spi_xfer16(data);
   _DS_OFF;
@@ -152,15 +151,26 @@ uint16_t spi_xfer16_ds(uint16_t data) {
 
 uint32_t spi_xfer24(uint32_t data) {
   // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
-  uint8_t highByte = (data >> 16) & 0xFF;
-  uint16_t lowWord = data & 0xFFFF;
-  uint8_t recv_hb = spi_xfer8(highByte);
-  uint16_t recv_lw = spi_xfer16(lowWord);
-  return ((uint32_t)recv_hb << 16) | recv_lw;
+  // Reicht möglicherweise für Scan Core aus, da PicoBlaze nur 18 Bit Datenbreite verlangt
+  union { uint32_t val; struct { uint8_t b0; uint8_t b1; uint8_t b2; uint8_t b3; }; } in, out;
+  in.val = data;
+  SPDR = in.b2;
+  _NOP_DLY;
+  while (!(SPSR & _BV(SPIF))) ;
+  out.b2 = SPDR;
+  SPDR = in.b1;
+  _NOP_DLY;
+  while (!(SPSR & _BV(SPIF))) ;
+  out.b1 = SPDR;
+  SPDR = in.b0;
+  _NOP_DLY;
+  while (!(SPSR & _BV(SPIF))) ;
+  out.b0 = SPDR;
+  out.b3 = 0; // MSB bei 24 Bit Übertragung immer 0
+  return out.val;
 }
 
 uint32_t spi_xfer24_ds(uint32_t data) {
-  // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
   _DS_ON; // Daten
   uint32_t result = spi_xfer24(data);
   _DS_OFF;
@@ -169,15 +179,28 @@ uint32_t spi_xfer24_ds(uint32_t data) {
 
 uint32_t spi_xfer32(uint32_t data) {
   // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
-  uint16_t highWord = (data >> 16) & 0xFFFF;
-  uint16_t lowWord = data & 0xFFFF;
-  uint16_t recv_hw = spi_xfer16(highWord);
-  uint16_t recv_lw = spi_xfer16(lowWord);
-  return ((uint32_t)recv_hw << 16) | recv_lw;
+  union { uint32_t val; struct { uint8_t b0; uint8_t b1; uint8_t b2; uint8_t b3; }; } in, out;
+  in.val = data;
+  SPDR = in.b3;
+  _NOP_DLY;
+  while (!(SPSR & _BV(SPIF))) ;
+  out.b3 = SPDR;
+  SPDR = in.b2;
+  _NOP_DLY;
+  while (!(SPSR & _BV(SPIF))) ;
+  out.b2 = SPDR;
+  SPDR = in.b1;
+  _NOP_DLY;
+  while (!(SPSR & _BV(SPIF))) ;
+  out.b1 = SPDR;
+  SPDR = in.b0;
+  _NOP_DLY;
+  while (!(SPSR & _BV(SPIF))) ;
+  out.b0 = SPDR;
+  return out.val;
 }
 
 uint32_t spi_xfer32_ds(uint32_t data) {
-  // Slave Select muss vorher aktiviert und hinterher deaktiviert werden!
   _DS_ON; // Daten
   uint32_t result = spi_xfer32(data);
   _DS_OFF;
@@ -187,12 +210,14 @@ uint32_t spi_xfer32_ds(uint32_t data) {
 // -----------------------------------------------------------------------------
 
 void spi_sendreg(uint8_t spi_reg) {
+  // SPI-Register für Lesevorgang auswählen, hat separate Slave-Select-Leitung
   _RS_ON; // Register
   spi_xfer16((uint16_t)spi_reg);
   _RS_OFF;
 }
 
 void spi_sendreg_wr(uint8_t spi_reg) {
+  // SPI-Register für Schreibvorgang auswählen, hat separate Slave-Select-Leitung
   _RS_ON; // Register
   spi_xfer16((uint16_t)spi_reg | 0x8000); // Write-Flag 1, Register senden
   _RS_OFF;
@@ -283,7 +308,7 @@ void spi_clearfifo() {
 }
 
 void spi_autoIncReset(uint8_t my_target) {
-// AutoInc zurücksetzen, Core freigeben
+// AutoInc zurücksetzen, Core my_target freigeben
   spi_write8(129, my_target); // Ziel an SPI übermitteln
 }
 
@@ -292,6 +317,8 @@ void spi_autoIncSetup(uint8_t my_target) {
 // AutoInc vorbereiten: Länge, Start an SPI übermitteln
   spi_autoIncReset(my_target);
   spi_sendreg_wr(128); // Write-Flag 1, nur SPI-Registernummer senden
+  // Danach können die Daten mit spi_xfer8_ds, spi_xfer16_ds, 
+  //spi_xfer24_ds oder spi_xfer32_ds gesendet werden
 }
 
 // #############################################################################
@@ -418,6 +445,7 @@ void df_protect() {
 }
 
 bool df_chiperase() {
+  // Sollte nur im Notfall verwendet werden, da es sehr lange dauert
   DPRINTF("/ CHIP ERASE...");
   df_unprotect();
   df_wen();
@@ -432,7 +460,7 @@ bool df_chiperase() {
 }
 
 bool df_eraseblock_4k(uint16_t block_4k) {
-  // Lösche 4-KByte-Block bzw. 64-KByte-Sektor im DF
+  // Lösche 4-KByte-Block
   // liefert TRUE wenn erfolgreich
   df_wen();
   _DF_ON;
@@ -453,6 +481,7 @@ bool df_eraseblock_4k(uint16_t block_4k) {
 
 bool df_verifyblock_4k(uint16_t block_4k, uint16_t df_blocklen) {
   // Vergleiche BlockBuffer8 mit DataFlash, max. 4096 bytes
+  // liefert TRUE wenn Block in DataFlash mit BlockBuffer8 übereinstimmt
   uint32_t addr = (uint32_t)block_4k * 4096;
   _DF_ON;
   spi_xfer8(0x0B); // Read Page
@@ -497,6 +526,8 @@ bool df_writeblock(uint16_t block_4k, uint16_t df_blocklen) {
   // liefert TRUE wenn erfolgreich
   // df_blocklen sollte Vielfaches von 256 sein,
   // es können max. 256 Bytes auf einmal geschrieben werden
+  // Vorher muss df_unprotect() und ggf. df_eraseblock_4k()
+  // aufgerufen werden, damit der Block beschreibbar ist!
   uint8_t status = 0;
   uint32_t addr = (uint32_t)block_4k * 4096;
   uint16_t idx = 0;

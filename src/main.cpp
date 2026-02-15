@@ -21,6 +21,8 @@
 #include <TimerOne.h>
 #include "global_vars.h"
 #include "files.h"
+#include "organ.h"
+#include "board.h"
 
 // Define used modules here, comment out unused modules to save program memory
 #define LCD_I2C
@@ -190,7 +192,7 @@ void setup() {
     }
   }
   configurePorts(); // Port Initialisierung je nach Treibertyp
-  // initSDcard();  // SD-Karte initialisieren
+  // initSDcard();  // SD-Karte initialisieren - nur bei Bedarf!
 
   Timer1.attachInterrupt(timer1SemaphoreISR); // timer1SemaphoreISR to run every 0.5 milliseconds
   Timer1.initialize(2000); // Timer1 auf 2000 us einstellen
@@ -231,10 +233,15 @@ void setup() {
     mpxPots.resetMPX(); // MPX-SR 74HC164 zurücksetzen
   #endif
 
-  if (fpgaOK) fpga_setup();
+  if (fpgaOK) {
+    initBoard();
+    initOrgan();
+  }
   #ifdef LCD_I2C
     if (lcdPresent) displayMenuItem(0);
   #endif
+
+
 }
 
 // #############################################################################

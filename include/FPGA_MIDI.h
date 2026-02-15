@@ -11,6 +11,7 @@
 
 #include <Arduino.h>
 #include "FPGA_SPI.h"
+#include "global_vars.h"
 
 void midi_sendbyte(uint8_t midi_byte) {
   // warte auf leeren MIDI-OUT-FIFO, dann Byte senden
@@ -39,7 +40,7 @@ void midi_sendboolean(uint8_t my_channel_offset, uint8_t my_ctrl, bool my_bool) 
   if (my_channel_offset > 4) {
     send_ch = my_channel_offset;
   } else {
-    send_ch = constrain(midi_settings.channel + my_channel_offset, 0, 15);
+    send_ch = constrain(midiSettings.channel + my_channel_offset, 0, 15);
   }
   midi_sendbyte(0xB0 + send_ch); // Control Change
   midi_sendbyte(my_ctrl);
@@ -52,7 +53,7 @@ void midi_sendcontroller(uint8_t my_channel_offset, uint8_t my_ctrl, uint8_t my_
   if (my_channel_offset > 4) {
     send_ch = my_channel_offset;
   } else {
-    send_ch = constrain(midi_settings.channel + my_channel_offset, 0, 15);
+    send_ch = constrain(midiSettings.channel + my_channel_offset, 0, 15);
   }
   midi_sendbyte(0xB0 + send_ch); // Control Change
   midi_sendbyte(my_ctrl);

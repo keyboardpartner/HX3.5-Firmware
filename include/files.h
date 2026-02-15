@@ -125,7 +125,7 @@ void initSDcard() {
 }
 
 void sendSDcore(uint8_t fileIdx, bool to_df) {
-  // Sende einen Core oder andere Daten von der SD-Karte an ein LC-Ziel, 
+  // Sende einen Core oder andere Daten von der SD-Karte an ein LC-Ziel oder speichert sie in der DataFlash,
   // basierend auf der Datei- und Zielzuordnung in filelist
   updateFileType fileItem = getFileItem(fileIdx); // Datensatz aus Flash-Array holen
   if (!sdReady) {
@@ -176,7 +176,8 @@ void sendSDcore(uint8_t fileIdx, bool to_df) {
     DPRINTLN(bytesRead);
     DPRINTF("/ Send Block #");
     DPRINT(block_number + block_idx);
-    bytesRead = (bytesRead > 0) ? ((bytesRead + 255) & (uint16_t)~255) : 0; // auf nächstes Vielfaches von 256 aufrunden, wenn > 0
+    // auf nächstes Vielfaches von 256 aufrunden, wenn > 0
+    bytesRead = (bytesRead > 0) ? ((bytesRead + 255) & (uint16_t)~255) : 0; 
     if (to_df) {
       if (bytesRead > 0) {
         lcd.setCursor(13, 1);
@@ -184,7 +185,14 @@ void sendSDcore(uint8_t fileIdx, bool to_df) {
         DPRINTF(" to DataFlash");
         df_eraseblock_4k(block_number + block_idx);
         df_writeblock(block_number + block_idx, bytesRead);
-        df_verifyblock_4k(block_number + block_idx, bytesRead);
+        uint8_t retry = 3; // max. 3 Versuche, um Block korrekt zu schreiben
+        while (!df_verifyblock_4k(block_number + block_idx, bytesRead) && (retry > 0)) {
+          DPRINTF(" (retry)");
+          df_unprotect();
+          df_eraseblock_4k(block_number + block_idx);
+          df_writeblock(block_number + block_idx, bytesRead);
+          retry--;
+        }
         DPRINTLN();
       } else {
         DPRINTLNF(" - file ended");

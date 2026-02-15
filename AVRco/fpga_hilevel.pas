@@ -1142,7 +1142,6 @@ begin
 // MIDI_OUT_SEL: 0 = MIDI_TX_1, 1 = MIDI_IN_1, 2 = MIDI_IN_2, 3 = MIDI_FROM_SAM (USB)
 {$IFNDEF MODULE}
   MIDI_SendSustainSostEnable;
-  SendByteToFPGA(m, 9);
 {$ENDIF}
 
   m:= (edit_ContSpringFlx shl 4) or (edit_ContSpringDmp and 15);
