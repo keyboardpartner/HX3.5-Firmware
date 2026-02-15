@@ -7,7 +7,7 @@
 #include "FPGA_MIDI.h"
 #include "FPGA_hilevel.h"
 
-void setOrganParams() {
+void setOrganContacts() {
   spi_write8(SPI_SCAN_MIDICH, midiSettings.channel); 
   uint8_t temp = (organModel.contFlex << 4) | (organModel.contDamping & 15);
   spi_write8(SPI_SCAN_CLICK, temp); 
@@ -24,8 +24,13 @@ void setOrganParams() {
   spi_write8(SPI_DDS_TUNING, c_TuningTable[organModel.tuning_val]); // alle PWM 
   temp = (organModel.flutter & 0x0F) | (organModel.leakage << 4);
   spi_write8(SPI_LEAK_RNDMASK, temp); // Flutter und Leckage
-  fpga_send_tuning(organModel.tuning_set);
   fpga_send_contact_enables();
+}
+
+void setOrganGenerator() {
+  fpga_send_tuning(organModel.tuning_set);
+  fpga_send_keymap();
+  fpga_send_hpfilter();
 }
 
 void setOrganInserts() {
@@ -62,14 +67,18 @@ void setOrganVolumes() {
   spi_write8_volume(SPI_MASTER_VOLUME, preset.masterVolume);  // 72 = Master Vol I2S Multiplier
 }
 
-void initOrgan() {
-  DPRINTLNF("/ Send FIR Coeff to LC #2");
-  df_send_core(LCTARGET_FIR_COEFF, BLOCK_FIR_COEFF);  // FIR Koeffizienten Horn
-  fpga_send_taperset(organModel.taperset); // Taper-Set aus organ_model, Block Offset 11 (nur unterste 8 Bit übertragen)
-  fpga_send_waveset(organModel.waveset);  // Waveset aus organ_model, Block Offset 16 (4 Blocks für 1 Waveset)
-  fpga_send_hpfilter();
-  fpga_send_keymap();
- 
+void setOrganVibrato() {
+  // TODO!
+  spi_write8(SPI_VIB_DRY_LVL, 200); // Vibrato Dry Level auf 0..255
+  spi_write8(SPI_VIB_MODWAVE_PHASE, 3); // Vibrato Modwave Phase und Noise Level
+}
+
+void setOrganPercussion() {
+  // TODO!
+}
+
+void setOrganSwell() {
+  // TODO! Werte müssen anhand Schwellerstellung berechnet werden, hier nur Beispielwerte
   spi_write8(SPI_AO28_LOUDN_BASS, ao28.swellLoudnessBass);
   spi_write8(SPI_AO28_MIDRANGE, 255); // AO28 midrange
   spi_write8(SPI_AO28_LOUDN_TREBLE, ao28.swellLoudnessTreble); // AO28 LoudnessTreble
@@ -79,14 +88,22 @@ void initOrgan() {
   spi_write8(SPI_AO28_FREQU_RESPONSE_FINAL, ao28.swellFinalResponse);
   spi_write8(SPI_AO28_FREQU_RESPONSE_MIDRANGE, ao28.swellMidrangeResponse);
   spi_write8(SPI_AO28_BYPASS_SEL, 1); // AO28 Equalizing Bypass wenn 1
+}
 
-  spi_write8(SPI_VIB_DRY_LVL, 200); // Vibrato Dry Level auf 0..255
-  spi_write8(SPI_VIB_MODWAVE_PHASE, 3); // Vibrato Modwave Phase und Noise Level
-
-  setOrganParams();
+void initOrgan() {
+  DPRINTLNF("/ Send FIR Coeff to LC #2");
+  df_send_core(LCTARGET_FIR_COEFF, BLOCK_FIR_COEFF);  // FIR Koeffizienten Horn
+  fpga_send_taperset(organModel.taperset); // Taper-Set aus organ_model, Block Offset 11 (nur unterste 8 Bit übertragen)
+  fpga_send_waveset(organModel.waveset);  // Waveset aus organ_model, Block Offset 16 (4 Blocks für 1 Waveset)
+  fpga_send_hpfilter();
+ 
+  setOrganGenerator();
+  setOrganContacts();
   setOrganVolumes();
   setOrganInserts();
+  setOrganVibrato();
   setOrganEqualizer();
+  setOrganSwell();
 
   fpga_send_upper_db();
   fpga_send_lower_db();
@@ -101,7 +118,7 @@ void initOrgan() {
   midi_sendnrpn(0x3560, 127); // UpperGMlvl
   midi_sendnrpn(0x3564, 0);   // UpperGMlvl
 
-  DPRINTLNF("/ Init Volumes done");
+  DPRINTLNF("/ Init Organ done");
 }
 
 #endif // ORGAN_H
