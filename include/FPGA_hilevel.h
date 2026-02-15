@@ -213,9 +213,9 @@ void fpga_initVolumes() {
   spi_write8(SPI_SWAP_DACS, 0);  // Swap Dacs 0=normal, 1=swap
   spi_write8(SPI_INSERTS, 0);  // Inserts
 
-  spi_write16_volume(SPI_AMP_IN_LVL, preset.ampVolume);
+  spi_write8_volume(SPI_AMP_IN_LVL, preset.ampVolume);
   spi_write8(SPI_AMP_OUT_LVL, 100);     // Tube Amp Out Level
-  spi_write16_volume(SPI_MASTER_VOLUME, preset.masterVolume);  // 72 = Master Vol I2S Multiplier
+  spi_write8_volume(SPI_MASTER_VOLUME, preset.masterVolume);  // 72 = Master Vol I2S Multiplier
 
   spi_write8(SPI_AO28_LOUDN_BASS, ao28.swellLoudnessBass);
   spi_write8(SPI_AO28_MIDRANGE, 255); // AO28 midrange
@@ -226,8 +226,6 @@ void fpga_initVolumes() {
   spi_write8(SPI_AO28_FREQU_RESPONSE_FINAL, ao28.swellFinalResponse);
   spi_write8(SPI_AO28_FREQU_RESPONSE_MIDRANGE, ao28.swellMidrangeResponse);
   spi_write8(SPI_AO28_BYPASS_SEL, 1); // AO28 Equalizing Bypass wenn 1
-
-  spi_write8(SPI_INSERTS, 0); // Vorerst keine Effekte, Inserts auf 0
 
   spi_write8(SPI_VIB_DRY_LVL, 200); // Vibrato Dry Level auf 0..255
   spi_write8(SPI_VIB_MODWAVE_PHASE, 3); // Vibrato Modwave Phase und Noise Level

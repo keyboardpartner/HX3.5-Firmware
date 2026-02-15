@@ -227,7 +227,7 @@ void spi_write8(uint8_t spi_reg, uint8_t data) {
 void spi_write8_scaled(uint8_t spi_reg, uint8_t data, uint8_t percent) {
   // Wert mit Prozentzahl skalieren
   spi_sendreg_wr(spi_reg); // Write-Flag 1, Register senden
-  uint16_t scaled_data = (data * percent) / 100;
+  uint16_t scaled_data = ((uint16_t)data * (uint16_t)percent) / 100;
   spi_xfer8_ds(scaled_data);
 }
 
@@ -236,17 +236,17 @@ void spi_write8_doubled(uint8_t spi_reg, uint8_t data) {
   spi_xfer8_ds(data << 1); // Daten verdoppeln
 }
 
-void spi_write16_volume(uint8_t spi_reg, uint8_t data) {
+void spi_write8_volume(uint8_t spi_reg, uint8_t data) {
   // 0..127 auf 0..252 quadriert für Lautstärkeregelung
   spi_sendreg_wr(spi_reg); // Write-Flag 1, Register senden
-  uint16_t scaled_data = (data * data) / 64;
-  spi_xfer16_ds(scaled_data >> 8); // Daten quadriert
+  uint16_t scaled_data = ((uint16_t)data * (uint16_t)data) / 64;
+  spi_xfer8_ds(scaled_data); // Daten quadriert
 }
 
-void spi_write16_log(uint8_t spi_reg, uint8_t data) {
+void spi_write8_log(uint8_t spi_reg, uint8_t data) {
   spi_sendreg_wr(spi_reg); // Write-Flag 1, Register senden
-  uint16_t log_data = c_DrawbarLogTable[data] * 2;
-  spi_xfer16_ds(log_data); // Daten aus Tabelle
+  uint8_t log_data = c_DrawbarLogTable[data] * 2;
+  spi_xfer8_ds(log_data); // Daten aus Tabelle
 }
 
 // -----------------------------------------------------------------------------
