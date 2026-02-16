@@ -8,7 +8,7 @@
 
 #define VERSION "HX3.5 v0.01"
 
-#define FIRMWARE_VERSION 0x01 // Vergleichswert für EEPROM, um veraltete Versionen zu erkennen
+#define FIRMWARE_VERSION 0x02 // Vergleichswert für EEPROM, um veraltete Versionen zu erkennen
 #define EEPROM_VERSION_IDX 0x08 // Adresse des Vergleichwerts
 #define EEPROM_MENUDEF_IDX 0x10 // Startadresse im EEPROM für gespeicherte Werte
 
@@ -91,33 +91,42 @@ struct {
   bool has_foldback = false;
   bool lubed_contacts = false;
   bool tg_sag = false; // Ri-Simulation des Generator-Innenwiderstands (nur HX3.6/3.7)
-
-  uint8_t busbar_offsets[16] = {0, 19, 12, 24, 31, 36, 40, 43, 48, 46, 50, 51, 54, 55, 44, 0};
-  uint8_t busbar_levels[16] = {110, 115, 115, 115, 115, 110, 110, 110, 115, 105, 100, 100, 100, 100, 100, 0};
-  uint8_t pedal_fac16[16] = {110, 122, 127, 95, 35, 20, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  uint8_t pedal_fac8[16] = {0, 0, 120, 127, 75, 65, 55, 55, 20, 0, 0, 0, 0, 0, 0, 0};
-  union {
-    uint8_t array[16] = {95, 33, 25, 30, 71, 71, 66, 89, 62, 30, 55, 77, 15, 49, 42, 112,} ;
-    struct {
-      uint8_t preEmphasis;
-      uint8_t lineAge;
-      uint8_t feedback;
-      uint8_t reflection;
-      uint8_t lineCutoff;
-      uint8_t phaseShelvLvl;
-      uint8_t gearing;
-      uint8_t chorusDryLvl;
-      uint8_t chorusWetLvl;
-      uint8_t modV1C1;
-      uint8_t modV2C2;
-      uint8_t modV3C3;
-      uint8_t chorusEnhance;
-      uint8_t segmentFlutter; // HX3.6/3.7 only
-      uint8_t hipassCutoff;
-      uint8_t unuslopeNoiseBits;
-    };
-  } vibrato;  
+  uint8_t busbarOffsets[16] = {0, 19, 12, 24, 31, 36, 40, 43, 48, 46, 50, 51, 54, 55, 44, 0};
+  uint8_t busbarLevels[16] = {110, 115, 115, 115, 115, 110, 110, 110, 115, 105, 100, 100, 100, 100, 100, 0};
+  uint8_t pedalFac16[16] = {110, 122, 127, 95, 35, 20, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  uint8_t pedalFac8[16] = {0, 0, 120, 127, 75, 65, 55, 55, 20, 0, 0, 0, 0, 0, 0, 0};
 } organModel;
+
+typedef struct {
+  uint8_t upper[16] = {127, 127, 127, 127, 115, 110, 110, 110, 115, 0, 0, 0, 0, 0, 0, 0};
+  uint8_t lower[16] = {0, 0, 115, 115, 115, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  uint8_t pedal[16] = {127, 127, 115, 100, 100, 50, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0};
+  uint8_t egperc[16] = {127, 127, 127, 127, 115, 110, 110, 110, 115, 0, 0, 0, 0, 0, 0, 0};
+} drawbars_t;
+
+drawbars_t drawbars;
+
+union {
+  uint8_t array[16] = {95, 33, 25, 30, 71, 71, 66, 89, 62, 30, 55, 77, 15, 49, 42, 112,} ;
+  struct {
+    uint8_t preEmphasis;
+    uint8_t lineAge;
+    uint8_t feedback;
+    uint8_t reflection;
+    uint8_t lineCutoff;
+    uint8_t phaseShelvLvl;
+    uint8_t gearing;
+    uint8_t chorusDryLvl;
+    uint8_t chorusWetLvl;
+    uint8_t modV1C1;
+    uint8_t modV2C2;
+    uint8_t modV3C3;
+    uint8_t chorusEnhance;
+    uint8_t segmentFlutter; // HX3.6/3.7 only
+    uint8_t hipassCutoff;
+    uint8_t slopeNoiseBits;
+  };
+} vibrato; 
 
 struct {
   uint8_t life_ctrl[16] = {15, 14, 91, 75, 2, 12, 3, 20, 66, 80, 60, 255, 3, 3};
@@ -126,9 +135,6 @@ struct {
 } speakerModel;
 
 struct {
-  uint8_t db_upper[16] = {127, 127, 127, 127, 115, 110, 110, 110, 115, 0, 0, 0, 0, 0, 0, 0};
-  uint8_t db_lower[16] = {0, 0, 115, 115, 115, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  uint8_t db_pedal[16] = {127, 127, 115, 100, 100, 50, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0};
   uint8_t masterVolume = 127;
   uint8_t ampVolume = 40;
   uint8_t upperVolumeWet = 105;
@@ -168,6 +174,22 @@ struct {
   uint8_t treble_peak = 25;
   bool equ_bypass = false;
  } equalizer;
+
+
+ 
+
+// #############################################################################
+//
+//    ########    ###    ########  ##       ########  ######  
+//       ##      ## ##   ##     ## ##       ##       ##    ## 
+//       ##     ##   ##  ##     ## ##       ##       ##       
+//       ##    ##     ## ########  ##       ######    ######  
+//       ##    ######### ##     ## ##       ##             ## 
+//       ##    ##     ## ##     ## ##       ##       ##    ## 
+//       ##    ##     ## ########  ######## ########  ######  
+//
+// #############################################################################
+
 
 // aus DrawbarLogTable_std_neu.xls importiert
 const uint8_t  c_DrawbarLogTable[128] = {
@@ -232,6 +254,17 @@ MenuPanel lcd(LCD_I2C_ADDR, 16, 2);
 
 File myFile;
 
+// #############################################################################
+//
+//    ######## ########   ######      ###       ######  ########  #### 
+//    ##       ##     ## ##    ##    ## ##     ##    ## ##     ##  ##  
+//    ##       ##     ## ##         ##   ##    ##       ##     ##  ##  
+//    ######   ########  ##   #### ##     ##    ######  ########   ##  
+//    ##       ##        ##    ##  #########         ## ##         ##  
+//    ##       ##        ##    ##  ##     ##   ##    ## ##         ##  
+//    ##       ##         ######   ##     ##    ######  ##        #### 
+//
+// #############################################################################
 
 
 // Defines für SPI-Register, siehe FPGA-Hilevel.h und FPGA_SPI.h
@@ -389,6 +422,18 @@ File myFile;
 #define SPI_RD_LIC_VALID 244
 
 #define SPI_SAM_COMMAND 246
+
+// #############################################################################
+//
+//    ######## ########   ######      ###        ##        ######  
+//    ##       ##     ## ##    ##    ## ##       ##       ##    ## 
+//    ##       ##     ## ##         ##   ##      ##       ##       
+//    ######   ########  ##   #### ##     ##     ##       ##       
+//    ##       ##        ##    ##  #########     ##       ##       
+//    ##       ##        ##    ##  ##     ##     ##       ##    ## 
+//    ##       ##         ######   ##     ##     ########  ######  
+//
+// #############################################################################
 
 // Load Core (LC) Target-Nummern
 // Größere Datenmengen werden nicht als SPI-Register egesetzt, sondern an

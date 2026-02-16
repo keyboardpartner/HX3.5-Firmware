@@ -22,6 +22,7 @@
 #include "global_vars.h"
 #include "files.h"
 #include "organ.h"
+#include "speaker.h"
 #include "board.h"
 
 // Define used modules here, comment out unused modules to save program memory
@@ -85,47 +86,22 @@ void onMPXChange(uint8_t inputIndex, uint8_t value) {
 // gescannt werden, ohne die Scan-Funktion zu blockieren
 // #############################################################################
 
-void onPanel16releaseWait(uint8_t button) {
-
-}
-#endif
-
-
-// #############################################################################
-//
-//      #####  #     # ### #######  #####  #     # #######  #####
-//     #     # #  #  #  #     #    #     # #     # #       #     #
-//     #       #  #  #  #     #    #       #     # #       #
-//      #####  #  #  #  #     #    #       ####### #####    #####
-//           # #  #  #  #     #    #       #     # #             #
-//     #     # #  #  #  #     #    #     # #     # #       #     #
-//      #####   ## ##  ###    #     #####  #     # #######  #####
-//
-// #############################################################################
-
-// ------------------------------------------------------------------------------
-
-#ifdef PANEL16
-
-void handlePanel16(uint8_t row) {
-  // Panel16-Handling, hier werden Tasten einer Reihe abgefragt und LEDs gesetzt
-  uint8_t bnt_number = panel16.getButtonRow(row); // benötigt etwa 550 µs für Button-Abfrage bei 400 kHz
-  if (bnt_number != 0xFF) {
-    uint8_t btn_onoff = panel16.getLEDonOff(bnt_number) ? 0 : 127;
-    switch (buttonModes[bnt_number]) {
+void onPanel16press(uint8_t button) {
+  if (button != 0xFF) {
+    uint8_t btn_onoff = panel16.getLEDonOff(button) ? 0 : 127;
+    switch (buttonModes[button]) {
       case bm_toggle:
         // Button Mode 0 = Toggle, sendet MIDI-CC mit 127 bei ON und 0 bei OFF
-        panel16.toggleLEDstate(bnt_number);
-        midi_sendcontroller(0, bnt_number, btn_onoff); // MIDI-CC-Nummer = Button-Nummer, Testweise
+        panel16.toggleLEDstate(button);
+        midi_sendcontroller(0, button, btn_onoff); // MIDI-CC-Nummer = Button-Nummer, Testweise
         break;
       case bm_press:
-        // Button Mode 3 = Note On/Off, sendet MIDI Note On mit Velocity 64 bei ON und Note Off bei OFF, Note Nummer aus EditValues[m_btn1 + bnt_number]
-        //MidiSendNoteOnNoDyn(EditValues[m_upper_channel], EditValues[m_btn1 + bnt_number]);
-        panel16.getButtonRowWaitReleased(0);
+        // Button Mode 3 = Note On/Off, sendet MIDI Note On mit Velocity 64 bei ON und Note Off bei OFF, Note Nummer aus EditValues[m_btn1 + button]
+        //MidiSendNoteOnNoDyn(EditValues[m_upper_channel], EditValues[m_btn1 + button]);
         break;
     }
     #ifdef FILES_H
-      switch (bnt_number) {
+      switch (button) {
         case 12:
           sendSDcore(0, true);
           break;
@@ -141,14 +117,31 @@ void handlePanel16(uint8_t row) {
           break;
       }
     #endif
-    panel16.getButtonRowWaitReleased(row);
-    #ifdef LCD_I2C
-      if (lcdPresent) displayMenuItem(MenuItemActive);
-    #endif
+    panel16.waitReleased();
   };
 }
 
+void onPanel16releaseWait() {
+  // DPRINTLNF("/ ReleaseWait callback");
+}
+
 #endif
+
+#ifdef LCD_I2C
+
+void onMenuButton(uint8_t button) {
+  // Callback-Funktion für MenuPanel-Button, liefert gedrückten Button
+  handleMenuButtons(button);
+}
+
+void onMenuEncoder(int16_t delta) {
+  // Callback-Funktion für MenuPanel-Encoder, liefert Bewegungsdelta
+  handleMenuEncoderChange(delta, false);
+}
+
+#endif
+
+
 
 // #############################################################################
 //
@@ -168,6 +161,10 @@ void timer1SemaphoreISR() {
   Timer1Semaphore++;
   Timer1RoundRobin++;
   Timer1RoundRobin &= 0x0F; // nur die unteren 4 Bits behalten
+  if (lcdPresent) {
+    // Timer-Interrupt erledigt auch das Scannen des MenuPanel-Encoders
+    lcd.encoderISR();
+  }
 }
 
 // ------------------------------------------------------------------------------
@@ -183,17 +180,22 @@ void setup() {
   if (EEPROM.read(EEPROM_VERSION_IDX) != FIRMWARE_VERSION) {
     // EEPROM enthält ungültige Werte, z.B. nach erstem Flashen oder bei Firmware-Update, also mit Default-Werten initialisieren
     for (uint8_t i = 0; i < MENU_ITEMCOUNT; i++) {
-      EEPROM.update(i + EEPROM_MENUDEF_IDX, EditValues[i]);
+      if (EditValuePtrs[i] != NULL) {
+        EEPROM.update(i + EEPROM_MENUDEF_IDX, *EditValuePtrs[i]);
+      }
     }
     EEPROM.update(EEPROM_VERSION_IDX, FIRMWARE_VERSION); // Schreibe Vergleichswert für zukünftige Gültigkeitsprüfung
   } else {
     for (uint8_t i = 0; i < MENU_ITEMCOUNT; i++) {
-      EditValues[i] = EEPROM.read(i + EEPROM_MENUDEF_IDX);
+      if (EditValuePtrs[i] != NULL) {
+        *EditValuePtrs[i] = EEPROM.read(i + EEPROM_MENUDEF_IDX);
+      }
     }
   }
   configurePorts(); // Port Initialisierung je nach Treibertyp
   // initSDcard();  // SD-Karte initialisieren - nur bei Bedarf!
 
+  // Der Timer-Interrupt erledigt auch das Scannen des MenuPanel-Encoders!
   Timer1.attachInterrupt(timer1SemaphoreISR); // timer1SemaphoreISR to run every 0.5 milliseconds
   Timer1.initialize(2000); // Timer1 auf 2000 us einstellen
 
@@ -206,7 +208,11 @@ void setup() {
       lcd.cursorXY(0,0);
       lcd.print(VERSION);
       blinkLED(5);
-     }
+      // Callback-Funktion für MenuPanel-Button-Handling registrieren
+      lcd.setButtonCallback(onMenuButton); 
+      // Callback-Funktion für MenuPanel-Encoder-Handling registrieren
+      lcd.setEncoderCallback(onMenuEncoder); 
+    }
   #else
     blinkLED(3);
   #endif
@@ -224,7 +230,10 @@ void setup() {
       panel16.setLEDstate(4, 0b10001001); // einzelne LED in lower row, direkte Bitmask, entspricht hilight, alt_bright, off_dark, blink_ena
       panel16.setLEDstate(8, panel16.led_hilight | panel16.led_alt_bright | panel16.led_off_dark | panel16.led_blink_ena); // einzelne LED in upper row
       panel16.setLEDstate(13, panel16.led_dark | panel16.led_btn_on); // einzelne LED in upper row
-      panel16.setWaitCallback(onPanel16releaseWait); // Callback-Funktion für Button-Handling registrieren
+      // Callback-Funktion für Panel16-Button-Handling registrieren
+      panel16.setPressCallback(onPanel16press); 
+      // Callback-Funktion für Panel16-Button-WaitRelease-Handling registrieren (optional)
+      panel16.setWaitCallback(onPanel16releaseWait); 
     }
   #endif
 
@@ -240,8 +249,6 @@ void setup() {
   #ifdef LCD_I2C
     if (lcdPresent) displayMenuItem(0);
   #endif
-
-
 }
 
 // #############################################################################
@@ -259,9 +266,9 @@ void loop() {
 
     #ifdef LCD_I2C
       if (lcdPresent) {
-        handleEncoder(lcd.getEncoderDelta(), false);
+        lcd.checkEncoder(); // ruft Callback für Encoder-Bewegung auf
         if (Timer1RoundRobin == 0) {
-          handleMenuButtons(); // benötigt etwa 130 µs für Button-Abfrage bei 400 kHz
+          lcd.getButtons(); // benötigt etwa 130 µs für Button-Abfrage bei 400 kHz, ruft callbacks für gedrückte Buttons auf
         }
       }
     #endif
@@ -269,14 +276,13 @@ void loop() {
     #ifdef PANEL16
       // Test für Panel16 Button-Abfrage
       if (panel16Present) {
-        if (Timer1RoundRobin == 4) {
-          panel16.updateBlinkLEDs(); // muss regelmäßig für blinkende LEDs aufgerufen werden
-        }
+        // bei unkritischen Aktionen könnten die beiden Panel16-Zeilen 
+        // auch mit checkRow() gemeinsam upgedated werden
         if (Timer1RoundRobin == 8) {
-          handlePanel16(0); // aus Zeitgründen in zwei Hälften aufteilen
+          panel16.checkRow(0); // aus Zeitgründen in zwei Hälften aufteilen
         }
         if (Timer1RoundRobin == 12) {
-          handlePanel16(1); // aus Zeitgründen in zwei Hälften aufteilen
+          panel16.checkRow(1); // aus Zeitgründen in zwei Hälften aufteilen
         }
       }
     #endif

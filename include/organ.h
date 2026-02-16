@@ -6,6 +6,7 @@
 #include "global_vars.h"
 #include "FPGA_MIDI.h"
 #include "FPGA_hilevel.h"
+#include "board.h"
 
 void setOrganContacts() {
   spi_write8(SPI_SCAN_MIDICH, midiSettings.channel); 
@@ -121,4 +122,16 @@ void initOrgan() {
   DPRINTLNF("/ Init Organ done");
 }
 
+// -----------------------------------------------------------------------------
+// Funktionen ohne Parameter für EditAction
+// -----------------------------------------------------------------------------
+
+void organReset() {
+  DPRINTLN("/ Reload FPGA");
+  configurePorts(); // Port Initialisierung je nach Treibertyp
+  if (fpgaOK) {
+    initBoard();
+    initOrgan();
+  }
+}
 #endif // ORGAN_H

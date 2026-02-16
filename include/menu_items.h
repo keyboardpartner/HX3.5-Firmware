@@ -16,6 +16,7 @@
 #define MenuItems_h
 
 #include "global_vars.h"
+#include "files.h"
 
 // Menu System Variables
 
@@ -28,29 +29,7 @@ const lcdTextType DriverTypes[MENU_DRIVERCOUNT] PROGMEM = {
   { "Custom" },
 };
 
-// Menu Actions, die bei Änderung eines Menüpunktes ausgeführt werden sollen
-enum {
-  ac_none, // Upper DBs
-  ac_upper_db, // Upper DB 16
-  ac_lower_db, // Lower DB 16
-  ac_pedal_db, // Pedal DB 16
-  ac_volume, // Master Volume
-  ac_kbd_driver,
-  ac_pitchwheel_pot,
-  ac_velocity_min,
-  ac_velocity_maxadj,
-  ac_velocity_slope,
-  ac_upper_base,
-  ac_lower_base,
-  ac_pedal_base,
-  ac_sd_card_init,
-  ac_load_sd_scan,
-  ac_flash_sd_scan,
-  ac_flash_fpga,
-  ac_flash_other,
-  ac_reload_fpga,
-  ac_test,
-};
+typedef void (*action)();
 
 #define MENU_ITEMCOUNT 48
 
@@ -146,7 +125,7 @@ const lcdTextType MenuItems[MENU_ITEMCOUNT] PROGMEM = {
   { "Pedal DB 16" },  // #29 
   { "Pedal DB 8" },  // #30 
   { "Pedal DB" },  // #31  EXIT SUBM
-  { "SD Card Init" },  // #32 
+  { "SD Card Info" },  // #32 
   { "Load SD Scan" },  // #33 
   { "Flash SD Scan" },  // #34 
   { "Flash FPGA" },  // #35 
@@ -314,106 +293,107 @@ const int8_t MenuLink[MENU_ITEMCOUNT] = {
   -1, // #47 = (Keyboard) EXIT 
 };
 
-const int8_t EditAction[MENU_ITEMCOUNT] = {
-  ac_none, // Upper DBs
-  ac_none, // Lower DBs
-  ac_none, // Pedal DBs
-  ac_volume, // Master Volume
-  ac_volume, // Amp Gain
-  ac_none, // SD Flash Tools
-  ac_none, // Keyboard
-  ac_pitchwheel_pot, // Pitchwheel Pot
-  ac_none, // End
-  ac_upper_db, // Upper DB 16
-  ac_upper_db, // Upper DB 5 1/3
-  ac_upper_db, // Upper DB 8
-  ac_upper_db, // Upper DB 4
-  ac_upper_db, // Upper DB 2 2/3
-  ac_upper_db, // Upper DB 2
-  ac_upper_db, // Upper DB 1 3/5
-  ac_upper_db, // Upper DB 1 1/3
-  ac_upper_db, // Upper DB 1
-  ac_none, // Upper DB
-  ac_lower_db, // Lower DB 16
-  ac_lower_db, // Lower DB 5 1/3
-  ac_lower_db, // Lower DB 8
-  ac_lower_db, // Lower DB 4
-  ac_lower_db, // Lower DB 2 2/3
-  ac_lower_db, // Lower DB 2
-  ac_lower_db, // Lower DB 1 3/5
-  ac_lower_db, // Lower DB 1 1/3
-  ac_lower_db, // Lower DB 1
-  ac_none, // Lower DB
-  ac_pedal_db, // Pedal DB 16
-  ac_pedal_db, // Pedal DB 8
-  ac_none, // Pedal DB
-  ac_sd_card_init, // SD Card Init
-  ac_load_sd_scan, // Load SD Scan
-  ac_flash_sd_scan, // Flash SD Scan
-  ac_flash_fpga, // Flash FPGA
-  ac_flash_other, // Flash Other
-  ac_reload_fpga, // Reload FPGA
-  ac_test, // Test
-  ac_none, // SD Flash Tools
-  ac_kbd_driver, // Kbd Driver
-  ac_velocity_min, // Velocity Min
-  ac_velocity_maxadj, // Velocity MaxAdj
-  ac_velocity_slope, // Velocity Slope
-  ac_upper_base, // Upper Base
-  ac_lower_base, // Lower Base
-  ac_pedal_base, // Pedal Base
-  ac_none, // (Keyboard)
+const action EditActions[MENU_ITEMCOUNT] = {
+  NULL,
+  NULL,
+  NULL,
+  &setOrganVolumes, // Master Volume
+  &setAmpVolume, // Amp Gain
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  &fpga_send_upper_db, // Upper DB 16
+  &fpga_send_upper_db, // Upper DB 5 1/3
+  &fpga_send_upper_db, // Upper DB 8
+  &fpga_send_upper_db, // Upper DB 4
+  &fpga_send_upper_db, // Upper DB 2 2/3
+  &fpga_send_upper_db, // Upper DB 2
+  &fpga_send_upper_db, // Upper DB 1 3/5
+  &fpga_send_upper_db, // Upper DB 1 1/3
+  &fpga_send_upper_db, // Upper DB 1
+  NULL,
+  &fpga_send_lower_db, // Lower DB 16
+  &fpga_send_lower_db, // Lower DB 5 1/3
+  &fpga_send_lower_db, // Lower DB 8
+  &fpga_send_lower_db, // Lower DB 4
+  &fpga_send_lower_db, // Lower DB 2 2/3
+  &fpga_send_lower_db, // Lower DB 2
+  &fpga_send_lower_db, // Lower DB 1 3/5
+  &fpga_send_lower_db, // Lower DB 1 1/3
+  &fpga_send_lower_db, // Lower DB 1
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  &sdCardInfo, // SD Card Init
+  &loadScanDriver, // Load SD Scan
+  &flashScanDriver, // Flash SD Scan
+  &flashFPGA, // Flash FPGA
+  &flashOther, // Flash Other
+  &organReset, // Reload FPGA
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
+  NULL,
 };
 
-int8_t EditValues[MENU_ITEMCOUNT] = {
-  0, // #0 = Upper DBs
-  0, // #1 = Lower DBs
-  0, // #2 = Pedal DBs
-  127, // #3 = Master Volume
-  40, // #4 = Amp Gain
-  -47, // #5 = SD Flash Tools
-  0, // #6 = Keyboard
-  -1, // #7 = Pitchwheel Pot
-  0, // #8 = End
-  127, // #9 = Upper DB 16
-  127, // #10 = Upper DB 5 1/3
-  127, // #11 = Upper DB 8
-  50, // #12 = Upper DB 4
-  0, // #13 = Upper DB 2 2/3
-  0, // #14 = Upper DB 2
-  0, // #15 = Upper DB 1 3/5
-  0, // #16 = Upper DB 1 1/3
-  0, // #17 = Upper DB 1
-  0, // #18 = Upper DB EXIT 
-  0, // #19 = Lower DB 16
-  0, // #20 = Lower DB 5 1/3
-  127, // #21 = Lower DB 8
-  127, // #22 = Lower DB 4
-  40, // #23 = Lower DB 2 2/3
-  0, // #24 = Lower DB 2
-  0, // #25 = Lower DB 1 3/5
-  0, // #26 = Lower DB 1 1/3
-  0, // #27 = Lower DB 1
-  0, // #28 = Lower DB EXIT 
-  127, // #29 = Pedal DB 16
-  60, // #30 = Pedal DB 8
-  0, // #31 = Pedal DB EXIT 
-  127, // #32 = SD Card Init
-  127, // #33 = Load SD Scan
-  127, // #34 = Flash SD Scan
-  127, // #35 = Flash FPGA
-  127, // #36 = Flash All
-  127, // #37 = Reload FPGA
-  127, // #38 = Test
-  0, // #39 = Utilities EXIT 
-  drv_fatar1, // #40 = Kbd Driver
-  MIDI_MINDYN, // #41 = Velocity Min
-  MIDI_MAXDYNADJ, // #42 = Velocity MaxAdj
-  MIDI_DYNSLOPE, // #43 = Velocity Slope
-  MIDI_BASE_UPR, // #44 = Upper Base
-  MIDI_BASE_LWR, // #45 = Lower Base
-  MIDI_BASE_PED, // #46 = Pedal Base
-  0, // #47 = (Keyboard) EXIT 
+
+uint8_t * EditValuePtrs[MENU_ITEMCOUNT] = {
+  NULL, // #0 = Upper DBs
+  NULL, // #1 = Lower DBs
+  NULL, // #2 = Pedal DBs
+  &preset.masterVolume, // #3 = Master Volume
+  &preset.ampVolume, // #4 = Amp Gain
+  NULL, // #5 = SD Flash Tools
+  NULL, // #6 = Keyboard
+  NULL, // #7 = Pitchwheel Pot
+  NULL, // #8 = End
+  &drawbars.upper[0], // #9 = Upper DB 16
+  &drawbars.upper[1], // #10 = Upper DB 5 1/3
+  &drawbars.upper[2], // #11 = Upper DB 8
+  &drawbars.upper[3], // #12 = Upper DB 4
+  &drawbars.upper[4], // #13 = Upper DB 2 2/3
+  &drawbars.upper[5], // #14 = Upper DB 2
+  &drawbars.upper[6], // #15 = Upper DB 1 3/5
+  &drawbars.upper[7], // #16 = Upper DB 1 1/3
+  &drawbars.upper[8], // #17 = Upper DB 1
+  NULL, // #18 = Upper DB EXIT 
+  &drawbars.lower[0], // #19 = Lower DB 16
+  &drawbars.lower[1], // #20 = Lower DB 5 1/3
+  &drawbars.lower[2], // #21 = Lower DB 8
+  &drawbars.lower[3], // #22 = Lower DB 4
+  &drawbars.lower[4], // #23 = Lower DB 2 2/3
+  &drawbars.lower[5], // #24 = Lower DB 2
+  &drawbars.lower[6], // #25 = Lower DB 1 3/5
+  &drawbars.lower[7], // #26 = Lower DB 1 1/3
+  &drawbars.lower[8], // #27 = Lower DB 1
+  NULL, // #28 = Lower DB EXIT 
+  &drawbars.pedal[0], // #29 = Pedal DB 16
+  &drawbars.pedal[1], // #30 = Pedal DB 8
+  NULL, // #31 = Pedal DB EXIT 
+  NULL, // #32 = SD Card Init
+  NULL, // #33 = Load SD Scan
+  NULL, // #34 = Flash SD Scan
+  NULL, // #35 = Flash FPGA
+  NULL, // #36 = Flash Other
+  NULL, // #37 = Reload FPGA
+  NULL, // #38 = Test
+  NULL, // #39 = Utilities EXIT 
+  NULL, // #40 = Kbd Driver
+  NULL, // #41 = Velocity Min
+  NULL, // #42 = Velocity MaxAdj
+  NULL, // #43 = Velocity Slope
+  NULL, // #44 = Upper Base
+  NULL, // #45 = Lower Base
+  NULL, // #46 = Pedal Base
+  NULL, // #47 = (Keyboard) EXIT 
 };
 
 // ------------------------------------------------------------------------------

@@ -27,82 +27,15 @@
 void menuActionValueChange(uint8_t itemIndex) {
   // Hier wird entschieden, was bei einer Wertänderung eines Menüpunktes passieren soll
   // Bei Änderung von DBs oder Volume müssen die entsprechenden Werte an das FPGA oder MIDI gesendet werden
-  switch (EditAction[itemIndex]) {
-    case ac_upper_db:
-      fpga_send_upper_db();
-      break;
-    case ac_lower_db:
-      fpga_send_lower_db();
-      break;
-    case ac_pedal_db:
-      fpga_send_pedal_db();
-      break;
-    case ac_volume:
-      DPRINTF("/ Set Volume: ");
-      DPRINTLN(EditValues[m_master_volume]);
-      midi_sendnrpn(0x3560, EditValues[m_master_volume]);
-      midi_sendnrpn(0x3564, EditValues[m_amp_gain]);
-      break;
-    case ac_pitchwheel_pot:
-      DPRINTF("/ TESTPOINT: ");
-      DPRINTLN(EditValues[m_pitchwheel_pot]);
-      spi_write8(65, EditValues[m_pitchwheel_pot]); // Pitchwheel Pot an FPGA senden, Core #0, Register 65
-      break;
+  if (EditActions[itemIndex] != NULL) {
+    EditActions[itemIndex]();
   }
 }
 
 void menuActionEnterButton(uint8_t itemIndex) {
-    // Hier wird entschieden, was bei einem Druck auf den Encoderknopf passieren soll
-  if (!sdReady) {
-    initSDcard();
-  }
-  switch (EditAction[itemIndex]) {
-    case ac_sd_card_init:
-      listCardDirectory();
-      break;
-    case ac_load_sd_scan:
-      DPRINTLN("/ Load SD Scan");
-      sendSDcore(2, false);
-      break;
-    case ac_flash_sd_scan:
-      DPRINTLN("/ Flash SD Scan");
-      lcd.setCursor(0, 1);
-      lcd.print(F("Flash Scan"));
-      sendSDcore(2, true);
-      break;
-    case ac_flash_fpga:
-      DPRINTLN("/ Flash FPGA");
-      lcd.setCursor(0, 1);
-      lcd.print(F("Flash FPGA"));
-      sendSDcore(0, true);
-      break;
-    case ac_flash_other:
-      DPRINTLN("/ Flash Other");
-      for (uint8_t i = 2; i < 20; i++) {
-        updateFileType fileItem = getFileItem(i);
-        DPRINTF("/ Flashing file: ");
-        DPRINTLN(fileItem.filename);
-        lcd.setCursor(0, 1);
-        lcd.print(fileItem.filename);
-        lcd.clearEOL();
-        sendSDcore(i, true);
-      }
-      break;
-    case ac_reload_fpga:
-      DPRINTLN("/ Reload FPGA");
-      configurePorts(); // Port Initialisierung je nach Treibertyp
-      if (fpgaOK) {
-        initBoard();
-        initOrgan();
-      }
-      break;
-    case ac_test:
-      DPRINTLN("/ Test");
-      df_chiperase();
-      break;
-    default:
-      // Keine Aktion definiert
-      break;
+  // Hier wird entschieden, was bei einem Druck auf den Encoderknopf passieren soll
+  if (EditActions[itemIndex] != NULL) {
+    EditActions[itemIndex]();
   }
 }
 
@@ -130,7 +63,7 @@ bool menuInit() {
 
 void displayMenuValue(uint8_t itemIndex) {
   lcd.setCursor(0, 1);
-  int8_t item_value = EditValues[itemIndex];
+  int8_t item_value = *EditValuePtrs[itemIndex];
   switch (itemIndex) {
     case m_kbd_driver:
       // Kopiert Menu Text aus PROGMEM ins RAM, da lcd.print() nicht direkt aus PROGMEM lesen kann
@@ -185,13 +118,13 @@ void displayMenuItem(uint8_t itemIndex) {
   }
 }
 
-void handleEncoder(int16_t encoderDelta, bool forceDisplay) {
+void handleMenuEncoderChange(int16_t encoderDelta, bool forceDisplay) {
   // Menü-Handling bei Encoder-Änderungen: Wert ändern,
   // bei Änderung des Treibertyps Ports neu konfigurieren, Dynamiktabelle neu erstellen
   if ((MenuLink[MenuItemActive] != 0) || (MenuValueMax[MenuItemActive] <= 0)) return; // im Untermenü-Link oder kein Wert zum Ändern, Encoder hat keine Funktion
   if ((encoderDelta != 0) || forceDisplay) {
     // Encoder hat sich bewegt
-    int16_t oldValue = EditValues[MenuItemActive];
+    int16_t oldValue = *EditValuePtrs[MenuItemActive];
     int16_t newValue = oldValue + encoderDelta; // Word, könnte sonst einen Überlauf geben
     int16_t minValue = (int16_t)MenuValueMin[MenuItemActive];
     int16_t maxValue = (int16_t)MenuValueMax[MenuItemActive];
@@ -200,17 +133,16 @@ void handleEncoder(int16_t encoderDelta, bool forceDisplay) {
     } else if (newValue > maxValue) {
       newValue = maxValue; // Maximalwert
     }
-    displayMenuValue(MenuItemActive);
     if (MenuValueMax[MenuItemActive] > 0) {
-      EditValues[MenuItemActive] = (int8_t)newValue;
+      *EditValuePtrs[MenuItemActive] = (int8_t)newValue;
+      displayMenuValue(MenuItemActive);
       menuActionValueChange(MenuItemActive); // nur falls änderbar
     }
   }
 }
 
-void handleMenuButtons() {
+void handleMenuButtons(int8_t buttons) {
   // Menü-Handling bei Button-Änderungen: Menupunkt wechseln oder Wert in EEPROM speichern
-  uint8_t buttons = lcd.getButtons(); // benötigt etwa 130 µs (inkl. I2C Overhead) bei 400 kHz
   int8_t menu_link = MenuLink[MenuItemActive];
 
   if (buttons != 0) {
@@ -224,7 +156,7 @@ void handleMenuButtons() {
           MenuItemActive = MenuEnd; // wrap around
         }
         displayMenuItem(MenuItemActive);
-        buttons = lcd.getButtonsWaitReleased(timeout); // Warte bis losgelassen
+        buttons = lcd.waitReleased(timeout); // Warte bis losgelassen
         timeout = 250; // verkürze Wartezeit für schnelleres Scrollen, wenn Taste gehalten wird
       } while (buttons);
     }
@@ -239,7 +171,7 @@ void handleMenuButtons() {
           MenuItemActive = MenuStart; // wrap around
         }
         displayMenuItem(MenuItemActive);
-        buttons = lcd.getButtonsWaitReleased(timeout); // Warte bis losgelassen
+        buttons = lcd.waitReleased(timeout); // Warte bis losgelassen
         timeout = 250; // verkürze Wartezeit für schnelleres Scrollen, wenn Taste gehalten wird
       } while (buttons);
     }
@@ -267,14 +199,14 @@ void handleMenuButtons() {
       } else {
         if (MenuValueMax[MenuItemActive] > 0) {
           // Kein Link, speichere Wert im EEPROM
-          EEPROM.update(MenuItemActive + EEPROM_MENUDEF_IDX, EditValues[MenuItemActive]);
+          EEPROM.update(MenuItemActive + EEPROM_MENUDEF_IDX, *EditValuePtrs[MenuItemActive]);
           blinkLED(1);
         }
         displayMenuItem(MenuItemActive);
         menuActionEnterButton(MenuItemActive);
         // Kurzes Blinken als Bestätigung
       }
-      lcd.getButtonsWaitReleased(0); // Warte bis losgelassen
+      lcd.waitReleased(0); // Warte bis losgelassen
     }
   }
 }

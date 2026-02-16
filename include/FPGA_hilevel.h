@@ -61,7 +61,7 @@ void fpga_make_keymap64(uint16_t buffer_offset, uint8_t start_note, uint8_t gene
 void fpga_send_keymap() {
   DPRINTF("/ Send Keymap to LC #3");
   for (uint8_t busbar = 0; busbar < 16; busbar++) {
-    fpga_make_keymap64(busbar * 64, organModel.busbar_offsets[busbar], organModel.generator_size, organModel.has_foldback);
+    fpga_make_keymap64(busbar * 64, organModel.busbarOffsets[busbar], organModel.generator_size, organModel.has_foldback);
   }
   spi_autoIncSetup(LCTARGET_KEYMAP); // for Write Core 3, Keymap
   spi_send_blockbuffer(1024, 8, true); // 1024 Werte à 8 Bit
@@ -76,7 +76,7 @@ void fpga_send_keymap() {
 
 void fpga_make_hpfilter64(uint16_t buffer_offset, uint8_t start_note) {
   for (uint8_t i = 0; i < 64; i++) {
-    spi_blockbuffer.word[buffer_offset + i] = (c_HighpassFilterArray[start_note] * organModel.busbar_levels[i / 4]) / 64;
+    spi_blockbuffer.word[buffer_offset + i] = (c_HighpassFilterArray[start_note] * organModel.busbarLevels[i / 4]) / 64;
     start_note++;
     if (start_note >= organModel.generator_size) {
       start_note -= 12;
@@ -87,7 +87,7 @@ void fpga_make_hpfilter64(uint16_t buffer_offset, uint8_t start_note) {
 void fpga_send_hpfilter() {
   DPRINTF("/ Send Highpass Filters to LC #6");
   for (uint8_t busbar = 0; busbar < 16; busbar++) {
-    fpga_make_hpfilter64(busbar * 64, organModel.busbar_offsets[busbar]);
+    fpga_make_hpfilter64(busbar * 64, organModel.busbarOffsets[busbar]);
   }
   spi_autoIncSetup(LCTARGET_HP_FILTER); // for Write Core 6, Highpass-Filter
   spi_send_blockbuffer(1024, 16, true); // 1024 Werte à 16 Bit
@@ -168,7 +168,7 @@ void fpga_send_contact_enables() {
 void fpga_send_upper_db() {
   DPRINTF("/ Send Upper DB to LC #8");
   for (uint8_t i = 0; i < 16; i++) {
-    uint16_t my_val = (preset.db_upper[i] * organModel.busbar_levels[i]) / 127;
+    uint16_t my_val = (drawbars.upper[i] * organModel.busbarLevels[i]) / 127;
     spi_blockbuffer.byte[i] = (my_val > 127) ? 127 : (uint8_t)my_val;
   }
   spi_autoIncSetup(LCTARGET_UPPER_DRAWBARS); // for Write Core 8, Upper Drawbars
@@ -179,7 +179,7 @@ void fpga_send_upper_db() {
 void fpga_send_lower_db() {
   DPRINTF("/ Send Lower DB to LC #9");
   for (uint8_t i = 0; i < 16; i++) {
-    uint16_t my_val = (preset.db_lower[i] * organModel.busbar_levels[i]) / 127;
+    uint16_t my_val = (drawbars.lower[i] * organModel.busbarLevels[i]) / 127;
     spi_blockbuffer.byte[i] = (my_val > 127) ? 127 : (uint8_t)my_val;
   }
   spi_autoIncSetup(LCTARGET_LOWER_DRAWBARS); // for Write Core 9, Lower Drawbars
@@ -190,7 +190,7 @@ void fpga_send_lower_db() {
 void fpga_send_pedal_db() {
   DPRINTF("/ Send Pedal DB to LC #10");
   for (uint8_t i = 0; i < 16; i++) {
-    uint16_t my_val = (preset.db_pedal[i] * organModel.busbar_levels[i]) / 127;
+    uint16_t my_val = (drawbars.pedal[i] * organModel.busbarLevels[i]) / 127;
     spi_blockbuffer.byte[i] = (my_val > 127) ? 127 : (uint8_t)my_val;
   }
   spi_autoIncSetup(LCTARGET_PEDAL_DRAWBARS); // for Write Core 10, Pedal Drawbars
@@ -198,7 +198,7 @@ void fpga_send_pedal_db() {
   spi_autoIncReset(LCTARGET_PEDAL_DRAWBARS);
 }
 
-// -----------------------------------------------------------------------------
+
 
 // #############################################################################
 
