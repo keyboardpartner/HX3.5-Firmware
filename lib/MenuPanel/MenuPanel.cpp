@@ -360,6 +360,8 @@ int32_t MenuPanel::getEncoderPosition() {
 }
 
 void MenuPanel::encoderISR() {
+  // muss regelmäßig oder über Timer-Interrupt (max. 2ms) aufgerufen werden, 
+  // um die Encoder-Position zu aktualisieren
   int16_t delta = 0;
   #ifdef HX35_BOARD
     uint8_t currentState = (PINA & B00000011); // Nur die beiden relevanten Bits lesen und nach rechts verschieben
@@ -370,13 +372,13 @@ void MenuPanel::encoderISR() {
     // Zustandsänderung erkannt, nur ganze Schritte zählen
     if ((_lastState == 0b00 && currentState == 0b10)) {
       delta = 1; // Vorwärts
-      _encoderPosition++;
     } else if ((_lastState == 0b00  && currentState == 0b01)) {
       delta = -1; // Rückwärts
     }
     _lastState = currentState;
   }
-  // Da diese Funktion sehr häufig aufgerufen wird, implementieren wir hier eine einfache Beschleunigungsfunktion, die den Delta-Wert erhöht, wenn die Encoderänderungen schnell hintereinander auftreten.
+  // eine einfache Beschleunigungsfunktion, die den Delta-Wert erhöht,
+  // wenn die Encoderänderungen schnell hintereinander auftreten.
   if (delta != 0) {
     uint32_t now = millis();
     uint32_t diff = now - _encoderMillis;

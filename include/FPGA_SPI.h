@@ -333,22 +333,20 @@ void spi_autoIncSetup(uint8_t my_target) {
 //
 // #############################################################################
 
-void spi_send_blockbuffer(uint16_t count, uint8_t data_width, bool debug_print = false) {
+void spi_send_blockbuffer(uint16_t count, uint8_t data_width) {
   // Sende BlockBuffer an AutoInc-Register, Länge length in Bytes,
   // data_width in Bits (8, 16, 24 oder 32) oder Bytes (1, 2, 3 oder 4)
   // Universell verwendbar für alle Cores, die Daten in 8, 16 oder 32 Bit Breite erwarten
-  if (debug_print) {
-    DPRINTF(", Data (hex): ");
-  }
+  DVPRINTF(", Data (hex): ");
   uint16_t array_idx;
   switch (data_width) {
   case 1:
   case 8:
     for (array_idx = 0; array_idx < count; array_idx++) {
       spi_xfer8_ds(spi_blockbuffer.byte[array_idx]);
-      if (debug_print && array_idx < 10) { // nur die ersten 10 Werte drucken
-        DPRINT(spi_blockbuffer.byte[array_idx], HEX);
-        DPRINTF(", ");
+      if (array_idx < 10) { // nur die ersten 10 Werte drucken
+        DVPRINT(spi_blockbuffer.byte[array_idx], HEX);
+        DVPRINTF(", ");
       }
     }
     break;
@@ -357,9 +355,9 @@ void spi_send_blockbuffer(uint16_t count, uint8_t data_width, bool debug_print =
     // Länge in 16 Bit Wörtern
     for (array_idx = 0; array_idx < count; array_idx++) {
       spi_xfer16_ds(spi_blockbuffer.word[array_idx]);
-      if (debug_print && array_idx < 10) { // nur die ersten 10 Werte drucken
-        DPRINT(spi_blockbuffer.word[array_idx], HEX);
-        DPRINTF(", ");
+      if (array_idx < 10) { // nur die ersten 10 Werte drucken
+        DVPRINT(spi_blockbuffer.word[array_idx], HEX);
+        DVPRINTF(", ");
       }
     }
     break;
@@ -369,9 +367,9 @@ void spi_send_blockbuffer(uint16_t count, uint8_t data_width, bool debug_print =
     // Länge in 32 Bit Blöcken
     for (array_idx = 0; array_idx < count; array_idx++) {
       spi_xfer24_ds(spi_blockbuffer.dword[array_idx]);
-      if (debug_print && array_idx < 10) { // nur die ersten 10 Werte drucken
-        DPRINT(spi_blockbuffer.dword[array_idx], HEX);
-        DPRINTF(", ");
+      if (array_idx < 10) { // nur die ersten 10 Werte drucken
+        DVPRINT(spi_blockbuffer.dword[array_idx], HEX);
+        DVPRINTF(", ");
       }
     }
     break;
@@ -381,20 +379,19 @@ void spi_send_blockbuffer(uint16_t count, uint8_t data_width, bool debug_print =
     // Länge in 32 Bit Blöcken
     for (array_idx = 0; array_idx < count; array_idx++) {
       spi_xfer32_ds(spi_blockbuffer.dword[array_idx]);
-      if (debug_print && array_idx < 10) { // nur die ersten 10 Werte drucken
-        DPRINT(spi_blockbuffer.dword[array_idx], HEX);
-        DPRINTF(", ");
+      if (array_idx < 10) { // nur die ersten 10 Werte drucken
+        DVPRINT(spi_blockbuffer.dword[array_idx], HEX);
+        DVPRINTF(", ");
       }
     }
     break;
   }
-  if (debug_print) {
-    DPRINTF("...");
-  }
-  DPRINTF(", count: ");
-  DPRINT(count);
-  DPRINTF(", width: ");
-  DPRINTLN(data_width);
+  DVPRINTF("...");
+  DVPRINTF(", count: ");
+  DVPRINT(count);
+  DVPRINTF(", width: ");
+  DVPRINT(data_width);
+  DPRINTLN();
 }
 
 

@@ -223,7 +223,7 @@ bool sendSDcore(uint8_t fileIdx, bool to_df) {
         DPRINTLNF(" - file ended");
       }
     } else {
-      spi_send_blockbuffer(target_count_per_block, target_datawidth, true);
+      spi_send_blockbuffer(target_count_per_block, target_datawidth);
     }
     // stop at end of file, even if block was not full
     if (bytesRead == 0) {

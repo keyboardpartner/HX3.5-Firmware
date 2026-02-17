@@ -24,16 +24,19 @@
 #include "board.h"
 #include "organ.h"
 
-void menuActionValueChange(uint8_t itemIndex) {
-  // Hier wird entschieden, was bei einer Wertänderung eines Menüpunktes passieren soll
-  // Bei Änderung von DBs oder Volume müssen die entsprechenden Werte an das FPGA oder MIDI gesendet werden
-  if (EditActions[itemIndex] != NULL) {
-    EditActions[itemIndex]();
-  }
+// Wrapper für Routinen mit Parametern oder Text-Parametern
+void menuOrganModel(){
+  loadOrganModel(tabs.organModel);
 }
 
-void menuActionEnterButton(uint8_t itemIndex) {
-  // Hier wird entschieden, was bei einem Druck auf den Encoderknopf passieren soll
+void menuSpeakerModel(){
+  loadSpeakerModel(tabs.speakerModel);
+}
+
+
+void callMenuAction(uint8_t itemIndex) {
+  // Hier wird entschieden, was bei einer Wertänderung eines Menüpunktes passieren soll
+  // Bei Änderung von DBs oder Volume müssen die entsprechenden Werte an das FPGA oder MIDI gesendet werden
   if (EditActions[itemIndex] != NULL) {
     EditActions[itemIndex]();
   }
@@ -44,7 +47,7 @@ bool menuInit() {
   // Initialisiere Menü, setze Start- und Endpunkt und zeige Version an
   if (lcd.begin(16, 2)) {
     MenuStart = 0;
-    MenuEnd = m_end - 1;
+    MenuEnd = m_menu_end - 1;
     MenuItemActive = 0;
     MenuItemReturn = 0; // Initiale Rücksprungposition auf ersten Menüpunkt setzen
     // Display gefunden, zeige Startbild
@@ -119,8 +122,8 @@ void displayMenuItem(uint8_t itemIndex) {
 }
 
 void handleMenuEncoderChange(int16_t encoderDelta, bool forceDisplay) {
+  // wird vom Callback der Encoderänderung aufgerufen
   // Menü-Handling bei Encoder-Änderungen: Wert ändern,
-  // bei Änderung des Treibertyps Ports neu konfigurieren, Dynamiktabelle neu erstellen
   if ((MenuLink[MenuItemActive] != 0) || (MenuValueMax[MenuItemActive] <= 0)) return; // im Untermenü-Link oder kein Wert zum Ändern, Encoder hat keine Funktion
   if ((encoderDelta != 0) || forceDisplay) {
     // Encoder hat sich bewegt
@@ -134,9 +137,10 @@ void handleMenuEncoderChange(int16_t encoderDelta, bool forceDisplay) {
       newValue = maxValue; // Maximalwert
     }
     if (MenuValueMax[MenuItemActive] > 0) {
+      if (EditValuePtrs[MenuItemActive] == NULL) return; // kein Zeiger zum Ändern, sollte nicht passieren, aber sicherheitshalber prüfen
       *EditValuePtrs[MenuItemActive] = (int8_t)newValue;
       displayMenuValue(MenuItemActive);
-      menuActionValueChange(MenuItemActive); // nur falls änderbar
+      callMenuAction(MenuItemActive); // nur falls änderbar
     }
   }
 }
@@ -182,7 +186,7 @@ void handleMenuButtons(int8_t buttons) {
         // Link zurück zum Hauptmenü, wechsle zurück
         MenuItemActive = MenuItemReturn; // Link ist negativ, also zurück zum Hauptmenü
         MenuStart = 0;
-        MenuEnd = m_end - 1;
+        MenuEnd = m_menu_end - 1;
         displayMenuItem(MenuItemActive);
       } else if (menu_link > 0) {
         // Link zu Untermenü, wechsle zu diesem
@@ -203,7 +207,7 @@ void handleMenuButtons(int8_t buttons) {
           blinkLED(1);
         }
         displayMenuItem(MenuItemActive);
-        menuActionEnterButton(MenuItemActive);
+        callMenuAction(MenuItemActive);
         // Kurzes Blinken als Bestätigung
       }
       lcd.waitReleased(0); // Warte bis losgelassen

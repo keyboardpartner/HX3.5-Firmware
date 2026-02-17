@@ -1,6 +1,18 @@
 #ifndef global_vars_h
 #define global_vars_h
 
+// #############################################################################
+//
+//      #####  #       ####### ######     #    #        #####  
+//     #     # #       #     # #     #   # #   #       #     # 
+//     #       #       #     # #     #  #   #  #       #       
+//     #  #### #       #     # ######  #     # #        #####  
+//     #     # #       #     # #     # ####### #             # 
+//     #     # #       #     # #     # #     # #       #     # 
+//      #####  ####### ####### ######  #     # #######  #####  
+//                                                             
+// #############################################################################
+
 #include <Arduino.h>
 #include "MenuPanel.h"
 #include <avr/io.h> // add "platformio/framework-arduino-avr-mightycore@^3.0.2" to platformio.ini!
@@ -9,6 +21,7 @@
 #define VERSION "HX3.5 v0.01"
 
 #define FIRMWARE_VERSION 0x02 // Vergleichswert für EEPROM, um veraltete Versionen zu erkennen
+#define PRESET_VERSION 60 
 #define EEPROM_VERSION_IDX 0x08 // Adresse des Vergleichwerts
 #define EEPROM_MENUDEF_IDX 0x10 // Startadresse im EEPROM für gespeicherte Werte
 
@@ -37,6 +50,22 @@
 #define DBEGIN(...)     //blank line
 #endif
 
+// #define VAL_DEBUG // define this to enable debug prints for variable values
+
+#ifdef VAL_DEBUG
+#define DVPRINT(...)    Serial.print(__VA_ARGS__)
+//OR, #define DVPRINT(args...)    Serial.print(args)
+#define DVPRINTLN(...)  Serial.println(__VA_ARGS__)
+#define DVPRINTF(...)    Serial.print(F(__VA_ARGS__))
+#define DVPRINTLNF(...) Serial.println(F(__VA_ARGS__)) //printing text using the F macro
+#else
+#define DVPRINT(...)     //blank line
+#define DVPRINTLN(...)   //blank line
+#define DVPRINTF(...)    //blank line
+#define DVPRINTLNF(...)  //blank line
+#define DVBEGIN(...)     //blank line
+#endif
+
 // Default MIDI Einstellungen
 #define MIDI_BASE_UPR 36
 #define MIDI_BASE_LWR 36
@@ -46,11 +75,39 @@
 #define MIDI_CH_LWR 2
 #define MIDI_CH_PED 3
 
+MenuPanel lcd(LCD_I2C_ADDR, 16, 2);
+File myFile;
 
+// #############################################################################
+//
+//    ########   #######     ###    ########  ########  
+//    ##     ## ##     ##   ## ##   ##     ## ##     ## 
+//    ##     ## ##     ##  ##   ##  ##     ## ##     ## 
+//    ########  ##     ## ##     ## ########  ##     ## 
+//    ##     ## ##     ## ######### ##   ##   ##     ## 
+//    ##     ## ##     ## ##     ## ##    ##  ##     ## 
+//    ########   #######  ##     ## ##     ## ########  
+//
+// #############################################################################
+
+
+enum { bm_toggle = 0,  bm_press = 1 };
+const uint8_t buttonModes[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, bm_press, bm_press, bm_press, bm_press};
+
+volatile uint8_t Timer1Semaphore = 0;
+volatile uint8_t Timer1RoundRobin = 0;
+bool fpgaOK = false;
+
+ 
 struct {
-  bool vibUpper = false;
-  bool vibLower = false;
-} inserts;
+  union {
+    uint8_t channel = 0;
+    uint8_t channelUpper;
+  };
+  uint8_t channelLower = 1; // noch nicht implementiert
+  uint8_t channelPedal = 2; // noch nicht implementiert
+} midiSettings;
+
 
 struct {
   uint32_t fpga_version;
@@ -60,24 +117,42 @@ struct {
   uint8_t fpga_valid;
   uint8_t scan_id;
   uint8_t scan_version;
+  uint8_t scan_driverIdx;
   uint8_t scan_validflag;
-} board_info;
+} boardInfo;
+
+// #############################################################################
+//
+//     #######  ########   ######      ###    ##    ## 
+//    ##     ## ##     ## ##    ##    ## ##   ###   ## 
+//    ##     ## ##     ## ##         ##   ##  ####  ## 
+//    ##     ## ########  ##   #### ##     ## ## ## ## 
+//    ##     ## ##   ##   ##    ##  ######### ##  #### 
+//    ##     ## ##    ##  ##    ##  ##     ## ##   ### 
+//     #######  ##     ##  ######   ##     ## ##    ## 
+//
+// #############################################################################
+
+
+// ------------------
+// KEYBED/GENERATOR
+// ------------------
 
 struct {
+  // Reihenfolge wg. memcpy nicht ändern!
+  // 10 Werte #1356 ff.
+  uint8_t earlyKeyCont = false; // 100
+  uint8_t noDB1onPerc = false;
+  uint8_t foldbModeDB16 = 0; 
+  uint8_t hiFoldback = false;
   uint8_t contFlex = 4;
   uint8_t contDamping = 7;
-  uint8_t keyTranspose = 0;  // nur MIDI OUT eigene Tastatur
-  uint8_t genTranspose = 0;  // MIDI IN/Generator Transpose
-  uint8_t fatarVelocityFactor = 20; // 20 = Nominalwert, <100 = weichere Ansprache, >100 = härtere Ansprache
-  bool earlyKeyCont = false;
+  uint8_t PercOnLiveOnly = true;
+  uint8_t fatarVelocityFac = 20; // 20 = Nominalwert, <100 = weichere Ansprache, >100 = härtere Ansprache
+  uint8_t lubedContacts = false;  
+  uint8_t enaSagLoadmap= true; // Ri-Simulation des Generator-Innenwiderstands (nur HX3.6/3.7)
   
-  uint8_t percNormLvl = 100;
-  uint8_t percSoftLvl = 75;
-  uint8_t percLongTime = 55;
-  uint8_t percShortTime = 36;
-  uint8_t percMutedLvl = 64; // (all Drawbars muted by this value when PERC NORMAL)
-  uint8_t percPrechargeTime = 36; //Perc Precharge Time (sets time to fully charge decay capacitor when all keys released)
-  
+  // 10 Werte #1385 ff.
   uint8_t tuning_set = 0; // 0: Hammond, 1: Hammond Spread, 2: Even, 3..n: detuned sets
   uint8_t generator_size = 91;
   uint8_t fixed_taper = 32; // 32 = Nominalwert
@@ -88,51 +163,65 @@ struct {
   uint8_t taperset = 0; // 0..n, Index für Taper-Set in DataFlash
   uint8_t lc_filter_fac = 36; // LC Cutoff frequency calculation factor
   uint8_t bottom_oct_taper = 23; // Tapering value for first octave 16' Drawbar
-  bool has_foldback = false;
-  bool lubed_contacts = false;
-  bool tg_sag = false; // Ri-Simulation des Generator-Innenwiderstands (nur HX3.6/3.7)
-  uint8_t busbarOffsets[16] = {0, 19, 12, 24, 31, 36, 40, 43, 48, 46, 50, 51, 54, 55, 44, 0};
-  uint8_t busbarLevels[16] = {110, 115, 115, 115, 115, 110, 110, 110, 115, 105, 100, 100, 100, 100, 100, 0};
-  uint8_t pedalFac16[16] = {110, 122, 127, 95, 35, 20, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  uint8_t pedalFac8[16] = {0, 0, 120, 127, 75, 65, 55, 55, 20, 0, 0, 0, 0, 0, 0, 0};
+
+  uint8_t genTranspose = 0;  // MIDI IN/Generator Transpose
+  uint8_t keyTranspose = 0;  // nur MIDI OUT eigene Tastatur
+
+  uint8_t percNormLvl = 100;
+  uint8_t percSoftLvl = 75;
+  uint8_t percLongTime = 55;
+  uint8_t percShortTime = 36;
+  uint8_t percMutedLvl = 64; // (all Drawbars muted by this value when PERC NORMAL)
+  uint8_t percDummy0;
+  uint8_t percPrechargeTime = 36; //Perc Precharge Time (sets time to fully charge decay capacitor when all keys released)
+  uint8_t percDummy1;
+
+  uint8_t busbarOffsets[16];
+  uint8_t busbarLevels[16];
+  uint8_t pedalFac16[16];
+  uint8_t pedalFac8[16];
 } organModel;
+
+// ------------------
+// DRAWBARS
+// ------------------
 
 typedef struct {
   uint8_t upper[16] = {127, 127, 127, 127, 115, 110, 110, 110, 115, 0, 0, 0, 0, 0, 0, 0};
   uint8_t lower[16] = {0, 0, 115, 115, 115, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   uint8_t pedal[16] = {127, 127, 115, 100, 100, 50, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0};
-  uint8_t egperc[16] = {127, 127, 127, 127, 115, 110, 110, 110, 115, 0, 0, 0, 0, 0, 0, 0};
+  uint8_t egPerc[16] = {127, 127, 127, 127, 115, 110, 110, 110, 115, 0, 0, 0, 0, 0, 0, 0};
 } drawbars_t;
 
 drawbars_t drawbars;
 
-union {
-  uint8_t array[16] = {95, 33, 25, 30, 71, 71, 66, 89, 62, 30, 55, 77, 15, 49, 42, 112,} ;
-  struct {
-    uint8_t preEmphasis;
-    uint8_t lineAge;
-    uint8_t feedback;
-    uint8_t reflection;
-    uint8_t lineCutoff;
-    uint8_t phaseShelvLvl;
-    uint8_t gearing;
-    uint8_t chorusDryLvl;
-    uint8_t chorusWetLvl;
-    uint8_t modV1C1;
-    uint8_t modV2C2;
-    uint8_t modV3C3;
-    uint8_t chorusEnhance;
-    uint8_t segmentFlutter; // HX3.6/3.7 only
-    uint8_t hipassCutoff;
-    uint8_t slopeNoiseBits;
-  };
-} vibrato; 
+
+// ------------------
+// VIBRATO
+// ------------------
 
 struct {
-  uint8_t life_ctrl[16] = {15, 14, 91, 75, 2, 12, 3, 20, 66, 80, 60, 255, 3, 3};
-  uint8_t levels[16] = {0, 0, 15, 14, 91, 75, 2, 12, 3, 20, 66, 80, 60, 255, 3, 3};
-  uint8_t phases[16] = {10, 80, 58, 138, 148, 228, 92, 172, 122, 64, 0, 114, 23, 0,0,0};
-} speakerModel;
+  uint8_t preEmphasis;
+  uint8_t lineAge;
+  uint8_t feedback;
+  uint8_t reflection;
+  uint8_t lineCutoff;
+  uint8_t phaseShelvLvl;
+  uint8_t gearing;
+  uint8_t chorusDryLvl;
+  uint8_t chorusWetLvl;
+  uint8_t modV1C1;
+  uint8_t modV2C2;
+  uint8_t modV3C3;
+  uint8_t chorusEnhance;
+  uint8_t segmentFlutter; // HX3.6/3.7 only
+  uint8_t hipassCutoff;
+  uint8_t slopeNoiseBits;
+} vibrato; 
+
+// ------------------
+// AO28 PREAMP
+// ------------------
 
 struct {
   uint8_t masterVolume = 127;
@@ -142,9 +231,6 @@ struct {
   uint8_t pedalVolume = 105 ;
   uint8_t upperVolumeDry = 105 ;
   uint8_t overallReverb = 30 ;
-} preset;
-
-struct {
   uint8_t tonePot = 60;
   uint8_t trimSwell = 90;
   uint8_t minimalSwell= 20;
@@ -154,13 +240,11 @@ struct {
   uint8_t swellMidrangeShelving = 25;
   uint8_t swellFinalResponse = 40 ;
   uint8_t swellLoudnessTreble = 35;
- } ao28;
+ } preamp;
 
-struct {
-  uint8_t channel = 0;
-  uint8_t channel_lower = 1;
-  uint8_t channel_pedal = 2;
- } midiSettings;
+// ------------------
+// EQUALIZER
+// ------------------
 
 struct {
   uint8_t bass = 64;
@@ -175,8 +259,47 @@ struct {
   bool equ_bypass = false;
  } equalizer;
 
+// ------------------
+// TABS/SWITCHES
+// ------------------
 
- 
+struct {
+  uint8_t vibKnob = 0;
+  bool vibUpper = false;
+  bool vibLower = false;
+
+  bool vibToPedal = false;
+
+  bool percOn = false;
+  bool percSoft = false;
+  bool percFast = false;
+  bool perc3rd = false;
+
+  uint8_t organModel = 0;
+  uint8_t speakerModel = 0;
+  uint8_t upperVoice = 0;
+  uint8_t lowerVoice = 0;
+  uint8_t pedalVoice = 0;
+ } tabs;
+
+// #############################################################################
+//
+//     ######  ########  ########    ###    ##    ## ######## ########  
+//    ##    ## ##     ## ##         ## ##   ##   ##  ##       ##     ## 
+//    ##       ##     ## ##        ##   ##  ##  ##   ##       ##     ## 
+//     ######  ########  ######   ##     ## #####    ######   ########  
+//          ## ##        ##       ######### ##  ##   ##       ##   ##   
+//    ##    ## ##        ##       ##     ## ##   ##  ##       ##    ##  
+//     ######  ##        ######## ##     ## ##    ## ######## ##     ## 
+//
+// #############################################################################
+
+struct {
+  uint8_t ctrl[16];
+  uint8_t inits[32];
+  uint8_t phases[16];
+} speakerModel;
+
 
 // #############################################################################
 //
@@ -240,19 +363,6 @@ const uint8_t c_TuningTable[] = {
   0,
   18,72,92,101,106,110,112,112};
 
-
-enum { bm_toggle = 0,  bm_press = 1 };
-const uint8_t buttonModes[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, bm_press, bm_press, bm_press, bm_press};
-
-volatile uint8_t Timer1Semaphore = 0;
-volatile uint8_t Timer1RoundRobin = 0;
-bool fpgaOK = false;
-
-MenuPanel lcd(LCD_I2C_ADDR, 16, 2);
-
-
-
-File myFile;
 
 // #############################################################################
 //
@@ -470,7 +580,7 @@ const uint16_t c_target_count_per_block[]  = {1024,  1024,  512,  0,  2048,
 #define BLOCK_FPGA 0  // XC6S25 Binary, 196 Blöcke
 #define BLOCK_FAILSAFE_BASE 320  // Sicherungskopie
 #define BLOCK_UPDATE_INFO 637  // Update List
-#define BLOCK_BOARD_INFO 639  // 
+#define BLOCK_boardInfo 639  // 
 #define BLOCK_SPEAKER_MODEL_BASE 768  // 16 Blöcke
 #define BLOCK_ORGAN_MODEL_BASE 784  // 16 Blöcke
 #define BLOCK_PRESET_BASE 800  // 100 Blöcke
@@ -509,5 +619,21 @@ void blinkLED(uint8_t times) {
 }
 
 
+#define OFS_SYSTEMINITS 496
+#define OFS_VIBKNOBMODE 497
+#define OFS_RESTORECOMMONPRESETMASK 498
+#define OFS_BUTTONMASK0 499
+#define OFS_BUTTONMASK1 500
+#define OFS_CONFBITS1 501
+#define OFS_CONFBITS2 502
+#define OFS_ADCCONFIG 503
+#define OFS_1STDBSELECT 504
+#define OFS_2NDDBSELECT 505
+#define OFS_PEDALDBSETUP 506
+#define OFS_ADCSCALING 507
+
+#define OFS_DEVICETYPE 509
+#define OFS_PRESETSTRUCTURE 510
+#define OFS_EDITMAGICFLAGIDX 511
 
 #endif

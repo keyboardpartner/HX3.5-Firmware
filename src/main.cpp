@@ -245,6 +245,8 @@ void setup() {
   if (fpgaOK) {
     initBoard();
     initOrgan();
+    loadSpeakerModel(0);
+    sendSpeakerModel();
   }
   #ifdef LCD_I2C
     if (lcdPresent) displayMenuItem(0);

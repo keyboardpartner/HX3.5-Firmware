@@ -38,7 +38,7 @@ void fpga_send_taperset(uint8_t taperset) {
     spi_blockbuffer.dword[array_idx] &= 0x000000FF; // nur unterste 8 Bit übertragen
   }
   spi_autoIncSetup(LCTARGET_TAPERING); // for Write
-  spi_send_blockbuffer(1024, 32, true);
+  spi_send_blockbuffer(1024, 32);
   spi_autoIncReset(LCTARGET_TAPERING); // for Write Core 1, Taper-Set
 }
 
@@ -61,10 +61,10 @@ void fpga_make_keymap64(uint16_t buffer_offset, uint8_t start_note, uint8_t gene
 void fpga_send_keymap() {
   DPRINTF("/ Send Keymap to LC #3");
   for (uint8_t busbar = 0; busbar < 16; busbar++) {
-    fpga_make_keymap64(busbar * 64, organModel.busbarOffsets[busbar], organModel.generator_size, organModel.has_foldback);
+    fpga_make_keymap64(busbar * 64, organModel.busbarOffsets[busbar], organModel.generator_size, organModel.hiFoldback);
   }
   spi_autoIncSetup(LCTARGET_KEYMAP); // for Write Core 3, Keymap
-  spi_send_blockbuffer(1024, 8, true); // 1024 Werte à 8 Bit
+  spi_send_blockbuffer(1024, 8); // 1024 Werte à 8 Bit
   spi_autoIncReset(LCTARGET_KEYMAP);
 }
 
@@ -90,7 +90,7 @@ void fpga_send_hpfilter() {
     fpga_make_hpfilter64(busbar * 64, organModel.busbarOffsets[busbar]);
   }
   spi_autoIncSetup(LCTARGET_HP_FILTER); // for Write Core 6, Highpass-Filter
-  spi_send_blockbuffer(1024, 16, true); // 1024 Werte à 16 Bit
+  spi_send_blockbuffer(1024, 16); // 1024 Werte à 16 Bit
   spi_autoIncReset(LCTARGET_HP_FILTER);
 }
 
@@ -133,7 +133,7 @@ void fpga_send_tuning(uint8_t tuning_set) {
     }
   }
   spi_autoIncSetup(LCTARGET_TUNING_VALS); // for Write Core 5, Tuning Vals
-  spi_send_blockbuffer(buf_idx, 16, true); // 96 Werte à 16 Bit
+  spi_send_blockbuffer(buf_idx, 16); // 96 Werte à 16 Bit
   spi_autoIncReset(LCTARGET_TUNING_VALS);
   spi_write8(68, c_TuningTable[organModel.tuning_val]);  // CycleSteal-Wert -125 .. +125
 }
@@ -172,7 +172,7 @@ void fpga_send_upper_db() {
     spi_blockbuffer.byte[i] = (my_val > 127) ? 127 : (uint8_t)my_val;
   }
   spi_autoIncSetup(LCTARGET_UPPER_DRAWBARS); // for Write Core 8, Upper Drawbars
-  spi_send_blockbuffer(16, 8, true); // 16 Werte à 8 Bit
+  spi_send_blockbuffer(16, 8); // 16 Werte à 8 Bit
   spi_autoIncReset(LCTARGET_UPPER_DRAWBARS);
 }
 
@@ -183,7 +183,7 @@ void fpga_send_lower_db() {
     spi_blockbuffer.byte[i] = (my_val > 127) ? 127 : (uint8_t)my_val;
   }
   spi_autoIncSetup(LCTARGET_LOWER_DRAWBARS); // for Write Core 9, Lower Drawbars
-  spi_send_blockbuffer(16, 8, true); // 16 Werte à 8 Bit
+  spi_send_blockbuffer(16, 8); // 16 Werte à 8 Bit
   spi_autoIncReset(LCTARGET_LOWER_DRAWBARS);
 }
 
@@ -194,7 +194,7 @@ void fpga_send_pedal_db() {
     spi_blockbuffer.byte[i] = (my_val > 127) ? 127 : (uint8_t)my_val;
   }
   spi_autoIncSetup(LCTARGET_PEDAL_DRAWBARS); // for Write Core 10, Pedal Drawbars
-  spi_send_blockbuffer(16, 8, true); // 16 Werte à 8 Bit
+  spi_send_blockbuffer(16, 8); // 16 Werte à 8 Bit
   spi_autoIncReset(LCTARGET_PEDAL_DRAWBARS);
 }
 

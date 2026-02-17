@@ -15,7 +15,7 @@
 
 void midi_sendbyte(uint8_t midi_byte) {
   // warte auf leeren MIDI-OUT-FIFO, dann Byte senden
-  if (board_info.scan_validflag) {
+  if (boardInfo.scan_validflag) {
     while ((spi_read32(0) & 3) != 0) { delay(2);} // STATUS anfordern
     spi_write8(0x0C, midi_byte); // MIDI-Byte an Register 0 übermitteln, wird von Scan-Core gelesen
   }

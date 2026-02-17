@@ -18,7 +18,7 @@ void setOrganContacts() {
   spi_write8(SPI_SCAN_SPLIT_ON, 0); 
   spi_write8(SPI_SCAN_PWM_LOCALDISABLES, 0); 
 
-  temp = (organModel.earlyKeyCont & 1) | ((organModel.fatarVelocityFactor) << 2);
+  temp = (organModel.earlyKeyCont & 1) | ((organModel.fatarVelocityFac) << 2);
   spi_write8(SPI_SCAN_CONFIG_1, temp);
   spi_write8(SPI_SCAN_MIDISEND_DISABLES, 0); // alle MIDI-Ausgänge aktivieren
   spi_write8(SPI_SCAN_PWM_LOCALDISABLES, 0); // alle PWM 
@@ -37,12 +37,12 @@ void setOrganGenerator() {
 void setOrganInserts() {
   spi_write8(SPI_SWAP_DACS, 0); 
   spi_write8(SPI_INSERTS, 0); 
-  if (!board_info.scan_validflag) { return; }
+  if (!boardInfo.scan_validflag) { return; }
   midi_sendnrpn(0x350E, equalizer.equ_bypass);
 }
 
 void setOrganEqualizer() {
-  if (!board_info.scan_validflag) { return; }
+  if (!boardInfo.scan_validflag) { return; }
   midi_sendnrpn(0x350E, equalizer.equ_bypass);
   midi_sendnrpn(0x3514, equalizer.bass); // SAM55004 Equalizer Bass Level
   midi_sendnrpn(0x3515, equalizer.bass_freq); // SAM55004 Equalizer Bass Frequency
@@ -57,15 +57,15 @@ void setOrganEqualizer() {
 }
 
 void setOrganVolumes() {
-  spi_write8_scaled(SPI_UPPER_WET_LVL, preset.upperVolumeWet, 150);
-  spi_write8_scaled(SPI_LOWER_LVL, preset.lowerVolume, 150);
-  spi_write8_scaled(SPI_UPPER_DRY_LVL, preset.upperVolumeDry, 150);
-  spi_write16(SPI_PED_TO_VIB_LVL, preset.pedalVolume); // Pedal an Vibrato Lower, über AO28
+  spi_write8_scaled(SPI_UPPER_WET_LVL, preamp.upperVolumeWet, 150);
+  spi_write8_scaled(SPI_LOWER_LVL, preamp.lowerVolume, 150);
+  spi_write8_scaled(SPI_UPPER_DRY_LVL, preamp.upperVolumeDry, 150);
+  spi_write16(SPI_PED_TO_VIB_LVL, preamp.pedalVolume); // Pedal an Vibrato Lower, über AO28
   spi_write16(SPI_PED_TO_AO28_LVL, 0); // Pedal Dry über AO28
-  spi_write16(SPI_PED_TO_BYPASS_AMP, preset.pedalVolume); // Pedal to Ext. Output & Postmix
-  spi_write8_volume(SPI_AMP_IN_LVL, preset.ampVolume);
+  spi_write16(SPI_PED_TO_BYPASS_AMP, preamp.pedalVolume); // Pedal to Ext. Output & Postmix
+  spi_write8_volume(SPI_AMP_IN_LVL, preamp.ampVolume);
   spi_write8(SPI_AMP_OUT_LVL, 100);     // Tube Amp Out Level
-  spi_write8_volume(SPI_MASTER_VOLUME, preset.masterVolume);  // 72 = Master Vol I2S Multiplier
+  spi_write8_volume(SPI_MASTER_VOLUME, preamp.masterVolume);  // 72 = Master Vol I2S Multiplier
 }
 
 void setOrganVibrato() {
@@ -80,18 +80,48 @@ void setOrganPercussion() {
 
 void setOrganSwell() {
   // TODO! Werte müssen anhand Schwellerstellung berechnet werden, hier nur Beispielwerte
-  spi_write8(SPI_AO28_LOUDN_BASS, ao28.swellLoudnessBass);
+  spi_write8(SPI_AO28_LOUDN_BASS, preamp.swellLoudnessBass);
   spi_write8(SPI_AO28_MIDRANGE, 255); // AO28 midrange
-  spi_write8(SPI_AO28_LOUDN_TREBLE, ao28.swellLoudnessTreble); // AO28 LoudnessTreble
-  spi_write8(SPI_AO28_MIDRANGE_SHELF, ao28.swellMidrangeShelving * 2);
-  spi_write8(SPI_AO28_FINAL_GAIN, 128 + ao28.trimSwell);
-  spi_write8(SPI_AO28_TRIODE_K2, 255 - ao28.triode_k2);
-  spi_write8(SPI_AO28_FREQU_RESPONSE_FINAL, ao28.swellFinalResponse);
-  spi_write8(SPI_AO28_FREQU_RESPONSE_MIDRANGE, ao28.swellMidrangeResponse);
+  spi_write8(SPI_AO28_LOUDN_TREBLE, preamp.swellLoudnessTreble); // AO28 LoudnessTreble
+  spi_write8(SPI_AO28_MIDRANGE_SHELF, preamp.swellMidrangeShelving * 2);
+  spi_write8(SPI_AO28_FINAL_GAIN, 128 + preamp.trimSwell);
+  spi_write8(SPI_AO28_TRIODE_K2, 255 - preamp.triode_k2);
+  spi_write8(SPI_AO28_FREQU_RESPONSE_FINAL, preamp.swellFinalResponse);
+  spi_write8(SPI_AO28_FREQU_RESPONSE_MIDRANGE, preamp.swellMidrangeResponse);
   spi_write8(SPI_AO28_BYPASS_SEL, 1); // AO28 Equalizing Bypass wenn 1
 }
 
+bool loadOrganModel(uint8_t organModelIdx) {
+  // kopiert nur für Orgelmodell relevante Teile ins edit_array
+  // liefert TRUE wenn Orgelmodell gültig (> 0) und geladen
+  df_readblock(BLOCK_ORGAN_MODEL_BASE + organModelIdx, 512);  // 512 Bytes!
+  if (spi_blockbuffer.byte[OFS_EDITMAGICFLAGIDX] == 0xA5
+    && spi_blockbuffer.byte[OFS_PRESETSTRUCTURE] >= PRESET_VERSION) {
+    DPRINTF("/ Load Organ Model #");
+    DPRINTLN(organModelIdx);
+    memcpy(&organModel.busbarLevels[0], spi_blockbuffer.byte + 272, 16);
+    memcpy(&organModel.busbarOffsets[0], spi_blockbuffer.byte + 288, 16);
+    memcpy(&organModel.earlyKeyCont, spi_blockbuffer.byte + 356, 10);
+    memcpy(&organModel.tuning_set, spi_blockbuffer.byte + 385, 10);
+    memcpy(&organModel.percNormLvl, spi_blockbuffer.byte + 480, 7);
+    memcpy(&preamp.upperVolumeWet, spi_blockbuffer.byte + 82, 4);
+    memcpy(&preamp.tonePot, spi_blockbuffer.byte + 87, 9);
+    memcpy(&vibrato.preEmphasis, spi_blockbuffer.byte + 320, 16);
+    return true;
+  } else {
+    DPRINTF("/ Invalid Organ Model #");
+    DPRINTLN(organModelIdx);
+    DPRINTF("/ Version byte found:");
+    DPRINTLN(spi_blockbuffer.byte[OFS_PRESETSTRUCTURE], HEX);
+    DPRINTF("/ Magic Flag byte found:");
+    DPRINTLN(spi_blockbuffer.byte[OFS_EDITMAGICFLAGIDX], HEX);
+  }
+  return false;
+}
+
+
 void initOrgan() {
+  loadOrganModel(0);
   DPRINTLNF("/ Send FIR Coeff to LC #2");
   df_send_core(LCTARGET_FIR_COEFF, BLOCK_FIR_COEFF);  // FIR Koeffizienten Horn
   fpga_send_taperset(organModel.taperset); // Taper-Set aus organ_model, Block Offset 11 (nur unterste 8 Bit übertragen)
@@ -110,7 +140,7 @@ void initOrgan() {
   fpga_send_lower_db();
   fpga_send_pedal_db();
 
-  if (!board_info.scan_validflag) { return; }
+  if (!boardInfo.scan_validflag) { return; }
   midi_sendnrpn(0x3509, 115); // SAM55004 GM2 Pre-Mix Gain
   midi_sendnrpn(0x3510, 127); // SAM55004 GM2 General Master Volume
   midi_sendnrpn(0x3512, 127); // SAM55004 GM2 Master Volume
@@ -121,7 +151,6 @@ void initOrgan() {
 
   DPRINTLNF("/ Init Organ done");
 }
-
 // -----------------------------------------------------------------------------
 // Funktionen ohne Parameter für EditAction
 // -----------------------------------------------------------------------------
@@ -134,4 +163,6 @@ void organReset() {
     initOrgan();
   }
 }
+
+
 #endif // ORGAN_H
