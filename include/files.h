@@ -65,6 +65,7 @@ typedef struct {
 #define FILE_ORGAN_MODEL 17
 #define FILE_SPEAKER_MODEL 18
 #define FILE_PRESET 19
+#define FILE_DEFAULTS 20
 
 
 const updateFileType filelist[32] PROGMEM = {
@@ -88,7 +89,7 @@ const updateFileType filelist[32] PROGMEM = {
   {"organs.dat", BLOCK_ORGAN_MODEL_BASE, LC_NONE}, // 17
   {"speakers.dat", BLOCK_SPEAKER_MODEL_BASE, LC_NONE}, // 18
   {"presets.dat", BLOCK_PRESET_BASE, LC_NONE}, // 19
-  {"file20.txt", 0, LC_NONE}, // 20
+  {"defaults.dat", BLOCK_DEFAULTS, LC_NONE}, // 20
   {"file21.txt", 0, LC_NONE}, // 21
   {"file22.txt", 0, LC_NONE}, // 22
   {"file23.txt", 0, LC_NONE}, // 23
@@ -295,7 +296,7 @@ void flashFPGA() {
 
 void flashOther() {
   if (!sdReady) initSDcard();
-  for (uint8_t i = FILE_TAPER_0; i <= FILE_PRESET; i++) {
+  for (uint8_t i = FILE_TAPER_0; i <= FILE_DEFAULTS; i++) {
     sendCoreAndDisplay(i, true); // taperX.dat an Tapering senden
   }
 }

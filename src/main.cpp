@@ -21,9 +21,10 @@
 #include <TimerOne.h>
 #include "global_vars.h"
 #include "files.h"
-#include "organ.h"
 #include "speaker.h"
 #include "board.h"
+#include "organ.h"
+#include "parser.h"
 
 // Define used modules here, comment out unused modules to save program memory
 #define LCD_I2C
@@ -180,15 +181,17 @@ void setup() {
   if (EEPROM.read(EEPROM_VERSION_IDX) != FIRMWARE_VERSION) {
     // EEPROM enthält ungültige Werte, z.B. nach erstem Flashen oder bei Firmware-Update, also mit Default-Werten initialisieren
     for (uint8_t i = 0; i < MENU_ITEMCOUNT; i++) {
-      if (EditValuePtrs[i] != NULL) {
-        EEPROM.update(i + EEPROM_MENUDEF_IDX, *EditValuePtrs[i]);
+      getOneMenuEntry(i); // Menüpunkt aus PROGMEM lesen, damit wir den Zeiger auf die EditValue kennen
+      if (oneMenuEntry.editValuePtr != NULL) {
+        EEPROM.update(i + EEPROM_MENUDEF_IDX, *oneMenuEntry.editValuePtr);
       }
     }
     EEPROM.update(EEPROM_VERSION_IDX, FIRMWARE_VERSION); // Schreibe Vergleichswert für zukünftige Gültigkeitsprüfung
   } else {
     for (uint8_t i = 0; i < MENU_ITEMCOUNT; i++) {
-      if (EditValuePtrs[i] != NULL) {
-        *EditValuePtrs[i] = EEPROM.read(i + EEPROM_MENUDEF_IDX);
+      getOneMenuEntry(i); // Menüpunkt aus PROGMEM lesen, damit wir den Zeiger auf die EditValue kennen
+      if (oneMenuEntry.editValuePtr != NULL) {
+        *oneMenuEntry.editValuePtr = EEPROM.read(i + EEPROM_MENUDEF_IDX);
       }
     }
   }
@@ -246,20 +249,23 @@ void setup() {
     initBoard();
     initOrgan();
     loadSpeakerModel(0);
-    sendSpeakerModel();
   }
   #ifdef LCD_I2C
-    if (lcdPresent) displayMenuItem(0);
+    MenuItemActive = 0; // erster Menüpunkt aktiv
+    getOneMenuEntry(MenuItemActive);
+    if (lcdPresent) displayMenuItem();
   #endif
+  Serial.write('>'); // Show prompt for next command
 }
 
 // #############################################################################
 
 void loop() {
+  checkSerialCommand();
   if (!_FIFO_EMPTY && fpgaOK) {
     // MIDI-Daten vom FPGA empfangen
-    Serial.print (F("/ MIDI RX: "));
-    Serial.println(spi_read32(MIDI_FIFO_RDREG), HEX);
+    DPRINTF("/ MIDI RX: ");
+    DPRINTLN(spi_read32(MIDI_FIFO_RDREG), HEX);
   }
 
   while (Timer1Semaphore) {

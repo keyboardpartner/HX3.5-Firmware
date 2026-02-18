@@ -25,6 +25,9 @@
 #define EEPROM_VERSION_IDX 0x08 // Adresse des Vergleichwerts
 #define EEPROM_MENUDEF_IDX 0x10 // Startadresse im EEPROM für gespeicherte Werte
 
+#define LICENSE_ORGAN 9523781
+#define LICENSE_EXTENDED 3316044
+
 #define MIDI_MINDYN 10
 #define MIDI_DYNSLOPE 12
 #define MIDI_MAXDYNADJ 5
@@ -120,6 +123,46 @@ struct {
   uint8_t scan_driverIdx;
   uint8_t scan_validflag;
 } boardInfo;
+
+// ------------------
+// TABS/SWITCHES
+// ------------------
+
+struct {
+  uint8_t dummy_0 = 0;
+  uint8_t vibKnobMode = 0;
+  uint8_t presetMask = 159;
+  uint8_t dummy_1 = 0;
+  uint8_t dummy_2 = 0;
+  uint8_t config_1 = 0;
+  uint8_t config_2 = 0;
+  uint8_t adcConfig = 1;
+  uint8_t voice1stDBset = 0;
+  uint8_t voice2ndDBset = 40;
+  uint8_t configPedal = 0;
+  uint8_t adcScaling = 100;
+  uint8_t adcHysteresis = 4;
+  uint8_t deviceType = 0;
+  uint8_t structureVersion = 60;
+  uint8_t adcHmagicFlag = 0xAA; // Vergleichswert für EEPROM, um veraltete Versionen zu erkennen
+  // Aliasses für config_1:
+  bool swapPresetRowsUpper = false;
+  bool swapPresetRowsLower = false;
+  bool gainCompensation = true;
+  bool extPedalonly = false;
+  bool pedalOnLowerVib = false;
+  bool audioTaperPots = false;
+  bool disableSwellonExtPedal = false;
+  bool displaySplashScreen = false;
+  // Aliasses für config_2:
+  bool latchingFootswiches = false;
+  bool halfmoonConfig = false;
+  bool wrapMenus = true;
+  bool syncPHRtoRotary = false;
+  bool delayedCancelSave = false;
+  bool swapFootswitchInputs = false;
+  bool separateMainPedalOnRotBypass = false;
+ } config;
 
 // #############################################################################
 //
@@ -225,14 +268,14 @@ struct {
 
 struct {
   uint8_t masterVolume = 127;
-  uint8_t ampVolume = 40;
+  uint8_t ampGain = 40;
   uint8_t upperVolumeWet = 105;
   uint8_t lowerVolume = 105 ;
   uint8_t pedalVolume = 105 ;
   uint8_t upperVolumeDry = 105 ;
   uint8_t overallReverb = 30 ;
   uint8_t tonePot = 60;
-  uint8_t trimSwell = 90;
+  uint8_t trimSwell = 60;
   uint8_t minimalSwell= 20;
   uint8_t triode_k2 = 30;
   uint8_t swellLoudnessBass = 90;
@@ -240,6 +283,10 @@ struct {
   uint8_t swellMidrangeShelving = 25;
   uint8_t swellFinalResponse = 40 ;
   uint8_t swellLoudnessTreble = 35;
+  // Integrierter Schwellerwert von ADC oder MIDI, 0..255
+  uint8_t swell255 = 254; 
+  uint8_t swell127 = 127; // von MIDI gesetzte Schwellerstellung, 0..127, wird in swell255 umgerechnet
+  int16_t swellIntegrator = 255;
  } preamp;
 
 // ------------------
@@ -256,24 +303,29 @@ struct {
   uint8_t treble = 64;
   uint8_t treble_freq = 70;
   uint8_t treble_peak = 25;
-  bool equ_bypass = false;
- } equalizer;
+} equalizer;
 
 // ------------------
 // TABS/SWITCHES
 // ------------------
 
+
 struct {
   uint8_t vibKnob = 0;
   bool vibUpper = false;
   bool vibLower = false;
-
-  bool vibToPedal = false;
-
+  
+  bool phrUpper = false;
+  bool phrLower = false;
+  
   bool percOn = false;
   bool percSoft = false;
   bool percFast = false;
   bool perc3rd = false;
+  
+  bool tubeAmpBypass = true;
+  bool speakerBypass = true;
+  bool equ_bypass = false;
 
   uint8_t organModel = 0;
   uint8_t speakerModel = 0;
@@ -281,6 +333,11 @@ struct {
   uint8_t lowerVoice = 0;
   uint8_t pedalVoice = 0;
  } tabs;
+
+ struct {
+  bool vibToPedal = false;
+  uint8_t inserts = 0;
+ } organ;
 
 // #############################################################################
 //
@@ -300,6 +357,18 @@ struct {
   uint8_t phases[16];
 } speakerModel;
 
+struct {
+  uint8_t ampGain = 40;
+  uint8_t ampInVol = 100;
+  uint8_t ampOutVol = 100;
+  uint8_t stereoSpread = 100;
+  uint8_t hornSpeed = 15;
+  uint8_t rotorSpeed = 14;
+  uint8_t balance = 64;
+  uint8_t throb = 0;
+  uint8_t tubeSlopePos = 0;
+  uint8_t tubeSlopeNeg = 0;
+} speakerCtrl;
 
 // #############################################################################
 //
@@ -331,7 +400,17 @@ const uint8_t  c_DrawbarLogTable[128] = {
     76, 78, 79, 81, 82, 84, 86, 87,
     89, 91, 92, 94, 96, 97, 99, 101,
     103, 105, 106, 108, 110, 112, 114, 116,
-    118, 119, 121, 123, 125, 127, 127, 127  };
+    118, 119, 121, 123, 125, 127, 127, 127 };
+
+const uint8_t c_AntiLogTable[128] = {
+    0, 1, 2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18, 19, 21, 22, 24, 25, 27, 28,
+    29, 31, 32, 33, 35, 36, 37, 39, 40, 41, 43, 44, 45, 47, 48, 49, 50, 52, 53,
+    54, 55, 57, 58, 59, 60, 62, 63, 64, 65, 66, 68, 69, 70, 71, 72, 73, 74, 76,
+    77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+    96, 97, 98, 99, 100, 101, 102, 102, 103, 104, 105, 106, 107, 108, 108, 109,
+    110, 111, 111, 112, 113, 114, 114, 115, 116, 116, 117, 118, 118, 119, 120,
+    120, 121, 121, 122, 122, 123, 123, 124, 124, 125, 125, 125, 126, 126, 127,
+    127, 127, 127, 127 };
 
 
 const uint16_t c_HighpassFilterArray[] = {
@@ -363,6 +442,16 @@ const uint8_t c_TuningTable[] = {
   0,
   18,72,92,101,106,110,112,112};
 
+const int16_t c_tubeampslopes[8][32] = {
+    {1024,998,952,910,870,831,793,755,718,682,646,610,575,540,505,471,436,402,368,335,301,268,235,202,169,137,104,72,39,7,0,0},
+    {1024,1019,1003,981,955,926,895,861,825,786,746,705,661,616,570,522,473,423,371,319,265,209,153,96,38,0,0,0,0,0,0,0},
+    {1024,1023,1019,1011,999,983,963,939,911,879,843,803,759,711,659,603,543,479,411,339,263,183,99,11,0,0,0,0,0,0,0,0},
+    {1024,1024,1023,1020,1014,1005,993,978,958,934,905,871,832,787,737,681,619,550,475,393,304,209,106,0,0,0,0,0,0,0,0,0},
+    {1024,1024,1024,1024,1024,1023,1021,1017,1012,1003,991,974,953,926,894,854,806,750,685,610,525,428,318,196,60,0,0,0,0,0,0,0},
+    {1024,1024,1024,1024,1024,1023,1022,1020,1016,1009,1000,986,967,942,908,864,808,737,651,545,417,264,82,0,0,0,0,0,0,0,0,0},
+    {1024,1024,1024,1024,1024,1024,1024,1023,1022,1020,1016,1011,1002,988,969,941,902,850,781,691,574,426,240,8,0,0,0,0,0,0,0,0},
+    {1024,1024,1024,1024,1024,1024,1024,1024,1024,1023,1022,1021,1018,1013,1005,993,975,948,910,856,781,679,543,362,127,0,0,0,0,0,0,0}
+};
 
 // #############################################################################
 //
@@ -416,7 +505,19 @@ const uint8_t c_TuningTable[] = {
 
 #define SPI_SWAP_DACS 64
 #define SPI_TEST_SEL 65
+
+// Bitmasken für SPI_INSERTS
+#define INSERT_PHR_UPR 1
+#define INSERT_PHR_LWR 2
+#define INSERT_VIB_UPR 4
+#define INSERT_VIB_LWR 8
+#define INSERT_TUBEAMP 16
+#define INSERT_SPEAKER 32
+#define INSERT_PEDAL_POSTMIX 64
+#define INSERT_PEDAL_BYPASS 128
+
 #define SPI_INSERTS 66
+
 #define SPI_LEAK_RNDMASK 67
 #define SPI_DDS_TUNING 68
 #define SPI_AMP_IN_LVL 69
@@ -516,9 +617,9 @@ const uint8_t c_TuningTable[] = {
 #define SPI_LFO_PHASE_OFFSET_HORN_MAIN_R 225
 #define SPI_LFO_PHASE_OFFSET_HORN_REFL_1_L_NEAR_CAB 226
 #define SPI_LFO_PHASE_OFFSET_HORN_REFL_1_R_NEAR_CAB 227
-#define SPI_LFO_PHASE_OFFSET_HORN_REFL_2_L__FAR 228
+#define SPI_LFO_PHASE_OFFSET_HORN_REFL_2_L_FAR 228
 #define SPI_LFO_PHASE_OFFSET_HORN_REFL_2_R_FAR 229
-#define SPI_LFO_PHASE_OFFSET_HORN_THROB_L__2_KHZ 230
+#define SPI_LFO_PHASE_OFFSET_HORN_THROB_L_2_KHZ 230
 #define SPI_LFO_PHASE_OFFSET_HORN_THROB_R_2_KHZ 231
 #define SPI_LFO_PHASE_OFFSET_HORN_CAB_4X 232
 #define SPI_LFO_PHASE_OFFSET_ROTOR_MAIN 233
@@ -618,6 +719,19 @@ void blinkLED(uint8_t times) {
   }
 }
 
+uint8_t mulDivByte(uint8_t value, uint8_t mul, uint8_t div) {
+  // Für AVRco-Kompatibilität, oft genutzt
+  uint16_t temp = (uint16_t)value;
+  temp = (temp * mul) / div;
+  return temp;
+}
+
+uint8_t mulDivInt(int16_t value, int16_t mul, int16_t div) {
+  // Für AVRco-Kompatibilität, oft genutzt
+  uint32_t temp = (uint32_t)value;
+  temp = (temp * mul) / div;
+  return temp;
+}
 
 #define OFS_SYSTEMINITS 496
 #define OFS_VIBKNOBMODE 497

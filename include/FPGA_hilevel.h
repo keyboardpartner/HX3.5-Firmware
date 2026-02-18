@@ -3,13 +3,13 @@
 
 // #############################################################################
 //
-//     #     # ###   #       ####### #     # ####### #
-//     #     #  #    #       #       #     # #       #
-//     #     #  #    #       #       #     # #       #
-//     #######  #    #       #####   #     # #####   #
-//     #     #  #    #       #        #   #  #       #
-//     #     #  #    #       #         # #   #       #
-//     #     # ###   ####### #######    #    ####### #######
+//    ######## ########   ######      ###        ##     ## #### 
+//    ##       ##     ## ##    ##    ## ##       ##     ##  ##  
+//    ##       ##     ## ##         ##   ##      ##     ##  ##  
+//    ######   ########  ##   #### ##     ##     #########  ##  
+//    ##       ##        ##    ##  #########     ##     ##  ##  
+//    ##       ##        ##    ##  ##     ##     ##     ##  ##  
+//    ##       ##         ######   ##     ##     ##     ## #### 
 //
 // #############################################################################
 
@@ -19,6 +19,17 @@
 #include "FPGA_MIDI.h"
 
 // #############################################################################
+
+
+void fpga_sendLicense() {
+  // Lizenzschlüssel an FPGA senden, damit er die Cores freischaltet
+  // Muss in setup() aufgerufen werden, damit die Cores überhaupt arbeiten
+  DPRINTLNF("/ Send License Key to FPGA");
+  // For Serial Number 2821432, Licence Organ: 9523781  Extended: 3316044
+  // These will not work on other boards!
+  spi_write32(240, LICENSE_ORGAN);
+  spi_write32(241, LICENSE_EXTENDED);
+}
 
 void fpga_send_waveset(uint8_t waveset) {
   DPRINTF("/ Send Waveset #");

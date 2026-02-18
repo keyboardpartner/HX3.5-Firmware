@@ -2,10 +2,24 @@
 #define FPGA_MIDI_H
 
 // #############################################################################
+//
+//    ##     ## #### ########  ####      ######  ########  #### 
+//    ###   ###  ##  ##     ##  ##      ##    ## ##     ##  ##  
+//    #### ####  ##  ##     ##  ##      ##       ##     ##  ##  
+//    ## ### ##  ##  ##     ##  ##       ######  ########   ##  
+//    ##     ##  ##  ##     ##  ##            ## ##         ##  
+//    ##     ##  ##  ##     ##  ##      ##    ## ##         ##  
+//    ##     ## #### ########  ####      ######  ##        #### 
+//
+// #############################################################################
+
+
+// #############################################################################
 // MIDI to FPGA Scancore communication functions
-// Sends MIDI Bytes to FPGA MIDI OUT FIFO
+// Sends MIDI Bytes to FPGA MIDI OUT FIFO over SPI
 // Scan Core will handle or forward them to MIDI-OUT, MIDI-USB and SAM5504 DSP
-// Incoming data from Scan Core (e.g. MIDI IN) can be read by spi_read32(MIDI_FIFO_RDREG)
+// Incoming data from Scan Core (e.g. MIDI IN) can be read by 
+// spi_read32(MIDI_FIFO_RDREG)
 // 3 Bytes at a time. Sysex data will be specially formatted.
 // #############################################################################
 

@@ -2289,7 +2289,8 @@ c_tubeampslopes: Array[0..7, 0..31] of Integer = (
   0,
   0,
   0
-  ), (    // Slope pow(5  1024,
+  ), (    // Slope pow(5
+  1024,
   1024,
   1024,
   1024,
@@ -2313,7 +2314,6 @@ c_tubeampslopes: Array[0..7, 0..31] of Integer = (
   318,
   196,
   60,
-  0,
   0,
   0,
   0,

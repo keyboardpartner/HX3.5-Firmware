@@ -1439,7 +1439,6 @@ begin
 
   swell_final:= 128 + edit_TrimSwell;
   if swell_changed or ToneChanged then
-    swell_final:= 128 + edit_TrimSwell;
     // edit_TrimSwell: 0..127, nom. 75..90
     // edit_MinimalSwell: 0..50, nom. 20
     // edit_TonePot: 0..127, nom. 60
@@ -1449,7 +1448,7 @@ begin
       if swell_bassboost > 200 then
         swell_bassboost:= 200;
       endif;
-      // halber Anstieg bis 32, danach steiler mis Max. 255
+      // halber Anstieg bis 32, danach steiler bis max. 255
       if swell_raw255 < 32 then
         swell_midrange:= swell_raw255 div 2; // 0..16
       else
