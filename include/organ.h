@@ -53,8 +53,9 @@ void organReset();
 
 // #############################################################################
 
-void sendOrganSwell() {
-  sendSwellEqu(preamp.swell127 * 2, false);
+void setMIDIswell() {
+  // Geht davon aus, das Swell in Main Loop über updateSwell() aktualisiert wird
+  preamp.swell255 = preamp.swell127 * 2;
 }
 
 void sendSwellEqu(uint8_t swell_raw255, bool bypass_ao28){
@@ -104,17 +105,17 @@ void sendSwellEqu(uint8_t swell_raw255, bool bypass_ao28){
     uint8_t swell_loudness_hi = mulDivByte(swell_temp + preamp.swellLoudnessTreble, preamp.minimalSwell, 20);  // #1095
     
     DPRINT (swell_raw255);
-    DPRINTF (", Loudness Bass: ");
+    DPRINTF (", Loudn Bass: ");
     DPRINT (swell_bassboost);
-    DPRINTF (", Midrange: ");
+    DPRINTF (", Midr: ");
     DPRINT (swell_midrange);
-    DPRINTF (", Mid Resp: ");
+    DPRINTF (", Midr Resp: ");
     DPRINT (swell_midrange_response);
-    DPRINTF (", Mid Shelf: ");
+    DPRINTF (", Midr Shelf: ");
     DPRINT (swell_midrange_shelf);
     DPRINTF (", Final Resp: ");
     DPRINT (swell_final_response);
-    DPRINTF (", Loudness Hi: ");
+    DPRINTF (", Loudn Hi: ");
     DPRINT (swell_loudness_hi);
     DPRINTLN();
 
@@ -129,6 +130,17 @@ void sendSwellEqu(uint8_t swell_raw255, bool bypass_ao28){
     spi_write8(SPI_AO28_TRIODE_K2, 255 - preamp.triode_k2);
     spi_write8(SPI_AO28_FREQU_RESPONSE_FINAL, swell_final_response);
   }
+}
+
+void updateSwell() {
+  // integriere Schwellerwert von ADC oder MIDI, 0..255
+  // Je höher der aktuelle Wert, desto schneller die Integration
+  preamp.swellIntegrator += ((int16_t)preamp.swell255 * 16 - preamp.swellIntegrator) / 8; 
+  uint8_t swell_integrator_8bit = (uint8_t)(preamp.swellIntegrator / 16);
+  if (swell_integrator_8bit != preamp.swell255_old) {
+    sendSwellEqu(swell_integrator_8bit, false);
+  }
+  preamp.swell255_old = swell_integrator_8bit;
 }
 
 // -----------------------------------------------------------------------------
@@ -256,6 +268,7 @@ bool loadOrganModel(uint8_t organModelIdx) {
     sendOrganVibrato();
     sendOrganVolumes();
     sendOrganEqualizer();
+    sendOrganKeybed();
     return true;
   } else {
     DPRINTF("/ Invalid Organ Model #");
@@ -279,8 +292,25 @@ void initOrgan() {
   fpga_sendLicense();
  
   sendOrganInserts();
-  sendOrganSwell();
-  sendOrganKeybed();
+  preamp.swell127 = 127; // MIDI-Swell auf 127 setzen
+  setMIDIswell();
+
+  // Drawbars initialisieren
+  for (uint8_t i = 0; i < 16; i++) {
+    drawbars.upper[i] = 0;
+    drawbars.lower[i] = 0;
+    drawbars.pedal[i] = 0;
+    drawbars.egPerc[i] = 0;
+  }
+  for (uint8_t i = 0; i < 6; i++) {
+    drawbars.upper[i] = 127 - i;
+  }
+  for (uint8_t i = 2; i < 5; i++) {
+    drawbars.lower[i] = 127 - i * 2;
+  }
+  for (uint8_t i = 0; i < 5; i++) {
+    drawbars.pedal[i] = 127 - i * 2;
+  }
 
   fpga_send_upper_db();
   fpga_send_lower_db();

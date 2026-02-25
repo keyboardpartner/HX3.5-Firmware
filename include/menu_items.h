@@ -34,9 +34,6 @@ const lcdTextType DriverTypes[MENU_DRIVERCOUNT] PROGMEM = {
 void menuOrganModel();
 void menuSpeakerModel();
 
-
-
-
 // ------------------------------------------------------------------------------
 // Hier Daten aus Excel-Tabelle einfügen, die die Menüstruktur definiert.
 // Es müssen 1 enum-Liste und 5 Arrays mit gleicher Länge angelegt werden.
@@ -50,100 +47,138 @@ void menuSpeakerModel();
 // NULL wenn kein Wert geändert werden soll.
 // ------------------------------------------------------------------------------
 
-const uint8_t m_upper_db_16 = 11;
-const uint8_t m_lower_db_16 = 21;
-const uint8_t m_pedal_db_16 = 31;
-const uint8_t m_sd_card_info = 34;
-const uint8_t m_kbd_driver = 42;
-const uint8_t m_menu_end = 10;
+enum {
+  m_upper_db,
+  m_lower_db,
+  m_pedal_db,
+  m_swell,
+  m_volume,
+  m_gain,
+  m_sd_card,
+  m_kbd_driver,
+  m_organ,
+  m_speaker,
+  m_pitchwheel,
+  m_main_end,
+}; // alle vorhandenen Menü-Links
+
 
 // Action-Routine über Tabelle
 typedef void (*action)();
 
+// Bei mehr als 127 Menüpunkten müssen die Datentypen in menuEntryType angepasst werden
 typedef struct {
   char menuHeader[16];
-  int16_t submenuLink;
+  int8_t submenuLink;
   uint8_t* editValuePtr;
   action editAction;
-  int16_t menuValueMin;
-  int16_t menuValueMax;
+  int8_t menuValueMin;
+  int8_t menuValueMax;
 } menuEntryType;
 
-#define MENU_ITEMCOUNT 51
+#define MENU_ITEMCOUNT 52
 
-// Diese Tabelle enthält die Menüstruktur, die in der Excel-Tabelle HX35_menuItems.xlsxdefiniert ist
+// Diese Tabelle enthält die Menüstruktur, die in der Excel-Tabelle HX35_menuItems.xlsx definiert ist
 // Menü-Text, Link zu Untermenüs, Zeiger auf Werte, die bei Änderung geändert werden sollen, 
 // Action-Routine bei Änderung, Min- und Maximalwerte für die Editierung
+
 const menuEntryType MenuItems[MENU_ITEMCOUNT] PROGMEM = { 
-  {"Upper DBs", m_upper_db_16, NULL, NULL, 1, 0},
-  {"Lower DBs", m_lower_db_16, NULL, NULL, 1, 16},
-  {"Pedal DBs", m_pedal_db_16, NULL, NULL, 1, 16},
-  {"Swell Pedal", 0, NULL, NULL, 0, 127},
-  {"Master Volume", 0, &preamp.masterVolume, &sendOrganVolumes, 0, 127},
-  {"Amp Gain", 0, &preamp.ampGain, &sendAmpVolume, 0, 127},
-  {"SD Flash Tools", m_sd_card_info, NULL, NULL, 0, 127},
-  {"Keyboard", m_kbd_driver, NULL, NULL, 0, 0},
-  {"Organ Model", 0, &tabs.organModel, &menuOrganModel, 0, 15},
-  {"Speaker Model", 0, &tabs.speakerModel, &menuSpeakerModel, 0, 15},
-  {"Pitchwheel Pot", 0, NULL, NULL, -1, 31},
-  {"End", 0, NULL, NULL, 0, 0},
-  {"Upper DB 16", 0, &drawbars.upper[0], &fpga_send_upper_db, 0, 127},
-  {"Upper DB 5 1/3", 0, &drawbars.upper[1], &fpga_send_upper_db, 0, 127},
-  {"Upper DB 8", 0, &drawbars.upper[2], &fpga_send_upper_db, 0, 127},
-  {"Upper DB 4", 0, &drawbars.upper[3], &fpga_send_upper_db, 0, 127},
-  {"Upper DB 2 2/3", 0, &drawbars.upper[4], &fpga_send_upper_db, 0, 127},
-  {"Upper DB 2", 0, &drawbars.upper[5], &fpga_send_upper_db, 0, 127},
-  {"Upper DB 1 3/5", 0, &drawbars.upper[6], &fpga_send_upper_db, 0, 127},
-  {"Upper DB 1 1/3", 0, &drawbars.upper[7], &fpga_send_upper_db, 0, 127},
-  {"Upper DB 1", 0, &drawbars.upper[8], &fpga_send_upper_db, 0, 127},
-  {"Upper DB", -1, NULL, NULL, 0, 0},
-  {"Lower DB 16", 0, &drawbars.lower[0], &fpga_send_lower_db, 0, 127},
-  {"Lower DB 5 1/3", 0, &drawbars.lower[1], &fpga_send_lower_db, 0, 127},
-  {"Lower DB 8", 0, &drawbars.lower[2], &fpga_send_lower_db, 0, 127},
-  {"Lower DB 4", 0, &drawbars.lower[3], &fpga_send_lower_db, 0, 127},
-  {"Lower DB 2 2/3", 0, &drawbars.lower[4], &fpga_send_lower_db, 0, 127},
-  {"Lower DB 2", 0, &drawbars.lower[5], &fpga_send_lower_db, 0, 127},
-  {"Lower DB 1 3/5", 0, &drawbars.lower[6], &fpga_send_lower_db, 0, 127},
-  {"Lower DB 1 1/3", 0, &drawbars.lower[7], &fpga_send_lower_db, 0, 127},
-  {"Lower DB 1", 0, &drawbars.lower[8], &fpga_send_lower_db, 0, 127},
-  {"Lower DB", -1, NULL, NULL, 0, 0},
-  {"Pedal DB 16", 0, &drawbars.pedal[0], NULL, 0, 127},
-  {"Pedal DB 8", 0, &drawbars.pedal[1], NULL, 0, 127},
-  {"Pedal DB", -1, NULL, NULL, 0, 0},
-  {"SD Card Info", 0, NULL, &sdCardInfo, 0, 0},
-  {"Load SD Scan", 0, NULL, &loadScanDriver, 0, 0},
-  {"Flash SD Scan", 0, NULL, &flashScanDriver, 0, 0},
-  {"Flash FPGA", 0, NULL, &flashFPGA, 0, 0},
-  {"Flash Other", 0, NULL, &flashOther, 0, 0},
-  {"Reload FPGA", 0, NULL, &organReset, 0, 0},
-  {"Test", 0, NULL, NULL, 0, 0},
-  {"SD Flash Tools", -1, NULL, NULL, 0, 0},
-  {"Kbd Driver", 0, &boardInfo.scan_driverIdx, NULL, 0, drv_custom},
-  {"Velocity Min", 0, NULL, NULL, 1, 40},
-  {"Velocity MaxAdj", 0, NULL, NULL, 1, 40},
-  {"Velocity Slope", 0, &organModel.fatarVelocityFac, NULL, 1, 30},
-  {"Upper Base", 0, &midiSettings.channel, NULL, 12, 60},
-  {"Lower Base", 0, &midiSettings.channelLower, NULL, 12, 60},
-  {"Pedal Base", 0, &midiSettings.channelPedal, NULL, 12, 60},
-  {"Kbd Driver", -1, NULL, NULL, 0, 0},
+  {"Upper DBs", m_upper_db, NULL, NULL, -1, -1},
+  {"Lower DBs", m_lower_db, NULL, NULL, -1, -1},
+  {"Pedal DBs", m_pedal_db, NULL, NULL, -1, -1},
+  {"Swell Pedal", m_swell, &preamp.swell127, &setMIDIswell, 0, 127},
+  {"Master Volume", m_volume, &preamp.masterVolume, &sendOrganVolumes, 0, 127},
+  {"Amp Gain", m_gain, &preamp.ampGain, &sendAmpVolume, 0, 127},
+  {"SD Flash Tools", m_sd_card, NULL, NULL, -1, -1},
+  {"Keyboard", m_kbd_driver, NULL, NULL, -1, -1},
+  {"Organ Model", m_organ, &tabs.organModel, &menuOrganModel, 0, 15},
+  {"Speaker Model", m_speaker, &tabs.speakerModel, &menuSpeakerModel, 0, 15},
+  {"Pitchwheel Pot", m_pitchwheel, NULL, NULL, -1, 31},
+  {"End", m_main_end, NULL, NULL, -1, -1},
+  {"Upper DB 16", m_upper_db, &drawbars.upper[0], &fpga_send_upper_db, 0, 127},
+  {"Upper DB 5 1/3", m_upper_db, &drawbars.upper[1], &fpga_send_upper_db, 0, 127},
+  {"Upper DB 8", m_upper_db, &drawbars.upper[2], &fpga_send_upper_db, 0, 127},
+  {"Upper DB 4", m_upper_db, &drawbars.upper[3], &fpga_send_upper_db, 0, 127},
+  {"Upper DB 2 2/3", m_upper_db, &drawbars.upper[4], &fpga_send_upper_db, 0, 127},
+  {"Upper DB 2", m_upper_db, &drawbars.upper[5], &fpga_send_upper_db, 0, 127},
+  {"Upper DB 1 3/5", m_upper_db, &drawbars.upper[6], &fpga_send_upper_db, 0, 127},
+  {"Upper DB 1 1/3", m_upper_db, &drawbars.upper[7], &fpga_send_upper_db, 0, 127},
+  {"Upper DB 1", m_upper_db, &drawbars.upper[8], &fpga_send_upper_db, 0, 127},
+  {"Upper DB", m_upper_db, NULL, NULL, -1, -1},
+  {"Lower DB 16", m_lower_db, &drawbars.lower[0], &fpga_send_lower_db, 0, 127},
+  {"Lower DB 5 1/3", m_lower_db, &drawbars.lower[1], &fpga_send_lower_db, 0, 127},
+  {"Lower DB 8", m_lower_db, &drawbars.lower[2], &fpga_send_lower_db, 0, 127},
+  {"Lower DB 4", m_lower_db, &drawbars.lower[3], &fpga_send_lower_db, 0, 127},
+  {"Lower DB 2 2/3", m_lower_db, &drawbars.lower[4], &fpga_send_lower_db, 0, 127},
+  {"Lower DB 2", m_lower_db, &drawbars.lower[5], &fpga_send_lower_db, 0, 127},
+  {"Lower DB 1 3/5", m_lower_db, &drawbars.lower[6], &fpga_send_lower_db, 0, 127},
+  {"Lower DB 1 1/3", m_lower_db, &drawbars.lower[7], &fpga_send_lower_db, 0, 127},
+  {"Lower DB 1", m_lower_db, &drawbars.lower[8], &fpga_send_lower_db, 0, 127},
+  {"Lower DB", m_lower_db, NULL, NULL, -1, -1},
+  {"Pedal DB 16", m_pedal_db, &drawbars.pedal[0], NULL, 0, 127},
+  {"Pedal DB 8", m_pedal_db, &drawbars.pedal[1], NULL, 0, 127},
+  {"Pedal DB", m_pedal_db, NULL, NULL, -1, -1},
+  {"SD Card Info", m_sd_card, NULL, &sdCardInfo, 0, 0},
+  {"Load SD Scan", m_sd_card, NULL, &loadScanDriver, 0, 0},
+  {"Flash SD Scan", m_sd_card, NULL, &flashScanDriver, 0, 0},
+  {"Flash FPGA", m_sd_card, NULL, &flashFPGA, 0, 0},
+  {"Flash Other", m_sd_card, NULL, &flashOther, 0, 0},
+  {"Reload FPGA", m_sd_card, NULL, &organReset, 0, 0},
+  {"Test", m_sd_card, NULL, NULL, 0, 0},
+  {"SD Card Info", m_sd_card, NULL, NULL, -1, -1},
+  {"Kbd Driver", m_kbd_driver, &boardInfo.scan_driverIdx, NULL, 0, drv_custom},
+  {"Velocity Min", m_kbd_driver, NULL, NULL, 1, 40},
+  {"Velocity MaxAdj", m_kbd_driver, NULL, NULL, 1, 40},
+  {"Velocity Slope", m_kbd_driver, &organModel.fatarVelocityFac, NULL, 1, 30},
+  {"MIDI Channel", m_kbd_driver, &midiSettings.channel, NULL, 1, 15},
+  {"Upper Base", m_kbd_driver, NULL, NULL, 12, 60},
+  {"Lower Base", m_kbd_driver, NULL, NULL, 12, 60},
+  {"Pedal Base", m_kbd_driver, NULL, NULL, 12, 60},
+  {"Kbd Driver", m_kbd_driver, NULL, NULL, -1, -1},
 };
 
 // ------------------------------------------------------------------------------
 
-menuEntryType oneMenuEntry; // extrahierter Menüpunkt
+menuEntryType currentMenuEntry; // extrahierter Menüpunkt
 
-void getOneMenuEntry(uint8_t index) {
-  // einen Menüpunkt aus PROGMEM lesen und lokal in oneMenuEntry speichern, 
+void getMenuEntry(uint8_t index) {
+  // einen Menüpunkt aus PROGMEM lesen und lokal in currentMenuEntry speichern, 
   // damit wir die Werte daraus verwenden können
   if (index >= MENU_ITEMCOUNT) return;
-  memcpy_P(&oneMenuEntry, &MenuItems[index], sizeof(menuEntryType));
+  memcpy_P(&currentMenuEntry, &MenuItems[index], sizeof(menuEntryType));
+}
+
+uint8_t findSubMenuStartIndex(int8_t submenuLink) {
+  // Hilfsfunktion, um den Startindex eines Untermenüs zu finden
+  for (uint8_t i = m_main_end; i < MENU_ITEMCOUNT; i++) {
+    getMenuEntry(i);
+    if (currentMenuEntry.submenuLink == submenuLink) {
+      return i; // In currentMenuEntry ist jetzt der gefundene Menüpunkt, wir können den Index zurückgeben
+    }
+  }
+  return 0; // nicht gefunden, Rückfall auf Hauptmenü
+}
+
+uint8_t findSubMenuEndIndex(int8_t submenuLink) {
+  // Hilfsfunktion, um den Endindex eines Untermenüs zu finden
+  for (int8_t i = MENU_ITEMCOUNT-1; i > m_main_end; i--) {
+    getMenuEntry(i);
+    if (currentMenuEntry.submenuLink == submenuLink) {
+      return i; // In currentMenuEntry ist jetzt der gefundene Menüpunkt, wir können den Index zurückgeben 
+    }
+  }
+  return 0; // nicht gefunden, Rückfall auf Hauptmenü
+}
+
+bool isSubMenu(int8_t menuIdx) {
+  // Hilfsfunktion, um zu prüfen, ob es ein Untermenü mit diesem Link gibt
+  if (menuIdx > m_main_end) return true;
+  return false; // nicht gefunden
 }
 
 // ------------------------------------------------------------------------------
 
 const String Msg[] = {"FCK TRMP", "FCK AFD"};
-int8_t MenuStart;
-int8_t MenuEnd;
 int8_t MenuItemActive;
 int8_t MenuItemReturn;   // speichert bei Untermenüs die Rücksprungposition
 

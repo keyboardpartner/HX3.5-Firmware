@@ -19,6 +19,7 @@
 #include <SdFat.h>
 
 #define VERSION "HX3.5 v0.01"
+#define CREATOR "C.Meyer 2/2026"
 
 #define FIRMWARE_VERSION 0x02 // Vergleichswert für EEPROM, um veraltete Versionen zu erkennen
 #define PRESET_VERSION 60 
@@ -226,20 +227,6 @@ struct {
 } organModel;
 
 // ------------------
-// DRAWBARS
-// ------------------
-
-typedef struct {
-  uint8_t upper[16] = {127, 127, 127, 127, 115, 110, 110, 110, 115, 0, 0, 0, 0, 0, 0, 0};
-  uint8_t lower[16] = {0, 0, 115, 115, 115, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-  uint8_t pedal[16] = {127, 127, 115, 100, 100, 50, 20, 10, 0, 0, 0, 0, 0, 0, 0, 0};
-  uint8_t egPerc[16] = {127, 127, 127, 127, 115, 110, 110, 110, 115, 0, 0, 0, 0, 0, 0, 0};
-} drawbars_t;
-
-drawbars_t drawbars;
-
-
-// ------------------
 // VIBRATO
 // ------------------
 
@@ -285,8 +272,9 @@ struct {
   uint8_t swellLoudnessTreble = 35;
   // Integrierter Schwellerwert von ADC oder MIDI, 0..255
   uint8_t swell255 = 254; 
+  uint8_t swell255_old = 0;
   uint8_t swell127 = 127; // von MIDI gesetzte Schwellerstellung, 0..127, wird in swell255 umgerechnet
-  int16_t swellIntegrator = 255;
+  int16_t swellIntegrator = 254 * 16;
  } preamp;
 
 // ------------------
@@ -304,6 +292,18 @@ struct {
   uint8_t treble_freq = 70;
   uint8_t treble_peak = 25;
 } equalizer;
+
+// ------------------
+// DRAWBARS
+// ------------------
+
+struct {
+  uint8_t upper[16];
+  uint8_t lower[16];
+  uint8_t pedal[16];
+  uint8_t egPerc[16];
+} drawbars;
+    
 
 // ------------------
 // TABS/SWITCHES

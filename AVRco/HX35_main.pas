@@ -14,7 +14,7 @@ program hx35_main_allinone;
 {$W+}
 
 // #############################################################################
-// ###      Schalter fÃ¼r bedingte Kompilierung verschiedener Versionen       ###
+// ###      Schalter für bedingte Kompilierung verschiedener Versionen       ###
 // #############################################################################
 
 {$DEFINE ALLINONE}

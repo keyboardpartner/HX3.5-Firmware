@@ -137,9 +137,8 @@ void onMenuButton(uint8_t button) {
 
 void onMenuEncoder(int16_t delta) {
   // Callback-Funktion für MenuPanel-Encoder, liefert Bewegungsdelta
-  handleMenuEncoderChange(delta, false);
+  handleMenuEncoderChange(delta);
 }
-
 #endif
 
 
@@ -181,17 +180,17 @@ void setup() {
   if (EEPROM.read(EEPROM_VERSION_IDX) != FIRMWARE_VERSION) {
     // EEPROM enthält ungültige Werte, z.B. nach erstem Flashen oder bei Firmware-Update, also mit Default-Werten initialisieren
     for (uint8_t i = 0; i < MENU_ITEMCOUNT; i++) {
-      getOneMenuEntry(i); // Menüpunkt aus PROGMEM lesen, damit wir den Zeiger auf die EditValue kennen
-      if (oneMenuEntry.editValuePtr != NULL) {
-        EEPROM.update(i + EEPROM_MENUDEF_IDX, *oneMenuEntry.editValuePtr);
+      getMenuEntry(i); // Menüpunkt aus PROGMEM lesen, damit wir den Zeiger auf die EditValue kennen
+      if (currentMenuEntry.editValuePtr != NULL) {
+        EEPROM.update(i + EEPROM_MENUDEF_IDX, *currentMenuEntry.editValuePtr);
       }
     }
     EEPROM.update(EEPROM_VERSION_IDX, FIRMWARE_VERSION); // Schreibe Vergleichswert für zukünftige Gültigkeitsprüfung
   } else {
     for (uint8_t i = 0; i < MENU_ITEMCOUNT; i++) {
-      getOneMenuEntry(i); // Menüpunkt aus PROGMEM lesen, damit wir den Zeiger auf die EditValue kennen
-      if (oneMenuEntry.editValuePtr != NULL) {
-        *oneMenuEntry.editValuePtr = EEPROM.read(i + EEPROM_MENUDEF_IDX);
+      getMenuEntry(i); // Menüpunkt aus PROGMEM lesen, damit wir den Zeiger auf die EditValue kennen
+      if (currentMenuEntry.editValuePtr != NULL) {
+        *currentMenuEntry.editValuePtr = EEPROM.read(i + EEPROM_MENUDEF_IDX);
       }
     }
   }
@@ -252,7 +251,7 @@ void setup() {
   }
   #ifdef LCD_I2C
     MenuItemActive = 0; // erster Menüpunkt aktiv
-    getOneMenuEntry(MenuItemActive);
+    getMenuEntry(MenuItemActive);
     if (lcdPresent) displayMenuItem();
   #endif
   Serial.write('>'); // Show prompt for next command
@@ -271,6 +270,8 @@ void loop() {
   while (Timer1Semaphore) {
     // wird alle 2000µs neu gesetzt durch Timer1 ISR, hier wird die eigentliche Arbeit erledigt
     Timer1Semaphore--;
+
+    updateSwell(); // Schwellerwert integrieren und bei Änderung senden
 
     #ifdef LCD_I2C
       if (lcdPresent) {

@@ -33,11 +33,11 @@ void Panel16::init_priv() {
 void Panel16::begin() {
   _waitAction = dummyWait; // Pressed action callback auf default setzen, damit er nicht ins Leere läuft, falls er nicht definiert ist
   _pressAction = dummyAction; // Pressed action callback auf default setzen, damit er nicht ins Leere läuft, falls er nicht definiert ist
-  setLEDdim(0x28, 0x10); // Dim Settings: bright, dark
+  setLEDdim(0x30, 0x0C); // Dim Settings: bright, dark
   setLEDsWord(0, 0); // Clear lower row
   setLEDsWord(1, 0); // Clear upper row
   for (int i = 0; i < 16; i++) {
-    _LEDstates[i] = led_bright; // Default-Zustand für alle LEDs, Bit 6 und 7 = 0, also nicht aktiv
+    _LEDstates[i] = btn_on_is_bright; // Default-Zustand für alle LEDs, Bit 6 und 7 = 0, also nicht aktiv
   }
 }
 
@@ -149,7 +149,7 @@ void Panel16::updateBlinkLEDs() {
     _blinkToggle = !_blinkToggle;
     for (uint8_t led = 0; led < 16; led++) {
       uint8_t led_state = _LEDstates[led]; // Alternative Blink-LED-Zustände oder normaler LED-Zustand
-      if (led_state & led_blink_ena) {
+      if (led_state & btn_blink_ena) {
         setLEDstate(led, led_state); // Blinken toggeln
       }
     }
@@ -158,14 +158,25 @@ void Panel16::updateBlinkLEDs() {
 
 void Panel16::toggleLEDstate(uint8_t led) {
   // led 0 = lower left, 15 = upper right
-  // ledstate %00 = OFF, %01 = ON, %10 = PWM_0 (darker), %11= PWM_1 (brighter)
-  // set led 0..15 to ledstate
+  // toggle led 0..15 on/off
   uint8_t ledstate = _LEDstates[led];
   uint8_t ledstate_inactive = ledstate & 0b01111111; // Aktuellen LED-Zustand (ON, dim_dark, dim_bright) extrahieren
   if (ledstate & 0b10000000) {
     setLEDstate(led, ledstate_inactive);
   } else {
     setLEDstate(led, ledstate_inactive | 0b10000000); // LED einschalten, vorherigen Zustand beibehalten
+  }
+}
+
+void Panel16::toggleLEDblink(uint8_t led) {
+  // led 0 = lower left, 15 = upper right
+  // toggle led 0..15 blinking active state, does not invert on/off state
+  uint8_t ledstate = _LEDstates[led];
+  uint8_t ledstate_inactive = ledstate & 0b10111111; // Aktuellen LED-Zustand (ON, dim_dark, dim_bright) extrahieren
+  if (ledstate & 0b01000000) {
+    setLEDstate(led, ledstate_inactive);
+  } else {
+    setLEDstate(led, ledstate_inactive | 0b01000000); // LED Blinken einschalten, vorherigen Zustand beibehalten
   }
 }
 
@@ -181,10 +192,28 @@ void Panel16::setLEDonOff(uint8_t led, bool led_on) {
   }
 }
 
+void Panel16::setLEDblink(uint8_t led, bool led_blink) {
+  // led 0 = lower left, 15 = upper right
+  // ledstate %00 = OFF, %01 = ON, %10 = PWM_0 (darker), %11= PWM_1 (brighter)
+  // set led 0..15 to ledstate
+  uint8_t ledstate_noblink = _LEDstates[led] & 0b10111111; // Aktuellen LED-Zustand (ON, dim_dark, dim_bright) extrahieren
+  if (led_blink) {
+    setLEDstate(led, ledstate_noblink | 0b01000000); // LED Blinken einschalten, vorherigen Zustand beibehalten
+  } else {
+    setLEDstate(led, ledstate_noblink); // LED Blinken ausschalten, vorherigen Zustand beibehalten
+  }
+}
+
 bool Panel16::getLEDonOff(uint8_t led) {
   // led 0 = lower left, 15 = upper right
   // return true if LED (i.e. button) is on (including dim states), false if off
   return ((_LEDstates[led] & 0b10000000) != 0); // LED ist an, wenn Bit 7 gesetzt ist
+}
+
+bool Panel16::getLEDblink(uint8_t led) {
+  // led 0 = lower left, 15 = upper right
+  // return true if LED (i.e. button) is blinking, false if off
+  return ((_LEDstates[led] & 0b01000000) != 0); // LED ist blinkend, wenn Bit 6 gesetzt ist
 }
 
 uint8_t Panel16::getButtonRow(uint8_t row) {
