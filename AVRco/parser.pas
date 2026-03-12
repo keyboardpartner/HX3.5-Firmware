@@ -312,16 +312,16 @@ begin
               WriteLongSerHex(ValueLong);
               |
     8204      :// DSP-Signatur/Version, aktuell geladen
-              ValueLong:= LongInt(DSPversion);
+              ValueLong:= LongInt(BoardInfo.DSPversion);
               WriteLongSerHex(ValueLong);
               |
     8500:     // ScanCore Info
               FI_GetScanCoreInfo;  // Meldung über Scancore ausgeben
-              WriteByteSer(ScanCoreID);
+              WriteByteSer(BoardInfo.ScanCoreID);
               |
     8501:     // SCI? FI_GetScanCoreInfo Info
               FI_GetScanCoreInfo;  // Meldung über Scancore ausgeben
-              WriteByteSer(ScanCoreRevision);
+              WriteByteSer(BoardInfo.ScanCoreRevision);
               |
 
     8510:     // Checksum FW Update

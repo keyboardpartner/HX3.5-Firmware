@@ -76,14 +76,6 @@ var
   FPGAreceiveLong2[@FPGAreceiveLong+2]: byte;
   FPGAreceiveLong3[@FPGAreceiveLong+3]: byte;
 
-  FPGAdate: LongInt;
-  FPGAday[@FPGAdate+0]: byte;
-  FPGAmonth[@FPGAdate+1]: byte;
-  FPGAyear0[@FPGAdate+2]: byte;
-  FPGAyear1[@FPGAdate+3]: byte;
-  FPGAyear[@FPGAdate+2]: Integer;
-
-
 {$VALIDATE_ON}
 // F�r Assembler-Routinen in DF_ ben�tigt!
   FPGAsendword, FPGAreceiveword: word;
@@ -339,11 +331,7 @@ end;
 procedure SendDoubledByteToFPGA(const myparam: byte; const myreg:byte);
 // schreib verdoppelten Wert "myparam" nach SPI "myreg"
 begin
-  lo(FPGAreg):= myreg;     // Schreib-Register
-  hi(FPGAreg):= $80;       // mit Write Enable
-  SendFPGAreg;
-  FPGAsendWord:= word(myparam) shl 1;
-  SendFPGA16;
+  SendByteToFPGA(myparam * 2, myreg);
 end;
 
 procedure SendScaledByteToFPGA(const myparam: byte; const myreg, myscale: byte);
@@ -440,6 +428,7 @@ begin
 
   if FPGA_DONE then
     ReceiveFPGA(3);  // FPGA-Datum lesen
+    Boardinfo.FPGAversion:= FPGAreceiveLong;
     // BCD-kodiertes Erstellungsdatum umsortieren
     FPGAyear0:= FPGAreceiveLong0; // in FPGAdate!
     FPGAyear1:= FPGAreceiveLong1;
@@ -450,7 +439,8 @@ begin
     writeln(serout, LongToHex(FPGAreceiveLong));
 {$ENDIF}
     FPGA_OK:= (FPGAreceiveLong <> 0) and (FPGAreceiveLong <> $FFFFFFFF);
-    FPGA_UpToDate:= FPGA_OK and (FPGAdate >= c_min_date);
+    // c_min_date = $20240424: FPGA YYYY MM DD (!)
+    FPGA_UpToDate:= FPGA_OK and (BoardInfo.FPGAdate >= c_min_date);
     if FPGA_OK then
       if not FPGA_UpToDate then
         writeln(serout, '/ WARNING: FPGA out of date');
@@ -476,12 +466,10 @@ begin
   else
 {$IFNDEF MODULE}
     if LCDpresent then
-      ReceiveFPGA(3);
-      ValueLong:= FPGAreceiveLong; // vom FPGA AUXPORT
   // in MIDI-DB2 steht nach dem Start die Core-Version
       LCDxy_M(LCD_m1, 0, 1);
       write(LCDOut_M, 'FPGA #');
-      write(LCDOut_M, longtohex(ValueLong));
+      write(LCDOut_M, longtohex(Boardinfo.FPGAversion));
       LCDclrEOL_M(LCD_m1);
       mdelay(500);
     endif;
@@ -514,11 +502,11 @@ begin
   mdelay(5);
   ReceiveFPGA(c_MIDIreceiveReg);     // FIFO-Register
   if FPGAreceiveLong2 = $AA then
-    ScanCoreRevision:= FPGAreceiveLong1;
-    ScanCoreID:= FPGAreceiveLong0;
+    Boardinfo.ScanCoreRevision:= FPGAreceiveLong1;
+    Boardinfo.ScanCoreID:= FPGAreceiveLong0;
   else
-    ScanCoreRevision:= 0;
-    ScanCoreID:= 0;
+    Boardinfo.ScanCoreRevision:= 0;
+    Boardinfo.ScanCoreID:= 0;
   endif;
 end;
 

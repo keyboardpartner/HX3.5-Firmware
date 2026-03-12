@@ -1385,7 +1385,6 @@ end;
 // ###                  Schweller und Volume an FPGA senden                  ###
 // #############################################################################
 
-
 procedure AC_SendSwell;
 // SCHWELLPEDAL- und MASTER-VOLUME-Steuerung
 // Wird alle 2ms aus main_tasks aufgerufen wg. Integratoren
@@ -1399,6 +1398,7 @@ const
   int_shift_volume: Byte = 3;  // Scale = 8 bei 3 shifts
 
 var swell_raw255, swell_raw128, swell_temp,
+    swell_ranged, swell_fullrange, swell_63hz, swell_bypass, // old vars
     swell_final,
     swell_midrange, swell_midrange_response, swell_midrange_shelf,
     swell_bassboost,
@@ -1438,96 +1438,201 @@ begin
   swell_raw255:= lo(ac_swell_w_old);
 
   swell_final:= 128 + edit_TrimSwell;
-  if swell_changed or ToneChanged then
-    // edit_TrimSwell: 0..127, nom. 75..90
-    // edit_MinimalSwell: 0..50, nom. 20
-    // edit_TonePot: 0..127, nom. 60
-    swell_raw128:= swell_raw255 div 2;
-    if edit_PreampSwellType = 0 then
-      swell_bassboost:= MulDivByte(edit_SwellLoudnessBass, edit_MinimalSwell, 20) + c_AntiLogTable[swell_raw128] div 3;   // #1091
-      if swell_bassboost > 200 then
-        swell_bassboost:= 200;
-      endif;
-      // halber Anstieg bis 32, danach steiler bis max. 255
-      if swell_raw255 < 32 then
-        swell_midrange:= swell_raw255 div 2; // 0..16
-      else
-        swell_midrange:= MulDivByte(swell_raw255-16, 255, 255-16);
-      endif;
+  if FPGAyear < 2026 then
+    // Altes FPGA
+    if swell_changed or ToneChanged then
+      case edit_PreampSwellType of
+      0:
+        // Hammond Mode, ausgeprägtes, aber flaches Maximum bei 200 Hz,
+        // ab 250 Hz mit 3-4 db/Okt fallend, über 4 kHz stärker
+        // TONE-Pot, Minimal Swell und Swell Trim Cap werden berücksichtigt
+        // Maximalwert auf Trim Cap Swell anpassen
+        // Range auf Minimal Swell anpassen
+        n:= MulDivByte(64 + edit_TrimSwell, swell_raw255, 195);
+        swell_ranged:= edit_MinimalSwell + MulDivByte(n, 255-edit_MinimalSwell, 255);
+        n:= MulDivByte(edit_TonePot, swell_ranged, 190);
+        swell_fullrange:= (swell_ranged div 3) + n; // 0..63
+        swell_63hz:= 80 + (swell_ranged div 2); //
+        swell_midrange:= swell_ranged;
+        // Finales Lowpass-Filter 6db/Okt.
+        // Frequenzen ermittelt mit IIR_Filter_Coef_Generator.xls
+        // Bit 7 = 0, Hammond Mode, 4khz-Bereich um 12 dB abgesenkt
+        // Frequenz 120,3 Hz * (Wert + 1) nom. 40 für 4800 Hz
+        n:= (edit_TonePot div 4) + 6;   // (edit_TonePot div 3) + 10;
+        SendByteToFPGA(n, 87);  // 10..42, ca. 4,5 kHz Grenzfrequenz
+        // Filter Bypass, full range ohne Tone-Lowpass
+        swell_bypass:= 0;
+        swell_pedal:= 35 + MulDivByte(swell_ranged, 220, 255);
+        // writeln(serout,'/ 1k:' + bytetostr(swell_bypass) + ' 4k: ' + bytetostr(swell_fullrange));
+        |
 
-      swell_temp:= edit_MinimalSwell div 10;
-      if swell_temp > 0 then
-        swell_midrange:= swell_temp + MulDivByte(swell_midrange, 255-swell_temp, 255);
-      endif;
+      1:  // Conn, Böhm etc. Sinus
+        swell_63hz:= MulDivByte(swell_raw255, 150, 255);
+        swell_midrange:= MulDivByte(swell_raw255, 165, 255);
+        swell_bypass:= MulDivByte(swell_raw255, 120, 255); // - 12 dB in Preamp
+        // in AO28-Sim ist dieser Pegel nur um -6 dB abgesenkt, wenn Linear Mode ON
+        swell_fullrange:= MulDivByte(swell_raw255, 140, 255); // - 6 dB in Preamp
+        // Finales Lowpass-Filter 6db/Okt.
+        // Frequenzen ermittelt mit IIR_Filter_Coef_Generator.xls
+        // Bit 7 = 1, 4khz-Bereich nur um 6 dB abgesenkt
+        // Frequenz 120,3 Hz * (Wert + 1) + 128 für 4k Enhanced
+        SendByteToFPGA(45, 87);  // ca. 5,5 kHz Grenzfrequenz
 
-      swell_midrange_response:= edit_SwellMidrangeResponse; // #1092
-
-      swell_midrange_shelf:= edit_SwellMidrangeShelving + MulDivByte(edit_SwellMidrangeShelving, edit_TonePot, 64);      // #1093, 0..255
-      if swell_midrange_shelf > 255 then
-        swell_midrange_shelf:= 255;
-      endif;
-
-      swell_temp:= edit_TonePot div 4;
-      swell_final_response:= edit_SwellFinalResponse + swell_temp;  // #1094
-      if swell_final_response > 63 then
-        swell_final_response:= 63; // nur 5 Bit
-      endif;
-      swell_loudness_hi:= MulDivByte(swell_temp + edit_SwellLoudnessTreble, edit_MinimalSwell, 20);  // #1095
-    else // Testmodus
-      swell_midrange:= swell_raw255;      // #1092
-      swell_bassboost:= edit_SwellLoudnessBass;    // #1091
-      swell_midrange_response:= edit_SwellMidrangeResponse;
-      swell_midrange_shelf:= edit_SwellMidrangeShelving * 2;      // #1093
-      swell_final_response:= edit_SwellFinalResponse;  // #1094
-      swell_loudness_hi:= edit_SwellLoudnessTreble;    // #1095
-    endif;
-
-    if edit_EnablePedalAudio then
-      if edit_LogicalTab_PedalPostMix then  // Pedal Bypass Tab
-        // bei Pedal Bypass wird direkt auf Ausgang gemischt
-        SendByteToFPGA(0, 45);  // Pedal to Lower Vib
-        SendByteToFPGA(0, 46);  // Pedal to AO28
-      else
-        // normales Pedal Routing mit oder ohne Lower Vibrato
-        if Bit(edit_ConfBits, 4) and (edit_GatingKnob = 0) then
-          // Pedal an Vibrato Lower
-          SendScaledByteToFPGA(edit_PedalVolume, 45, 190);  // Pedal an Lower Vib
-          SendByteToFPGA(0, 46); // nichts an AO28
+        swell_pedal:=  swell_raw255;
+        |
+      else  // andere, fast linear, etwas Mid-Bass-Anhebung
+        swell_63hz:= 20;
+        swell_midrange:= MulDivByte(swell_raw255, 95, 255);
+        swell_bypass:= MulDivByte(swell_raw255, 145, 255); // - 12 dB in Preamp
+        // in AO28-Sim ist dieser Pegel nur um -6 dB abgesenkt, wenn Linear Mode ON
+        swell_fullrange:= MulDivByte(swell_raw255, 190, 255); // - 6 dB in Preamp
+        // Finales Lowpass-Filter 6db/Okt.
+        // Frequenzen ermittelt mit IIFilter_Coef_Generator.xls
+        // Bit 7 = 1, 4khz-Bereich nur um 6 dB abgesenkt
+        // Frequenz 120,3 Hz * (Wert + 1) + 128 für 4k Enhanced
+        SendByteToFPGA(128 + 47, 87);  // ca. 6 kHz Grenzfrequenz
+        swell_pedal:= swell_raw255;
+      endcase;
+      if edit_EnablePedalAudio then
+        if edit_LogicalTab_PedalPostMix then  // Pedal Bypass Tab
+          // bei Pedal Bypass wird direkt auf Ausgang gemischt
+          SendByteToFPGA(0, 45);  // Pedal to Lower Vib
+          SendByteToFPGA(0, 46);  // Pedal to AO28
         else
-          // Pedal Dry an AO28
-          SendByteToFPGA(0, 45); // nichts an Lower Vib
-          SendDoubledByteToFPGA(edit_PedalVolume, 46);  // Pedal an AO28
+          // normales Pedal Routing mit oder ohne Lower Vibrato
+          if Bit(edit_ConfBits, 4) and (edit_GatingKnob = 0) then
+            // Pedal an Vibrato Lower
+            SendScaledByteToFPGA(edit_PedalVolume, 45, 190);  // Pedal an Lower Vib
+            SendByteToFPGA(0, 46); // nichts an AO28
+          else
+            // Pedal Dry an AO28
+            SendByteToFPGA(0, 45); // nichts an Lower Vib
+            SendDoubledByteToFPGA(edit_PedalVolume, 46);  // Pedal an AO28
+          endif;
         endif;
+        // Pedal-Signal für separaten Ausgang auf Extension Board und Postmix:
+        swell_pedal:= mulDivByte(swell_pedal, edit_PedalVolume, 128);
+        if Bit(edit_ConfBits, 6) then
+          // Swell disable für separaten Ausgang auf Extension Board und Postmix
+          swell_pedal:=   mulDivByte(edit_PedalVolume, 150, 100) // 0..191
+                           + (swell_pedal div 4); // geringer Anteil Swell
+        endif;
+        SendByteToFPGA(swell_pedal, 47); // Pedal to Ext. Output & Postmix
+      else
+        SendByteToFPGA(0, 45);   // Pedal Vol auf 0
+        SendByteToFPGA(0, 46);   // Pedal Vol auf 0
+        SendByteToFPGA(0, 47);   // Pedal Vol auf 0
       endif;
-      // Pedal-Signal fï¿½r separaten Ausgang auf Extension Board und Postmix:
-      swell_pedal:= mulDivByte(swell_pedal, edit_PedalVolume, 128);
-      if Bit(edit_ConfBits, 6) then
-        // Swell disable fï¿½r separaten Ausgang auf Extension Board und Postmix
-        swell_pedal:=   mulDivByte(edit_PedalVolume, 150, 100) // 0..191
-                         + (swell_pedal div 4); // geringer Anteil Swell
+  {
+      writeln(serout, '/ Low/Mid/Bypass/Fullrange/Pedal:');
+      WriteByteSer(swell_63hz);
+      WriteByteSer(swell_midrange);
+      WriteByteSer(swell_bypass);
+      WriteByteSer(swell_fullrange);
+      WriteByteSer(swell_pedal);
+  }
+      SendByteToFPGA(swell_63hz, 80);
+      SendByteToFPGA(swell_midrange, 81);
+      SendByteToFPGA(swell_bypass,  82);
+      SendByteToFPGA(swell_fullrange,  83);
+
+      swell_final:= 180;
+      SendByteToFPGA(swell_final,  84);
+      ToneChanged:= false;
+    endif;
+  else
+    // Neues FPGA mit AO28 Crossfade:
+    if swell_changed or ToneChanged then
+      // edit_TrimSwell: 0..127, nom. 75..90
+      // edit_MinimalSwell: 0..50, nom. 20
+      // edit_TonePot: 0..127, nom. 60
+      swell_raw128:= swell_raw255 div 2;
+      if edit_PreampSwellType = 0 then
+        swell_bassboost:= MulDivByte(edit_SwellLoudnessBass, edit_MinimalSwell, 20) + c_AntiLogTable[swell_raw128] div 3;   // #1091
+        if swell_bassboost > 200 then
+          swell_bassboost:= 200;
+        endif;
+        // halber Anstieg bis 32, danach steiler bis max. 255
+        if swell_raw255 < 32 then
+          swell_midrange:= swell_raw255 div 2; // 0..16
+        else
+          swell_midrange:= MulDivByte(swell_raw255-16, 255, 255-16);
+        endif;
+
+        swell_temp:= edit_MinimalSwell div 10;
+        if swell_temp > 0 then
+          swell_midrange:= swell_temp + MulDivByte(swell_midrange, 255-swell_temp, 255);
+        endif;
+
+        swell_midrange_response:= edit_SwellMidrangeResponse; // #1092
+
+        swell_midrange_shelf:= edit_SwellMidrangeShelving + MulDivByte(edit_SwellMidrangeShelving, edit_TonePot, 64);      // #1093, 0..255
+        if swell_midrange_shelf > 255 then
+          swell_midrange_shelf:= 255;
+        endif;
+
+        swell_temp:= edit_TonePot div 4;
+        swell_final_response:= edit_SwellFinalResponse + swell_temp;  // #1094
+        if swell_final_response > 63 then
+          swell_final_response:= 63; // nur 5 Bit
+        endif;
+        swell_loudness_hi:= MulDivByte(swell_temp + edit_SwellLoudnessTreble, edit_MinimalSwell, 20);  // #1095
+      else // Testmodus
+        swell_midrange:= swell_raw255;      // #1092
+        swell_bassboost:= edit_SwellLoudnessBass;    // #1091
+        swell_midrange_response:= edit_SwellMidrangeResponse;
+        swell_midrange_shelf:= edit_SwellMidrangeShelving * 2;      // #1093
+        swell_final_response:= edit_SwellFinalResponse;  // #1094
+        swell_loudness_hi:= edit_SwellLoudnessTreble;    // #1095
       endif;
-      SendByteToFPGA(swell_pedal, 47); // Pedal to Ext. Output & Postmix
-    else
-      SendByteToFPGA(0, 45);   // Pedal Vol auf 0
-      SendByteToFPGA(0, 46);   // Pedal Vol auf 0
-      SendByteToFPGA(0, 47);   // Pedal Vol auf 0
+
+      if edit_EnablePedalAudio then
+        if edit_LogicalTab_PedalPostMix then  // Pedal Bypass Tab
+          // bei Pedal Bypass wird direkt auf Ausgang gemischt
+          SendByteToFPGA(0, 45);  // Pedal to Lower Vib
+          SendByteToFPGA(0, 46);  // Pedal to AO28
+        else
+          // normales Pedal Routing mit oder ohne Lower Vibrato
+          if Bit(edit_ConfBits, 4) and (edit_GatingKnob = 0) then
+            // Pedal an Vibrato Lower
+            SendScaledByteToFPGA(edit_PedalVolume, 45, 190);  // Pedal an Lower Vib
+            SendByteToFPGA(0, 46); // nichts an AO28
+          else
+            // Pedal Dry an AO28
+            SendByteToFPGA(0, 45); // nichts an Lower Vib
+            SendDoubledByteToFPGA(edit_PedalVolume, 46);  // Pedal an AO28
+          endif;
+        endif;
+        // Pedal-Signal fï¿½r separaten Ausgang auf Extension Board und Postmix:
+        swell_pedal:= mulDivByte(swell_pedal, edit_PedalVolume, 128);
+        if Bit(edit_ConfBits, 6) then
+          // Swell disable fï¿½r separaten Ausgang auf Extension Board und Postmix
+          swell_pedal:=   mulDivByte(edit_PedalVolume, 150, 100) // 0..191
+                           + (swell_pedal div 4); // geringer Anteil Swell
+        endif;
+        SendByteToFPGA(swell_pedal, 47); // Pedal to Ext. Output & Postmix
+      else
+        SendByteToFPGA(0, 45);   // Pedal Vol auf 0
+        SendByteToFPGA(0, 46);   // Pedal Vol auf 0
+        SendByteToFPGA(0, 47);   // Pedal Vol auf 0
+      endif;
+
+      SendByteToFPGA(swell_bassboost, 80);
+      SendByteToFPGA(swell_midrange, 81);
+      SendByteToFPGA(swell_loudness_hi, 82);
+      SendByteToFPGA(swell_midrange_shelf, 83);
+      SendByteToFPGA(swell_final, 84);     // final AO28 gain
+
+      SendByteToFPGA(swell_final_response, 87); // #1094, 0..63, 5 Bit fÃ¼r Response
+      SendByteToFPGA(swell_midrange_response, 88); // #1092, 0..255, 8 Bit fÃ¼r Midrange Response
+
+      if edit_LogicalTab_DisableAO28 then
+         SendByteToFPGA(1, 89); // AO28 Equalizing Bypass, nur Midrange Swell
+      else
+        SendByteToFPGA(0, 89);
+      endif;
+      ToneChanged:= false;
     endif;
-
-    SendByteToFPGA(swell_bassboost, 80);
-    SendByteToFPGA(swell_midrange, 81);
-    SendByteToFPGA(swell_loudness_hi, 82);
-    SendByteToFPGA(swell_midrange_shelf, 83);
-    SendByteToFPGA(swell_final, 84);     // final AO28 gain
-
-    SendByteToFPGA(swell_final_response, 87); // #1094, 0..63, 5 Bit fÃ¼r Response
-    SendByteToFPGA(swell_midrange_response, 88); // #1092, 0..255, 8 Bit fÃ¼r Midrange Response
-
-    if edit_LogicalTab_DisableAO28 then
-       SendByteToFPGA(1, 89); // AO28 Equalizing Bypass, nur Midrange Swell
-    else
-      SendByteToFPGA(0, 89);
-    endif;
-    ToneChanged:= false;
   endif;
 end;
 

@@ -218,16 +218,16 @@ begin
       // Behandlung der geänderten Buttons, Presets, Switches
       MIDI_SendChangedSwell(MIDI_NewSwellVal);
       if edit_ADCconfig > 0 then
-        if Bit(edit_ConfBits2, 0) then  // Klinkenbuchsen sind Schalter-Eingänge
-          if Bit(edit_ConfBits2, 5) then
-              // Vertauschte Eingänge für Hammond-Halfmoon
-            FootSwFast:= not FOOTSW_LESLRUN;
-            FootSwRun:= not FOOTSW_LESLFAST;
-          else
-            FootSwFast:= not FOOTSW_LESLFAST;
-            FootSwRun:= not FOOTSW_LESLRUN;
-          endif;
-          // FootSwSlow:= FootSwRun and (not FootSwFast);
+        if Bit(edit_ConfBits2, 5) then
+            // Vertauschte Eingänge für Hammond-Halfmoon
+          FootSwFast:= not FOOTSW_LESLRUN;
+          FootSwRun:= not FOOTSW_LESLFAST;
+        else
+          FootSwFast:= not FOOTSW_LESLFAST;
+          FootSwRun:= not FOOTSW_LESLRUN;
+        endif;
+        if Bit(edit_ConfBits2, 0) then
+          // Klinkenbuchsen sind Schalter-Eingänge
           if footsw_lesliefast_old <> FootSwFast then
             edit_LogicalTab_LeslieFast:= FootSwFast;
             edit_LogicalTab_LeslieFast_flag:= c_control_event_source;
@@ -243,7 +243,6 @@ begin
             endif;
             AC_SendRotarySpeed;
           endif;
-
           if footsw_leslierun_old <> FootSwRun then
             edit_LogicalTab_LeslieRun:= FootSwRun;
             edit_LogicalTab_LeslieRun_flag:= c_control_event_source;
@@ -257,7 +256,8 @@ begin
             endif;
             AC_SendRotarySpeed;
           endif;
-        else                       // Klinkenbuchsen sind Taster-Eingänge
+        else
+          // Klinkenbuchsen sind Taster-Eingänge
           if FootSwFast then       // Taster OFF?
             inctolim(footsw_lesliefast_debounce, 5);
           else
@@ -269,7 +269,6 @@ begin
             edit_LogicalTab_LeslieFast_flag:= c_control_event_source;
           endif;
           footsw_lesliefast_old:= FootSwFast;
-
           if FootSwRun then        // Taster OFF?
             inctolim(footsw_leslierun_debounce, 5);
           else
@@ -281,7 +280,6 @@ begin
             edit_LogicalTab_LeslieRun_flag:= c_control_event_source;
           endif;
           footsw_leslierun_old:= FootSwRun;
-
         endif;
       endif;
 

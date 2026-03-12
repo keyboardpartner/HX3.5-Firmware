@@ -38,7 +38,7 @@ type
 const
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-  c_min_date: LongInt = $20260209; // FPGA YYYY MM DD (!)
+  c_min_date: LongInt = $20260312; // FPGA YYYY MM DD (!)
   // letzte 4 Bytes vor Bootloader ($1F000) = $1EFFC
   c_CurrentFirmwareVersion[$1EFFE]: Word   = $0590;
   // Erhï¿½hen, wenn sich eep_defaults-Array-Struktur ï¿½ndert:
@@ -57,8 +57,8 @@ const
 
 {$TYPEDCONST OFF}
 
-  Vers1Str  = '5.900';    // mÃ¼ssen 5 Zeichen sein!
-  Vers1Hex: Word = $5900;
+  Vers1Str  = '5.840';    // mÃ¼ssen 5 Zeichen sein!
+  Vers1Hex: Word = $5800;
 
   {$IFNDEF MODULE}
   // Dieses mÃ¼ssen die ersten Strings mit "HX3." im Firmware-File sein,
@@ -134,6 +134,54 @@ const
 
   c_eeprom_base35_DF: Word   = c_core_base_DF + 9;    // 953, EEPROM AVR
   c_firmware_base35_DF: Word = $3E0;  // 32 BlÃ¶cke, 128 KByte
+  
+  // LC Cores
+  c_lc_scan_driver: Byte = 0;
+  c_lc_tapering: Byte = 1;
+  c_lc_fir_coeff: Byte = 2;
+  c_lc_keymap: Byte = 3;
+  c_lc_waveset: Byte = 4;
+  c_lc_tuning_vals: Byte = 5;
+  c_lc_hp_filter: Byte = 6;
+  c_lc_tube_amp_slope: Byte = 7;
+  c_lc_upper_drawbars: Byte = 8;
+  c_lc_lower_drawbars: Byte = 9;
+  c_lc_pedal_drawbars: Byte = 10;
+  c_lc_adsr_upper: Byte = 11;
+  c_lc_adsr_lower: Byte = 12;
+  c_lc_adsr_pedal: Byte = 13;
+  c_lc_dynslope: Byte = 14;
+
+  // DF Basisadressen
+  c_fpga: Word = 0;  // XC6S25 Binary, 196 Blöcke
+  c_failsafe_base: Word = 320;  // Sicherungskopie
+  c_update_info: Word = 637;  // Update List
+  c_board_info: Word = 639;  //
+  c_speaker_model_base: Word = 768;  // 16 Blöcke
+  c_organ_model_base: Word = 784;  // 16 Blöcke
+  c_preset_base: Word = 800;  // 100 Blöcke
+  c_midi_cc_base: Word = 928;  // 16 Blöcke
+  c_core_base: Word = 944;  //
+  c_scan: Word = 944;  //
+  c_voice: Word = 946;  //
+  c_defaults: Word = 947;  // HX3 Edit Array
+  c_eeprom: Word = 953;  //
+  c_taper_base: Word = 955;  // 4 Taperings
+  c_taper_0: Word = 955;  //
+  c_taper_1: Word = 956;  //
+  c_taper_2: Word = 957;  //
+  c_taper_3: Word = 958;  //
+  c_fir_coeff: Word = 959;  // Filterkoeffizienten
+  c_waveset_base: Word = 960;  // 8 Wavesets
+  c_waveset_0: Word = 960;  //
+  c_waveset_1: Word = 964;  //
+  c_waveset_2: Word = 968;  //
+  c_waveset_3: Word = 972;  //
+  c_waveset_4: Word = 976;  //
+  c_waveset_5: Word = 980;  //
+  c_waveset_6: Word = 984;  //
+  c_waveset_7: Word = 988;  //
+  c_firmware: Word = 992;  // Buffer für Update
 
 // #############################################################################
 // ###                       BLOCKBUFFER   OFFSETS                           ###

@@ -1,5 +1,5 @@
 [CPU]
-DeviceID=2004741
+DeviceID=$1E9705
 CPUname=MEGA1284P
 CalWrite=false
 ProgFuses=true
@@ -49,7 +49,7 @@ LB2=False
 LB3=False
 
 [ProgMode]
-ProgFlash=True
+ProgFlash=true
 ProgEEprom=true
 ProgMode=0
 BootLoaderID=0

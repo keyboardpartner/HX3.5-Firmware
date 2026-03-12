@@ -165,14 +165,14 @@ begin
   if rotary_model < 8 then
     DF_SendToAutoinc(c_coeff_base_DF, 2, 512);  // FIR Koeffizienten Horn (Reg. 2)
   else
-    FI_AutoIncSetup(2);
+    FI_AutoIncSetup(c_lc_fir_coeff);
     for idx:= 0 to 511 do
       if idx < 8 then
         FPGAsendLong:= LongInt(c_fir_linear_arr[idx]);
       endif;
       SendFPGA32;
     endfor;
-    FI_AutoIncReset(2);
+    FI_AutoIncReset(c_lc_fir_coeff);
   endif;
 end;
 
@@ -393,7 +393,7 @@ procedure bb_adsr_to_fpga;
 // sendet nacheinander 16 Attack-, 16 Decay-, 16 Sustain- und 16 Release-Werte
 begin
   // Attack- und Decay-Values senden
-  FI_AutoIncSetup(11);    // for Write Core 11, Upper ADSR
+  FI_AutoIncSetup(c_lc_adsr_upper);    // for Write Core 11, Upper ADSR
   for i:= 0 to 15 do
     FPGAsendWord:= c_TimeLogTable[bb_attack_arr[i]];
     SendFPGA16;
@@ -413,7 +413,7 @@ begin
     FPGAsendWord:= c_TimeLogTable[bb_release_arr[i]];
     SendFPGA16;
   endfor;
-  FI_AutoIncReset(11);
+  FI_AutoIncReset(c_lc_adsr_upper);
 end;
 
 procedure adsr_to_bb_adsr;
@@ -525,9 +525,9 @@ begin
 {$IFDEF DEBUG_FH}
   Writeln(Serout, '/ FH Send Upper DB');
 {$ENDIF}
-  FI_AutoIncSetup(8);          // for Write Core 8, Upper DBs
+  FI_AutoIncSetup(c_lc_upper_drawbars);          // for Write Core 8, Upper DBs
   drawbars_to_lc(edit_UpperDBs, 0);
-  FI_AutoIncReset(8);
+  FI_AutoIncReset(c_lc_upper_drawbars);
   // Sustainpegel neu senden, ggf. H100 Harp Sustain
 {$IFNDEF MODULE}
   if (edit_GatingKnob = 1) and edit_LogicalTab_H100_HarpSustain then
@@ -769,7 +769,6 @@ begin
   for idx:= 0 to 3 do
     SendWordToFPGA(bb_UpperRoutingWords[idx], idx + 40);  // Ena-Word-Reihenfolge wie im FPGA
   endfor;
-
   SendWordToFPGA(bb_ena_cont_perc_bits, 32);
 {$IFDEF DEBUG_FH}
   Write(Serout, '/ FH contact_bits      =');
@@ -970,16 +969,16 @@ procedure FH_LowerDrawbarsToFPGA;
 var
   my_word  : word;
 begin
-  FI_AutoIncSetup(9);         // for Write Core 9, Lower DB
+  FI_AutoIncSetup(c_lc_lower_drawbars);         // for Write Core 9, Lower DB
   drawbars_to_lc(edit_LowerDBs, 1);
-  FI_AutoIncReset(9);
+  FI_AutoIncReset(c_lc_lower_drawbars);
   if HasExtendedLicence then
     if edit_GatingKnob > 1 then // alle EG Modes
       my_word:= drawbar_ena_to_busbar_ena(EC_LogicalTabs2Word(48));
       SendWordToFPGA($0FFF, 44); // ADSR enables, all ON
-      FI_AutoIncSetup(12);    // for Write Core 12, Lower ADSR
+      FI_AutoIncSetup(c_lc_adsr_lower);    // for Write Core 12, Lower ADSR
       scaled_lwrped_adsr_to_lc(edit_LowerADSR, my_word); // Busbars auf ADSR statt A--D
-      FI_AutoIncReset(12);
+      FI_AutoIncReset(c_lc_adsr_lower);
     else
       SendWordToFPGA(0, 44); // ADSR enables, all OFF
     endif;
@@ -1051,13 +1050,13 @@ begin
   elsif edit_PedalDBsetup = 1 then
     convert_pedal4;
   endif;
-  FI_AutoIncSetup(10);       // for Write Core 10, Pedal DB
+  FI_AutoIncSetup(c_lc_pedal_drawbars);       // for Write Core 10, Pedal DB
   drawbars_to_lc(edit_PedalDBs, 2);
-  FI_AutoIncReset(10);
+  FI_AutoIncReset(c_lc_pedal_drawbars);
   // ADSR-Params bei Pedal immer
-  FI_AutoIncSetup(13);       // for Write Core 13, Pedal ADRS
+  FI_AutoIncSetup(c_lc_adsr_pedal);       // for Write Core 13, Pedal ADRS
   scaled_lwrped_adsr_to_lc(edit_PedalADSR, $FFFF);
-  FI_AutoIncReset(13);
+  FI_AutoIncReset(c_lc_adsr_pedal);
 end;
 
 // #############################################################################
@@ -1128,6 +1127,28 @@ end;
 
 // #############################################################################
 
+procedure FH_CreateDynTable(mindyn, slope: Byte);
+// Erstelle inverse Lookup-Tabelle Timerwert -> Dynamikwert
+// Index: gemessene Tastenanschlagzeit 255..0 (255 = extrem schnell)
+// mindyn: minimaler Dynamikwert 0..40
+// slope: 1 = nahezu linear, 20 = stark 1/t-ähnlich
+var
+  inv_slope, norm, divi: Integer;
+  t: byte;
+begin
+  if (slope < 1) then
+     slope:= 1;
+  endif;
+  inv_slope:= 10000 div Integer(slope);
+  for t:= 0 to 255 do
+    // normalisierter Zeitwert 0..1
+    norm:= mulDivInt(Integer(t), 10000, 255);
+    divi:= ((10000 + inv_slope) - norm);
+    norm:= mulDivInt(inv_slope, Integer(t), divi);
+    BlockBuffer8[255-t]:= mindyn + mulDivByte(lo(norm), 127 - mindyn, 255);
+  endfor;
+end;
+
 procedure FH_OrganParamsToFPGA;
 // Edit-Tabelle Orgel an FPGA, Kanal und Freigabe an SAM5504
 // nur �bertragen, wenn im Men� ge�ndert
@@ -1150,9 +1171,14 @@ begin
   SendByteToFPGA(edit_GenTranspose, 10);  // MIDI IN/Generator Transpose
   SendByteToFPGA(edit_KeyTranspose, 13);  // nur MIDI OUT eigene Tastatur
 {$IFNDEF MODULE}
+
   // Fatar Key Velocity Faktor (1/t-Steilheit)
+  FH_CreateDynTable(10, edit_FatarVelocityFac div 2);
+  FI_AutoIncSetup(c_lc_dynslope);
+  FI_SendBlockBuffer(256, 8); // 256 Bytes, 8-bit width
+  FI_AutoIncReset(c_lc_dynslope);
+
   m:= byte(edit_EarlyKeyCont) and 1; // f�r FATAR Scancore
-  m:= m or (edit_FatarVelocityFac shl 2);
   SendByteToFPGA(m, 11);         // TWG Config1  EARLY_KEY
 {$ENDIF}
   m:= c_TuningTable[edit_TG_tuning];
@@ -1213,13 +1239,13 @@ begin
   Writeln(Serout, '/ FH TG WaveSet #' + ByteToStr((edit_TG_WaveSet))
           + ' from DF block #' + IntToStr(waveset_block) + ' to FPGA (4)');
 {$ENDIF}
-  FI_AutoIncSetup(4); // for Write Core 4 = Wave ROM in dds48
+  FI_AutoIncSetup(c_lc_waveset); // for Write Core 4 = Wave ROM in dds48
   for idx_b:= 0 to 3 do       // 4 * 4096 Bytes = 16 KBytes = 8 KWorte
     DF_readblock(waveset_block, 4096); // 4 KByte lesen, 2 KWorte!
     FI_SendBlockBuffer(2048, 16); // 2 KWorte senden
     Inc(waveset_block);
   endfor;
-  FI_AutoIncReset(4);
+  FI_AutoIncReset(c_lc_waveset);
 end;
 
 
@@ -1227,12 +1253,28 @@ end;
 // ###                     SETUP  KEYMAPPING-TABELLE                         ###
 // #############################################################################
 
+procedure FH_KeymapToFPGA64(my_startnote: byte; var my_generator_size: byte;
+                            var do_high_foldback: boolean);
+// 1024 Keymap-Werte 8 Bit breit an FPGA DDS48 �bertragen
+begin
+  for i:= 0 to 63 do
+    FPGAsendByte:= my_startnote;
+    SendFPGA8;
+    Inc(my_startnote);
+    if my_startnote >= my_generator_size then
+      if do_high_foldback then
+        my_startnote:= my_startnote - 12;
+      else
+        my_startnote:= 127;   // Rest abgeschaltet
+      endif;
+    endif;
+  endfor;
+end;
 
 procedure FH_KeymapToFPGA;
 // 1024 Keymap-Werte 8 Bit breit an FPGA DDS48 �bertragen
 var
-  busbar, startnote  : byte;
-  buf_idx: Word;
+  busbar  : byte;
 begin
 {$IFDEF DEBUG_FH}
   Write(Serout, '/ FH TG Keymap to FPGA (3), TG size '
@@ -1243,49 +1285,43 @@ begin
     Writeln(Serout, 'OFF');
   endif;
 {$ENDIF}
-  buf_idx:= 0;
+
+  FI_AutoIncSetup(c_lc_keymap); // for Write Core 3, Keymap
   for busbar:= 0 to 15 do
-    startnote:= edit_BusBarNoteOffsets[busbar];
-    for i:= 0 to 63 do
-      BlockBuffer8[buf_idx]:= startnote; // Busbar 1, 64 Werte
-      Inc(startnote);
-      Inc(buf_idx);
-      if (startnote >= edit_TG_Size) and edit_HighFoldbackOn then
-        startnote:= startnote - 12;
-      else
-        startnote:= 127;   // Rest abgeschaltet
-      endif;
-    endfor;
+    FH_KeymapToFPGA64(edit_BusBarNoteOffsets[busbar], edit_TG_Size,
+                      edit_HighFoldbackOn);
   endfor;
-  FI_AutoIncSetup(3); // for Write Core 3, Keymap
-  FI_SendBlockBuffer(buf_idx, 8);
-  FI_AutoIncReset(3);
+  FI_AutoIncReset(c_lc_keymap);
+end;
+
+
+procedure FH_NoteHighpassFilterToFPGA64(my_startnote: byte; var my_generator_size: byte);
+// 64 Highpass-Filter-Werte 16 Bit breit an FPGA �bertragen
+begin
+  for i:= 0 to 63 do
+    FPGAsendWord:= muldivInt(c_HighpassFilterArray[my_startnote], word(edit_TG_FilterFac), 64);
+    SendFPGA16;
+    Inc(my_startnote);
+    if my_startnote >= my_generator_size then
+      my_startnote:= my_startnote - 12;
+    endif;
+  endfor;
 end;
 
 procedure FH_NoteHighpassFilterToFPGA;
 // 1024 Highpass-Filter-Werte an FPGA �bertragen
 var
-  busbar, startnote  : byte;
-  buf_idx: Word;
+  busbar   : byte;
 begin
 {$IFDEF DEBUG_FH}
   Writeln(Serout, '/ FH LC Filters to FPGA (6), TG size '
           + ByteToStr(edit_TG_Size));
 {$ENDIF}
+  FI_AutoIncSetup(c_lc_hp_filter); // for Write Core 6 = RC Filter Facs in FPGA, tg_manuals_ng
   for busbar:= 0 to 15 do
-    startnote:= edit_BusBarNoteOffsets[busbar];
-    for i:= 0 to 63 do
-      Blockarray_w[buf_idx]:= muldivInt(c_HighpassFilterArray[startnote], word(edit_TG_FilterFac), 64);
-      Inc(startnote);
-      Inc(buf_idx);
-      if startnote >= edit_TG_Size then
-        startnote:= startnote - 12;
-      endif;
-    endfor;
+    FH_NoteHighpassFilterToFPGA64(edit_BusBarNoteOffsets[busbar], edit_TG_Size);
   endfor;
-  FI_AutoIncSetup(6); // for Write Core 6 = RC Filter Facs in FPGA, tg_manuals_ng
-  FI_SendBlockBuffer(buf_idx, 16); // 1024 Worte senden
-  FI_AutoIncReset(6);
+  FI_AutoIncReset(c_lc_hp_filter);
 end;
 
 procedure FH_TubeCurveToFPGA(const tube_set_a, tube_set_b: byte);
@@ -1321,12 +1357,12 @@ begin
     StepArray[i]:= stepval;
   endfor;
 
-  FI_AutoIncSetup(7); // for Write Core 7 = Tube Amp StepVals/Slopes, 512 Werte
+  FI_AutoIncSetup(c_lc_tube_amp_slope); // for Write Core 7 = Tube Amp StepVals/Slopes, 512 Werte
   for stepval:= 0 to 511 do
     FPGASendWord:= Word(StepSlopeArray[stepval]);
     SendFPGA16;
   endfor;
-  FI_AutoIncReset(7);
+  FI_AutoIncReset(c_lc_tube_amp_slope);
 end;
 
 procedure FH_TuningValsToFPGA;
@@ -1339,7 +1375,7 @@ begin
 {$IFDEF DEBUG_FH}
   Writeln(Serout, '/ FH TG tuning set #' + ByteToStr(edit_TG_TuningSet) + ' to FPGA (5)');
 {$ENDIF}
-  FI_AutoIncSetup(5); // for Write Core 5, Tuning Vals
+  FI_AutoIncSetup(c_lc_tuning_vals); // for Write Core 5, Tuning Vals
   if edit_TG_TuningSet = 0 then
     for m:= 0 to 6 do
       for i:= 0 to 11 do
@@ -1374,7 +1410,7 @@ begin
       endfor;
     endfor;
   endif;
-  FI_AutoIncReset(5);
+  FI_AutoIncReset(c_lc_tuning_vals);
   SendByteToFPGA(c_TuningTable[edit_TG_tuning], 68);  // CycleSteal-Wert -125 .. +125
 end;
 
@@ -1389,7 +1425,7 @@ begin
     DF_SendToAutoinc(c_taper_base_DF + Word(taper_set), 1, 4096);  // Target Tapering (+11)
   else
     // Errechnete oder konstante Taper-Werte f�r Nicht-Hammonds
-    FI_AutoIncSetup(1); // for Write Core 1 = Tapering
+    FI_AutoIncSetup(c_lc_tapering); // for Write Core 1 = Tapering
     FPGAsendLong:= 0;
     for i:= 0 to 15 do
       case taper_set of
@@ -1458,7 +1494,7 @@ begin
 // *****************************************************************************
       endcase;
     endfor;
-    FI_AutoIncReset(1);
+    FI_AutoIncReset(c_lc_tapering);
   endif;
 
 // erste 12 Tapering- und Keymap-Werte 8 Bit breit nochmal an FPGA �bertragen
@@ -1470,25 +1506,25 @@ begin
     // Full muted oder Foldback muted, fr�her TWG Config0
     m:= muldivByte(m, 50, 100);
   endif;
-  FI_AutoIncSetup(1); // for Write Core 1 = Tapering BRAM, 12 Werte neu
+  FI_AutoIncSetup(c_lc_tapering); // for Write Core 1 = Tapering BRAM, 12 Werte neu
   for i:= 0 to 11 do
     FPGAsendByte:= m;
     SendFPGA8;
   endfor;
-  FI_AutoIncReset(1);
+  FI_AutoIncReset(c_lc_tapering);
 
   m:= edit_BusBarNoteOffsets[0];
   if (edit_DB16_FoldbMode and 1) = 0 then
     // Foldback oder Foldback muted, fr�her TWG Config0
     Inc(m, 12);
   endif;
-  FI_AutoIncSetup(3); // for Write Core 3 = Keymap BRAM
+  FI_AutoIncSetup(c_lc_keymap); // for Write Core 3 = Keymap BRAM
   for i:= 0 to 11 do
     FPGAsendByte:= m;
     SendFPGA8;
     Inc(m);
   endfor;
-  FI_AutoIncReset(3);
+  FI_AutoIncReset(c_lc_keymap);
 end;
 
 // #############################################################################
@@ -1672,7 +1708,7 @@ begin
   else
     // Vibrato-Werte
     SendByteToFPGA(0, 151);    // Dry auf 0
-    SendDoubledByteToFPGA(125, 152);             // Wet auf Max
+    SendByteToFPGA(250, 152);             // Wet auf Max
   endif;
   FH_InsertsToFPGA;
 end;

@@ -204,11 +204,6 @@ var
   SD_TextFile_open : boolean;
   SD_TextFile    : file of Byte;
 
-  DSPversion: LongInt;
-  DSPversion_L[@DSPversion+0]: Byte;
-  DSPversion_H[@DSPversion+1]: Byte;
-  DSPversion_Flags_L[@DSPversion+2]: Byte;   // noch nicht benutzt!
-  DSPversion_Flags_H[@DSPversion+3]: Byte;
 
 // ------------------------------ Parser ---------------------------------------
 
@@ -246,7 +241,23 @@ var
   ConfErr:  Boolean;
   SysExCount: Byte;
   SysExActive: Boolean;
-  ScanCoreRevision, ScanCoreID: Byte;
+  
+  BoardInfo: record
+    ScanCoreRevision, ScanCoreID: Byte;
+    DSPversion: Word;
+    FPGAversion: LongInt; // DD MM YYYY
+    FPGAdate: LongInt; // umgekehrte Reihenfolge wie c_min_date = $20240424: FPGA YYYY MM DD (!)
+  end;
+  
+  DSPversion_L[@BoardInfo.DSPversion+0]: Byte;
+  DSPversion_H[@BoardInfo.DSPversion+1]: Byte;
+  
+  // umgekehrte Reihenfolge wie c_min_date = $20240424: FPGA YYYY MM DD (!)
+  FPGAday[@BoardInfo.FPGAdate+0]: byte;
+  FPGAmonth[@BoardInfo.FPGAdate+1]: byte;
+  FPGAyear0[@BoardInfo.FPGAdate+2]: byte;
+  FPGAyear1[@BoardInfo.FPGAdate+3]: byte;
+  FPGAyear[@BoardInfo.FPGAdate+2]: Integer;
 
 // Fehlerkonstanten für SysEx <er>, die falls >0 aufgetretene Fehler
 // in einem 8-Bit-Feld anzeigen. Fehler können kombiniert auftreten.

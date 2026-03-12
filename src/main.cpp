@@ -224,18 +224,13 @@ void setup() {
     if (Wire.endTransmission(true) == 0) {
       panel16Present = true;
       panel16.begin();
-      // just a test for Panel16 library
-      // Bit 7 = Active/On, Bit 6 = Blinking, Bit 4,5 = OffState, Bit 2,3 = BlinkState, Bit 0,1 = OnState
-      // mit State =%00 = OFF, %01 = ON, %10 = PWM_0 (darker), %11= PWM_1 (brighter)
-      panel16.setLEDstate(2, panel16.led_hilight | panel16.led_alt_dark | panel16.led_blink_ena); // einzelne LED in lower row
-      panel16.setLEDstate(3, panel16.led_dark | panel16.led_alt_dark | panel16.led_btn_on); // einzelne LED in lower row
-      panel16.setLEDstate(4, 0b10001001); // einzelne LED in lower row, direkte Bitmask, entspricht hilight, alt_bright, off_dark, blink_ena
-      panel16.setLEDstate(8, panel16.led_hilight | panel16.led_alt_bright | panel16.led_off_dark | panel16.led_blink_ena); // einzelne LED in upper row
-      panel16.setLEDstate(13, panel16.led_dark | panel16.led_btn_on); // einzelne LED in upper row
       // Callback-Funktion für Panel16-Button-Handling registrieren
       panel16.setPressCallback(onPanel16press); 
       // Callback-Funktion für Panel16-Button-WaitRelease-Handling registrieren (optional)
       panel16.setWaitCallback(onPanel16releaseWait); 
+      for (uint8_t i = 0; i < 16; i++) {
+        panel16.setLEDstate(i, 2); // LEDs anhand ButtonMode setzen
+      }
     }
   #endif
 

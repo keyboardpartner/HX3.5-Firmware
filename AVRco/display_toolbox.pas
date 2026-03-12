@@ -277,7 +277,7 @@ begin
     menu_valid:= t_menu_hidden;
   endif;
 
-  if (menu_idx = c_KeybEarlySubmenu) and (ScanCoreID <> $51) then
+  if (menu_idx = c_KeybEarlySubmenu) and ((Boardinfo.ScanCoreID and $0F) <> $01) then
     return(t_menu_hidden);
   endif;
 {

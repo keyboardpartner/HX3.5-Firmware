@@ -1,8 +1,8 @@
 [MainParams]
 MainFile=BootLoaderSD_1284.pas
 FirstAccess=46064.4984412616
-LastAccess=46064.4985749653
-CurAccount=0
+LastAccess=46090.879752662
+CurAccount=5.39684119213052
 TotAccount=0
 LastCompile=43202.6697571065
 DeviceID=$1E9705
@@ -64,4 +64,8 @@ count=34
 34=TIMER3
 [System Paths]
 [Files]
+File1=BootLoaderSD_1284.pas
+TopLine1=21
+CaretY1=1
+ReadOnly1=False
 File=BootLoaderSD_1284.pas
