@@ -4,6 +4,8 @@
 
 ### Firmware for HX3.5 Mainboard with ATmega1284P MCU
 
+**Customer info:** Do not open! No user servicable parts inside. For HX3 updates, see our **[HX3 Update page](http://updates.keyboardpartner.de/Files/index.php)**.
+
 HX3.5 firmware was compiled with older **AVRCo** Pascal IDE from [**e-lab**](https://www.e-lab.de/) which is free of charge now. It runs on a ATmega1284P MCU (see **AVRco** directory).
 
 In AVRco IDE project manager, import project **HX35_allinone.ppro** and compile with optimizer (brick wall icon). AVRco will create *HX35_main.hex* (flash content file) and *HX35_main.eep* (EEPROM file). To modify HX3.5 bootloader (reads firmware from SD Card) open AVRco project **HX35_bootloader.ppro**. Using the AVRco compiler, ignore the *src, lib* and *include* directory for now. 
