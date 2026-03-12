@@ -10,7 +10,7 @@ In AVRco IDE project manager, import project **HX35_allinone.ppro** and compile 
 
 ### Version History
 
-* Update to version 5.9 for new FPGA 13022026
+* Update to version 5.840 for new FPGA 12032026
 * Update to version 5.836
 
 ### Future repository for HX3.5 Firmware C++ conversion
