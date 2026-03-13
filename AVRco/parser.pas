@@ -1,7 +1,14 @@
 // #############################################################################
-// ###                     F Ü R   A L L E   B O A R D S                     ###
+//       __ ________  _____  ____  ___   ___  ___
+//      / //_/ __/\ \/ / _ )/ __ \/ _ | / _ \/ _ \
+//     / ,< / _/   \  / _  / /_/ / __ |/ , _/ // /
+//    /_/|_/___/_  /_/____/\____/_/_|_/_/|_/____/
+//      / _ \/ _ | / _ \/_  __/ |/ / __/ _ \
+//     / ___/ __ |/ , _/ / / /    / _// , _/
+//    /_/  /_/ |_/_/|_| /_/ /_/|_/___/_/|_|
+//
 // #############################################################################
-// ###             Parser für Befehle von serieller Schnittstelle            ###
+// ###             Parser fï¿½r Befehle von serieller Schnittstelle           ###
 // #############################################################################
 unit parser;
 
@@ -23,12 +30,12 @@ procedure PA_CheckSer;
 procedure PA_HandleCmdString;// SerInpStr parsen
 
 // Parameter-Byte anhand Parameter-Nummer holen
-// auch für Menüsystem benutzt. Liefert TRUE wenn Parameter bekannt ist
+// auch fï¿½r Menï¿½system benutzt. Liefert TRUE wenn Parameter bekannt ist
 function PA_GetParamByte(my_param: integer; var my_result: byte;
          from_eeprom: boolean): boolean;
 
 // Wert anhand Parameter-Nummer setzen
-// auch für Menüsystem benutzt. Liefert TRUE wenn Parameter bekannt ist
+// auch fï¿½r Menï¿½system benutzt. Liefert TRUE wenn Parameter bekannt ist
 function PA_NewParamEvent(my_param : integer; value : byte;
          to_eeprom: boolean; event_source: Byte): boolean;
 
@@ -49,7 +56,7 @@ implementation
 {$IDATA}
 
 const
-// nur noch allgemeine und Konfigurations-Parameter über Mnemonics!
+// nur noch allgemeine und Konfigurations-Parameter ï¿½ber Mnemonics!
   cmdAnzahl      : byte = 27; // letzter Eintrag, statt tCmdwhich
   cmdErr         : byte = cmdAnzahl + 1;// Error, Statt tCmdwhich
   CmdStrArr      : array[0..cmdAnzahl] of string[3] = (
@@ -64,9 +71,9 @@ const
 
     'CFG',// 8000 FPGA Config from Flash
     'UPD',// 8200 Update from SD
-    'INI',// 8300 INI-Datei ausführen
+    'INI',// 8300 INI-Datei ausfï¿½hren
     'SCI',// 8500 Scan Core Info, 0=ID, 1=Revision
-    'RCB',// 8600 4K-Block überspezielles Protokoll empfangen
+    'RCB',// 8600 4K-Block ï¿½berspezielles Protokoll empfangen
     'WFB',// 8601 4K-Block in DataFlash speichern, Param = Blocknummer abs.
     'DFI',// 8800 DF Init Presets
     'RCS',// 8900 Receive Binary Stream (+Core #)
@@ -144,7 +151,7 @@ begin
   my_result:= 0;
   case my_param of
 {$IFDEF MODULE}
-    900..905:  // Dummy für neuen Editor mit Spartan-7 auf Böhm Modul
+    900..905:  // Dummy fï¿½r neuen Editor mit Spartan-7 auf Bï¿½hm Modul
                my_result:= 0;
                |
 {$ELSE}
@@ -172,7 +179,7 @@ begin
     2100..2163 : // Leslie Inits
                my_result:= edit_LeslieInits[my_index_100];
                |
-    2200..2327 : // 8 Vibrato Parameter-Tabellen für OEM Modul
+    2200..2327 : // 8 Vibrato Parameter-Tabellen fï¿½r OEM Modul
                my_int:= my_param - 2200;
                my_result:= eep_ScannerVibSetDump[my_int];
                |
@@ -210,10 +217,12 @@ begin
     3500..3595 : // FatarScan76-Tabellen
                my_result:= eep_fs76_arr_dump[my_index_100];
                |
+{$IFDEF EDER_FS76}
     3600..3615 : // je 4 FatarScan76-Werte vom I2C-Slave
                my_result:= 0;
                NB_GetBytefromI2Cslave((my_index_100 div 4) + $5A, my_index_100 mod 4, my_result);
                |
+{$ENDIF}
 
     5000..5087 :// ADC input Remaps
                my_result:= eep_ADCremaps[my_index_100];
@@ -270,7 +279,7 @@ begin
     250       :// Schreibschutz auslesen
               WriteBoolSer(EEunlocked);
               |
-    253       :// SerTest, gibt Input-String komplett und unverändert wieder aus
+    253       :// SerTest, gibt Input-String komplett und unverï¿½ndert wieder aus
               Writeln(Serout, SerInpStr);
               return;
               |
@@ -316,25 +325,25 @@ begin
               WriteLongSerHex(ValueLong);
               |
     8500:     // ScanCore Info
-              FI_GetScanCoreInfo;  // Meldung über Scancore ausgeben
+              FI_GetScanCoreInfo;  // Meldung ï¿½ber Scancore ausgeben
               WriteByteSer(BoardInfo.ScanCoreID);
               |
     8501:     // SCI? FI_GetScanCoreInfo Info
-              FI_GetScanCoreInfo;  // Meldung über Scancore ausgeben
+              FI_GetScanCoreInfo;  // Meldung ï¿½ber Scancore ausgeben
               WriteByteSer(BoardInfo.ScanCoreRevision);
               |
 
     8510:     // Checksum FW Update
-              my_word:= DF_getChecksum(c_firmware_base35_DF, c_firmware_base35_DF + $1F);
+              my_word:= DF_getChecksum(c_firmware, c_firmware + $1F);
               WriteLongSer(LongInt(my_word));
               |
 
     8511:     // Checksum EEPROM Update
-              my_word:= DF_getChecksum(c_defaults_base_DF, c_defaults_base_DF);
+              my_word:= DF_getChecksum(c_defaults, c_defaults);
               WriteLongSer(LongInt(my_word));
               |
 
-    8529:      // HashadowMem für FPGA und ScanCore; liefert bei alten Versionen Fehler -1
+    8529:      // HashadowMem fï¿½r FPGA und ScanCore; liefert bei alten Versionen Fehler -1
               WriteByteSer(0);
               |
 
@@ -386,7 +395,7 @@ end;
 
 
 // #############################################################################
-// #####           STANDARD-EVENT: Parameter-Wert geändert                 #####
+// #####           STANDARD-EVENT: Parameter-Wert geï¿½ndert                 #####
 // #############################################################################
 
 procedure PA_NewEditEvent(idx_i: Word; value: byte;
@@ -401,7 +410,7 @@ begin
   my_bool:= value <> 0;
   val_ltd:= valueTrimLimit(value, 0, c_edit_max[idx_i]);
 
-  // in edit_array, nicht in EEPROM, möglichst schnell erledigen
+  // in edit_array, nicht in EEPROM, mï¿½glichst schnell erledigen
   case idx_i of
 {$IFNDEF MODULE}
     0000..0011:
@@ -418,7 +427,7 @@ begin
       |
 {$ENDIF}
     0121, 0128..0191:      // Tabs?
-      // wichtig, sonst wird "not XXX" bei Werten <> 255 falsch ausgeführt!
+      // wichtig, sonst wird "not XXX" bei Werten <> 255 falsch ausgefï¿½hrt!
       val_ltd:= byte(my_bool);
       if idx_i = 0143 then   // Split ON/OFF
         ForceSplitRequest:= true;
@@ -502,10 +511,10 @@ begin
 
   case my_param of
     250:
-      EEunlocked:= my_bool;  // für Binary-Parser
+      EEunlocked:= my_bool;  // fï¿½r Binary-Parser
       |
 {$IFDEF MODULE}
-    900..909:  // Dummy für neuen Editor mit Spartan-7 auf Böhm Modul
+    900..909:  // Dummy fï¿½r neuen Editor mit Spartan-7 auf Bï¿½hm Modul
       |
 {$ELSE}
     900..903: // Preset-Nummer setzen: Common, Upper, Lower, Pedal
@@ -528,7 +537,7 @@ begin
       for my_word:= 0 to 4095 do
         BlockBuffer8[my_word]:= EE_dumpArr[my_word];
       endfor;
-      DF_EraseWriteblock(c_eeprom_base35_DF, 4096);
+      DF_EraseWriteblock(c_eeprom, 4096);
       |
     908: // Store Organ Model
       edit_OrganModel:= value and 15;
@@ -612,17 +621,17 @@ begin
         endif;
       endif;
       |
-    1610:// Start OSCconnectedBySerial Mode, HX3 sendet Parameter-Änderungen, binär
+    1610:// Start OSCconnectedBySerial Mode, HX3 sendet Parameter-ï¿½nderungen, binï¿½r
       MIDI_RequestAllGMnames;
       FlushBuffer(RxBuffer);
       ConnectMode:= t_connect_osc_wifi;  // Abschalten mit 9902=0
       DisplayHeader('OSC Connect...');
       mdelay(100);
-      NB_SendBinaryVal(1610, 127); // Connect Button ON (dummy für Re-Connect)
-      mdelay(1000);    // Zeit für IP-Meldung von WiFi-Interface
+      NB_SendBinaryVal(1610, 127); // Connect Button ON (dummy fï¿½r Re-Connect)
+      mdelay(1000);    // Zeit fï¿½r IP-Meldung von WiFi-Interface
       NB_SendBinaryVal(1610, 127); // Connect Button ON
       NB_SendBinaryVal(1649, 64); // LED Blink
-      writeln(serout, '/page/1=0'); // für alte Versionen
+      writeln(serout, '/page/1=0'); // fï¿½r alte Versionen
       NB_SendBinaryVal(1650, 0); // Page
       mdelay(100);
       writeln(serout); // sync Text
@@ -632,13 +641,13 @@ begin
       writeln(serout); // sync Text
       writeln(serout, '/label_wait="Please wait..."');
       NB_SendBinaryVal(1610, 0); // Connect Button OFF (dummy)
-      mdelay(100);    // Zeit für IP-Meldung von WiFi-Interface
+      mdelay(100);    // Zeit fï¿½r IP-Meldung von WiFi-Interface
       NB_SendBinaryAllOSCvals;     // einschl. Preset-Nummern
       mdelay(500);
       writeln(serout, '/label_preset="' + c_PresetNameStr0 + '"'); // Preset-Namen
       writeln(serout, '/label_wait=""');
-      writeln(serout, '/page/1=127'); // für alte Versionen
-      mdelay(100);    // Zeit für IP-Meldung von WiFi-Interface
+      writeln(serout, '/page/1=127'); // fï¿½r alte Versionen
+      mdelay(100);    // Zeit fï¿½r IP-Meldung von WiFi-Interface
       MenuIndex_Requested:= 0;
       NB_SendBinaryVal(1697, 127); // Param Invalidate Extended
       mdelay(500);
@@ -650,7 +659,7 @@ begin
         NewEditIdxEvent(Word(my_param) - 1428, 255, event_source); // -1620 +192
       endif;
       |
-    1628..1639:  // INCs/DECs für Custom MIDI, wurde bereits in WIFI-IF erledigt!
+    1628..1639:  // INCs/DECs fï¿½r Custom MIDI, wurde bereits in WIFI-IF erledigt!
       if my_bool then
         AC_IncDecGMprogs(my_index_100 - 28, event_source);    // TODO!
       endif;
@@ -673,7 +682,7 @@ begin
         0: // Start page
         // NB_SendBinaryVal(1680, 0);  // Progress Bar
         writeln(serout); // sync Text
-        writeln(serout, '/label_wait=" "'); // "Please Wait..." löschen
+        writeln(serout, '/label_wait=" "'); // "Please Wait..." lï¿½schen
         |
         1,2: // B3/Basic Pages
         edit_OrganModel:= 0;
@@ -683,7 +692,7 @@ begin
         edit_OrganModel:= 1;
         edit_OrganModel_flag:= event_source;
         |
-        5,6: // EG Mode Pages, keine Änderung wenn bereits EG Mode
+        5,6: // EG Mode Pages, keine ï¿½nderung wenn bereits EG Mode
         if edit_OrganModel < 2 then // vorheriger Wert
           edit_OrganModel:= 2; // Basiseinstellung EG-Mode
           edit_OrganModel_flag:= event_source;
@@ -911,12 +920,15 @@ begin
 // *****************************************************************************
 {$IFNDEF MODULE}
 // *****************************************************************************
+
+{$IFDEF EDER_FS76}
     3500..3595 : // FatarScan76-Tabellen
       if to_eeprom then
         eep_fs76_arr_dump[my_index_100]:= value;
       endif;
       NB_SendBytetoI2Cslave((my_index_100 div 24) + $5A, my_index_100 mod 24, value);
       |
+{$ENDIF}
 
     5000..5087 : // ADC input Remaps, internal mk4 inputs
       // Index: Analogeingang fortlaufend,
@@ -993,7 +1005,7 @@ begin
   Excl(ErrFlags, c_err_cmd);
   case my_param of
     0..239     :// FPGA-Schreibregister Wort, auch Default-Auto-Increment
-               TimeSlot:= 15;// zählt wieder rauf bis 0, SPI-Updates über AVR verhindern
+               TimeSlot:= 15;// zï¿½hlt wieder rauf bis 0, SPI-Updates ï¿½ber AVR verhindern
                SendWordToFPGA(word(ValueInt), byte(my_param));
                |
     240..249   :// FPGA-Schreibregister Langwort
@@ -1009,7 +1021,7 @@ begin
                endif;
                |
 
-    4000..4767:// Custom-CC-Tabellen beschreiben, temporär
+    4000..4767:// Custom-CC-Tabellen beschreiben, temporï¿½r
                // 4 Bytes gepackt als 32-Bit-Werte: MIN MAX CH CC
                my_param:= my_param - 4000;
                MIDIset_CCarray[my_param]:= ValueLong0;
@@ -1024,7 +1036,7 @@ begin
                MIDI_SendSustainSostEnable;
 {$ENDIF}
                |
-    4768..4799:// Custom-NRPN-Tabellen beschreiben, temporär
+    4768..4799:// Custom-NRPN-Tabellen beschreiben, temporï¿½r
                my_param:= my_param - 4768;
                MIDIset_NRPNarrayLongInt[my_param]:= ValueLong;
                |
@@ -1040,7 +1052,7 @@ begin
                // oder mit 4921=1 umkopierten BlockArrays als
                // CC-Set 0..15 in DF (4 bis 10 belegt)
                if my_bool then
-                 if not DF_Store4kBlock(c_midicc_base_DF + word(my_Index_100), c_midiarr_dflen) then
+                 if not DF_Store4kBlock(c_midi_cc_base + word(my_Index_100), c_midiarr_dflen) then
                    serprompt(c_err_conf, my_param, -1);
                    return;
                  endif;
@@ -1070,7 +1082,7 @@ begin
                endif;
                |
     8000:      // FPGA Load from SD to SPI Flash
-               // StartAdresse 0 für FPGA-Image
+               // StartAdresse 0 fï¿½r FPGA-Image
                if ParamAlpha then
                  SD_ForceCheck;
                  if SD_present then
@@ -1088,18 +1100,10 @@ begin
                endif;
                |
 
-    8200:      // UPD, FileLoad from SD to SPI Flash, alle Standard-Dateien versuchen
+    8200, 8201:      // UPD, FileLoad from SD to SPI Flash, alle Standard-Dateien versuchen
+               // 8201 = UPD 1, nur Firmware updaten
                if my_bool and SD_ForceCheck then
-                 SD_LoadAndFlashAllBinCores(true, true);// anschließend FW-Flash und Reset!
-                 if ConfErr then
-                   serprompt(c_err_upd, my_param, -1);
-                   return;
-                 endif;
-               endif;
-               |
-    8201:      // UPD 1, nur Firmware updaten
-               if my_bool and SD_ForceCheck then
-                 SD_LoadAndFlashAllBinCores(false, true); // anschließend FW-Flash und Reset!
+                 SD_LoadAndFlashAllBinCores(my_index_10 = 0, true);// anschlieï¿½end FW-Flash und Reset!
                  if ConfErr then
                    serprompt(c_err_upd, my_param, -1);
                    return;
@@ -1125,8 +1129,8 @@ begin
 
     8203:      // UPD 3, Scan Driver only
                if my_bool and SD_ForceCheck then
-                 if SD_FlashBinFile(c_scan_base_DF, 'scan.dat') > df_noErr then
-                   serprompt(c_err_conf, my_param, -1);      // ScanCore immer benötigt!
+                 if SD_FlashBinFile(c_scan, s_scan_name) > df_noErr then
+                   serprompt(c_err_conf, my_param, -1);      // ScanCore immer benï¿½tigt!
                    return;
                  endif;
                  START_InitAll;
@@ -1136,7 +1140,7 @@ begin
     8204:      // UPD 4, nur EEPROM von SD-Karte updaten,
                // immer, auch wenn Overwrite Flag nicht gesetzt
                if my_bool and SD_ForceCheck then
-                 if SD_FlashBinFile(c_defaults_base_DF, 'eeprom.bin') = df_noErr then   // optional
+                 if SD_FlashBinFile(c_defaults, s_eeprom_name) = df_noErr then   // optional
                    // EEPROM updaten, wenn Flag gesetzt und Version ungleich
 {$IFNDEF MODULE}
 
@@ -1160,10 +1164,10 @@ begin
 {$IFNDEF MODULE}
     8205:      // UPD 5, Preset-Blocks von SD-Karte updaten
               if my_bool and SD_ForceCheck then
-                SD_FlashBinFile(c_defaults_base_DF, 'defaults.dat'); // noch Dummy
-                SD_FlashBinFile(c_organModel_base_DF, 'organs.dat');
-                SD_FlashBinFile(c_leslieModel_base_DF, 'speakers.dat');
-                SD_FlashBinFile(c_preset_base_DF, 'presets.dat');
+                SD_FlashBinFile(c_defaults, s_defaults_name); // noch Dummy
+                SD_FlashBinFile(c_organ_model_base, s_organs_name);
+                SD_FlashBinFile(c_speaker_model_base, s_speakers_name);
+                SD_FlashBinFile(c_preset_base, s_presets_name);
               endif;
               |
 {$ENDIF}
@@ -1196,12 +1200,10 @@ begin
                  SendByteToFPGA(1, 246); // Set DSP ROW bits = 1
                  mdelay(100);
                  SendByteToFPGA(0, 246); // Set DSP ROW bits = 0
-                 writeln(serout, '/ Start DFU Update on host!');
                else  // DFU Mode (Bootloader) abbrechen
                  SendByteToFPGA(2, 246); // Set DSP ROW bits = 2
                  mdelay(100);
                  SendByteToFPGA(0, 246); // Set DSP ROW bits = 0
-                 writeln(serout, '/ DFU Update cancelled');
                endif;
                |
 {$ENDIF}
@@ -1221,7 +1223,7 @@ begin
                  endif;
                endif;
                |
-    8299:      // UPD 99, DF Erase, Chip ganz löschen
+    8299:      // UPD 99, DF Erase, Chip ganz lï¿½schen
                if my_bool then
                  DF_unprotect;
                  if not DF_erase then
@@ -1237,7 +1239,7 @@ begin
     8300:      // INI=, Load from SD
                if ParamAlpha then
                  if SD_ForceCheck then
-                   PA_RunSDscript(ParamStr + '.ini');
+                   PA_RunSDscript(ParamStr + s_ini_ext);
                  else
                    return;
                  endif;
@@ -1247,47 +1249,45 @@ begin
                endif;
                |
 
-    8500:      // Firmware Update from DF auf Controller, falls über SysEx oder seriell geladen
+    8500:      // Firmware Update from DF auf Controller, falls ï¿½ber SysEx oder seriell geladen
                // c_firmware_base: Word  = $3E0;       // 992 (944 + 48)
-               my_word:= DF_getChecksum(c_firmware_base35_DF, c_firmware_base35_DF + $1F);
+               my_word:= DF_getChecksum(c_firmware, c_firmware + $1F);
                if word(ValueLong) = my_word then
-                 writeln(serout, '/ FW Checksum OK');
 {$IFNDEF MODULE}
                  DT_ResetMenuEnables;
 {$ENDIF}
                  DF_FWupdateFromFlashAndReboot;
                else
                  WriteSerError;
-                 writeln(serout, 'Checksum failed, DF:' + IntToStr(my_word));
+                 writeln(serout, s_err_cs_failed + ', DF:' + IntToStr(my_word));
                  serprompt(c_err_conf, my_param, -1);
                  return;
                endif;
                |
     8501:      // EEPROM Update von DF auf Controller
-               my_word:= DF_getChecksum(c_eeprom_base35_DF, c_eeprom_base35_DF);
+               my_word:= DF_getChecksum(c_eeprom, c_eeprom);
                if word(ValueLong) = my_word then
-                 writeln(serout, '/ EEPROM Checksum OK');
-                 DFtoEEPROM(c_eeprom_base35_DF, 1024);
+                 DFtoEEPROM(c_eeprom, 1024);
 {$IFNDEF MODULE}
                  DT_ResetMenuEnables;
 {$ENDIF}
                else
                  WriteSerError;
-                 writeln(serout, 'Checksum failed, EEPROM:' + IntToStr(my_word));
+                 writeln(serout, s_err_cs_failed + ', EEPROM:' + IntToStr(my_word));
                  serprompt(c_err_conf, my_param, -1);
                  return;
                endif;
                |
 
-    8510:      // Firmware Update von DF auf Controller, falls über SysEx oder seriell geladen
-               // Wie 8500, aber OHNE Überprüfung der Checksumme!
+    8510:      // Firmware Update von DF auf Controller, falls ï¿½ber SysEx oder seriell geladen
+               // Wie 8500, aber OHNE ï¿½berprï¿½fung der Checksumme!
 {$IFNDEF MODULE}
                DT_ResetMenuEnables;
 {$ENDIF}
                DF_FWupdateFromFlashAndReboot;
                |
     8511:      // EEPROM Update von DF auf Controller
-               // Wie 8501, aber OHNE Überprüfung der Checksumme!
+               // Wie 8501, aber OHNE ï¿½berprï¿½fung der Checksumme!
                EE_ForceUpdateEEPROM:= true;
 {$IFNDEF MODULE}
                DT_ResetMenuEnables;
@@ -1296,7 +1296,7 @@ begin
 
     8600:      // Empfange 4KByte-Block
                if ValueInt < 32 then
-                 ValueInt:= 4096;     // Kompatibilität mit alten HX3.5-Editor
+                 ValueInt:= 4096;     // Kompatibilitï¿½t mit alten HX3.5-Editor
                endif;
                serOut(#6); // ACK
                if not DF_SerReceive4kBlock(ValueInt) then  // in BlockBuffer8 zwischenspeichern
@@ -1307,7 +1307,7 @@ begin
                |
 
     8601:      // Soeben empfangenen 4KByte-Block in DF speichern, absolute Blocknummer
-               // Liefert OK wenn Löschen/Speichern erfolgreich
+               // Liefert OK wenn Lï¿½schen/Speichern erfolgreich
 {$IFNDEF MODULE}
                NB_BlockRcvMsg(ValueInt);
 {$ENDIF}
@@ -1317,7 +1317,7 @@ begin
                endif;
                |
 {$IFNDEF MODULE}
-    8605:      // 4KByte-Block als temporäres Preset laden
+    8605:      // 4KByte-Block als temporï¿½res Preset laden
                if my_bool then
                  LoadPresetFromBlockBuffer; // geladene Werte nehmen
                  NB_VibknobToVCbits;
@@ -1328,8 +1328,8 @@ begin
                endif;
                |
     8606:      // Soeben empfangenen 512-Byte-Block in DF speichern, Preset-Nummer
-               // Liefert OK wenn Löschen/Speichern erfolgreich
-               if not DF_Store4kBlock(word(ValueInt) + c_preset_base_DF, 512) then
+               // Liefert OK wenn Lï¿½schen/Speichern erfolgreich
+               if not DF_Store4kBlock(word(ValueInt) + c_preset_base, 512) then
                  serprompt(c_err_conf, my_param, -1);
                  return;
                endif;
@@ -1347,12 +1347,12 @@ begin
                NB_SerSendBlockArray(4096);
                |
     8702:      // 512-Byte-Block senden, ValueInt = absolute Blocknummer aus DF
-               // für Presets
+               // fï¿½r Presets
                DF_readblock(word(ValueInt), 512);
                NB_SerSendBlockArray(512);
                |
     8703:      // 512-Byte-EditPages 0 und 1 senden, ValueInt ignoriert
-               // z.B. für Preset-Speicherauszug
+               // z.B. fï¿½r Preset-Speicherauszug
                edit_TempStr:= CurrentPresetName;
                CopyBlock(@edit_array, @BlockBuffer8, 512);
                NB_SerSendBlockArray(512);
@@ -1367,9 +1367,6 @@ begin
                if my_bool then
                  InitCommonPresets;
                endif;
-{$ELSE}
-               WriteSerWarning;
-               writeln(Serout, 'Preset DF not used, ignored');
 {$ENDIF}
                |
 
@@ -1377,7 +1374,7 @@ begin
                case my_index_100 of // Binary Core Stream, LongWords, Scan Core und FIR
                0, 2: // Scan Core und FIR, LongWords
                  FI_AutoIncSetup(my_index_100); // for Write
-                 for my_word:= 0 to word(ValueInt) - 1 do // Länge in LongWords!
+                 for my_word:= 0 to word(ValueInt) - 1 do // Lï¿½nge in LongWords!
                    FPGAsendLong0:= serInp;
                    FPGAsendLong1:= serInp;
                    FPGAsendLong2:= serInp;
@@ -1389,7 +1386,7 @@ begin
                  |
                1, 3: // Tapering und Keymap, Bytes
                  FI_AutoIncSetup(my_index_100); // for Write
-                 for my_word:= 0 to word(ValueInt) - 1 do // Länge in Bytes!
+                 for my_word:= 0 to word(ValueInt) - 1 do // Lï¿½nge in Bytes!
                    FPGAsendByte:= serInp;
                    SendFPGA8;
                  endfor;
@@ -1397,7 +1394,7 @@ begin
                  |
                else // WaveSet, TuningSet und FilterFacs, Words
                  FI_AutoIncSetup(my_index_100); // for Write
-                 for my_word:= 0 to word(ValueInt) - 1 do // Länge in Words!
+                 for my_word:= 0 to word(ValueInt) - 1 do // Lï¿½nge in Words!
                    FPGAsendWord0:= serInp;
                    FPGAsendWord1:= serInp;
                    SendFPGA16;
@@ -1411,7 +1408,7 @@ begin
                  LCDxy_M(LCD_m1, 0, my_index_100);
                  write(LCDOut_M, ParamStr);
                  LCDclreol_M(LCD_m1);
-                 setSysTimer(ActivityTimer, 1000); // zurück nach 2 Sekunden
+                 setSysTimer(ActivityTimer, 1000); // zurï¿½ck nach 2 Sekunden
                  MenuIndex_Requested:= MenuIndex;
                endif;
                |
@@ -1419,9 +1416,9 @@ begin
                if ParamAlpha then
                  CurrentPresetName:= ParamStr;
                  if my_index_100 > 0 then
-                   DF_readblock(c_preset_base_DF + Word(my_index_100), 512);
+                   DF_readblock(c_preset_base + Word(my_index_100), 512);
                    block_PresetNameStr:= ParamStr;
-                   DF_EraseWriteblock(c_preset_base_DF + Word(my_index_100), 512);
+                   DF_EraseWriteblock(c_preset_base + Word(my_index_100), 512);
                  endif;
                  MenuRefresh:= true;
                else
@@ -1431,10 +1428,10 @@ begin
                |
 {$ENDIF}
     9900, 9901: // ConnectMode nach benutzter Schnittstelle einstellen:
-               if CmdSentBySerial then  // HX3 sendet Parameter-Änderungen, binär
+               if CmdSentBySerial then  // HX3 sendet Parameter-ï¿½nderungen, binï¿½r
                  ConnectMode:= t_connect_editor_serial;
                endif;
-               if CmdSentByMIDI then // HX3 sendet Parameter-Änderungen, Sysex
+               if CmdSentByMIDI then // HX3 sendet Parameter-ï¿½nderungen, Sysex
                  ConnectMode:= t_connect_editor_midi;
                endif;
                |
@@ -1454,15 +1451,14 @@ begin
 {$ENDIF}
                |
     9950, 9951:
-               if my_param = 9950 then
+               if my_Index_10 = 0 then
                  EE_DNA_0:= ValueLong;
                  EE_DNA_0_bak:= ValueLong;
-                 FH_LicenceToFPGA;
                else
                  EE_DNA_1:= ValueLong;
                  EE_DNA_1_bak:= ValueLong;
-                 FH_LicenceToFPGA;
                endif;
+               FH_LicenceToFPGA;
                mdelay(500);
                FH_TestExtLicence;
                |
@@ -1592,7 +1588,7 @@ begin
   ParamStr:= '';
   ParamAlpha:= false;
   myBool:= false;
-  while SerInpStr[ParsePtr] = ' ' do // Leerzeichen überspringen
+  while SerInpStr[ParsePtr] = ' ' do // Leerzeichen ï¿½berspringen
     Inc(ParsePtr);
   endwhile;
   if SerInpStr[ParsePtr] in ['*'..'9'] then // Zahlen oder Wildcard, es wird ein Parameter
@@ -1645,7 +1641,7 @@ begin
   if SerInpStr = '' then
     return;
   endif;
-  verbose:= (pos('!', SerInpStr) > 0);// OK erwünscht?
+  verbose:= (pos('!', SerInpStr) > 0);// OK erwï¿½nscht?
   GleichPos:= pos('=', SerInpStr);// Set-'='
   isRequest:= (GleichPos = 0);// Abfrage
   ParsePtr:= 1;
@@ -1654,7 +1650,7 @@ begin
   if ParseExtract(false) then
     my_SubChOffset:= 0; // direkter SubCh-Aufruf
   else
-    CmdWhich:= Cmd2Index;// Klartext übersetzen
+    CmdWhich:= Cmd2Index;// Klartext ï¿½bersetzen
     if CmdWhich = cmdErr then
       serprompt(c_err_cmd, my_param, -1);
       return;
@@ -1689,7 +1685,7 @@ end;
 // ESC CMD ADRL ADRH LEN DATA0...DATAn CRC then wait for <--ACK
 // mit
 // LEN = Anzahl der folgenden Datenbytes, 0 => 256
-// CRC = einfache Modulo-Prüfsumme über alle Bytes von ESC bis DATAn
+// CRC = einfache Modulo-Prï¿½fsumme ï¿½ber alle Bytes von ESC bis DATAn
 // als Antwort wird gesendet:
 // ACK oder NAK wenn CRC falsch oder TimeOut
 
@@ -1697,15 +1693,15 @@ end;
 // Parameter holen:
 // ESC CMD ADRL ADRH LEN CRC then wait for <--ACK
 // mit
-// LEN = Anzahl der gewünschten Datenbytes, 0 => 256
-// CRC = einfache Modulo-Prüfsumme über alle empfangenen Bytes von ESC bis LEN
+// LEN = Anzahl der gewï¿½nschten Datenbytes, 0 => 256
+// CRC = einfache Modulo-Prï¿½fsumme ï¿½ber alle empfangenen Bytes von ESC bis LEN
 
 // CMD=3: SetParam mit Response (setzt kein parsed_table!)
 // Parameter setzen:
 // ESC CMD ADRL ADRH LEN DATA0...DATAn CRC then wait for <--ACK
 // mit
 // LEN = Anzahl der folgenden Datenbytes, 0 => 256
-// CRC = einfache Modulo-Prüfsumme über alle Bytes von ESC bis DATAn
+// CRC = einfache Modulo-Prï¿½fsumme ï¿½ber alle Bytes von ESC bis DATAn
 // als Antwort wird gesendet:
 // ACK oder NAK wenn CRC falsch oder TimeOut
 
@@ -1714,8 +1710,8 @@ end;
 // ACK ESC CMD ADRL ADRH LEN DATA0...DATAn CRC
 // CMD=1: SetParam, CMD=2: GetParam
 // mit
-// LEN = Anzahl der folgenden oder gewünschten Datenbytes, 0 => 256
-// CRC = einfache Modulo-Prüfsumme über alle Bytes von ESC bis DATAn
+// LEN = Anzahl der folgenden oder gewï¿½nschten Datenbytes, 0 => 256
+// CRC = einfache Modulo-Prï¿½fsumme ï¿½ber alle Bytes von ESC bis DATAn
 
 procedure PA_HandleBinary;
 var
@@ -1739,10 +1735,10 @@ begin
   if BinaryValid then
     if (BinaryCmd = 1) then //    or (BinaryCmd = 3)
       // Command: fortlaufende Parameter setzen
-      // auf Datensatz warten, Länge steht fest. Buffer füllen
-      // Mit Cmd=1 Änderungen nicht erneut senden
-      // Mit Cmd=3 wird der geänderte Parameter später als
-      // geändert erkannt und zurückgesendet
+      // auf Datensatz warten, Lï¿½nge steht fest. Buffer fï¿½llen
+      // Mit Cmd=1 ï¿½nderungen nicht erneut senden
+      // Mit Cmd=3 wird der geï¿½nderte Parameter spï¿½ter als
+      // geï¿½ndert erkannt und zurï¿½ckgesendet
       for i:= 0 to BinaryLen-1 do
         if not serinp_to(n, 10) then
           BinaryValid:= false;
@@ -1755,8 +1751,8 @@ begin
       serInp_to(BinaryCRC, 10);
       BinaryValid:= BinaryValid and (BinaryCRC = my_temp_crc);
       if BinaryValid then
-        // Datensatz vollständig, CRC stimmt. Befehl bestätigen.
-        // Nur an FPGA, nicht zurücksenden, kommt von Editor oder OSC Wifi
+        // Datensatz vollstï¿½ndig, CRC stimmt. Befehl bestï¿½tigen.
+        // Nur an FPGA, nicht zurï¿½cksenden, kommt von Editor oder OSC Wifi
         for i:= 0 to BinaryLen-1 do
           my_param:= BinaryAdr + Integer(i);
           my_val:= BlockArrayBinaryBuf[i];
@@ -1773,7 +1769,7 @@ begin
       BinaryValid:= BinaryValid and (BinaryCRC = my_temp_crc);
       if BinaryValid then
         serOut(#6); // ACK
-        // Datensatz vollständig, CRC stimmt. Befehl bestätigen
+        // Datensatz vollstï¿½ndig, CRC stimmt. Befehl bestï¿½tigen
         my_temp_crc:= NB_SendBinaryHeader(2, BinaryAdr);
         serout(BinaryLen);     // LEN
         my_temp_crc:= my_temp_crc + BinaryLen;
@@ -1792,7 +1788,7 @@ begin
   endif;
 
   if not BinaryValid then
-    while serStat do // ungültigen Rest lesen
+    while serStat do // ungï¿½ltigen Rest lesen
       serInp;
     endwhile;
   endif;
@@ -1820,7 +1816,7 @@ begin
           LED_timer50;
           CmdSentByMidi:= false;
           CmdSentBySerial:= true;
-          PA_HandleCmdString;  // Befehl vollständig, also interpretieren
+          PA_HandleCmdString;  // Befehl vollstï¿½ndig, also interpretieren
           while serstat do // evt. noch ein LF
             serInp;
           endwhile;
@@ -1829,7 +1825,7 @@ begin
         serout('>');  // NEU: Prompt nach jedem Befehl
         SerInpStr:= '';
         |
-      #27:  // ESC --> Binärmodus starten, niemals auf EEPROM loslassen!
+      #27:  // ESC --> Binï¿½rmodus starten, niemals auf EEPROM loslassen!
         EEunlocked:= false;
         CmdSentByMidi:= false;
         CmdSentBySerial:= true;
@@ -1857,7 +1853,7 @@ function PA_RunSDscript(my_ini_filename: string[12]): Boolean;
 var script_found: Boolean; my_byte: Byte;
   bytes_read: word;
 begin
-  MenuIndex_Requested:= MenuIndex; // Anzeige zurücksetzen wenn beendet
+  MenuIndex_Requested:= MenuIndex; // Anzeige zurï¿½cksetzen wenn beendet
   if not SD_ForceCheck then
     return(false);
   endif;
@@ -1865,7 +1861,7 @@ begin
   ConfErr:= false;
   SD_TextFile_open:= false;
   if F16_FileExist('\', my_ini_filename, faFilesOnly) then
-    Writeln(Serout, '/ (PA) Executing "' + my_ini_filename + '"');
+    Writeln(Serout, '/ (PA) Executing: ' + my_ini_filename);
 {$IFNDEF MODULE}
     if LCDpresent then
       LCDclr_M(LCD_m1);
@@ -1877,13 +1873,13 @@ begin
 {$ENDIF} // ALLINONE
 
     if F16_FileAssign(SD_TextFile, '', my_ini_filename) then
-      if F16_FileReset(SD_TextFile) then  // Datei zum Lesen öffnen
+      if F16_FileReset(SD_TextFile) then  // Datei zum Lesen ï¿½ffnen
         SD_TextFile_open:= true;
         script_found:= true;
         while not F16_EndOfFile(SD_TextFile) do  // read the entire file
           SerInpStr:= '';
           while not F16_EndOfFile(SD_TextFile) do
-            // Read(Ln) hat Fehler im Optimizer- deshalb hier über F16_BlockRead
+            // Read(Ln) hat Fehler im Optimizer- deshalb hier ï¿½ber F16_BlockRead
             // Read(SD_TextFile, my_byte);
             F16_BlockRead(SD_TextFile, @my_byte, 1, bytes_read);
             // write(serout, BytetoHex(my_byte) + '-');
@@ -1913,8 +1909,8 @@ begin
       mdelay(25);
     endif;
 
-    // Falls Firmware-Update erwünscht, wird nach Flashen des AVR jetzt
-    // ein Reset ausgeführt.
+    // Falls Firmware-Update erwï¿½nscht, wird nach Flashen des AVR jetzt
+    // ein Reset ausgefï¿½hrt.
     // Die Datei wird also noch nicht wie folgt umbenannt
     // und EE_skip_flashload nicht auf FALSE gesetzt.
     SerInpStr:= '';
@@ -1923,7 +1919,7 @@ begin
   else
     edit_CardSetup:= 0;
     WriteSerError;
-    Writeln(Serout, '(PA) File "' + my_ini_filename + '" not found');
+    Writeln(Serout, '(PA) File ' + my_ini_filename + s_err_notfound);
   endif;
   return(script_found);
 end;

@@ -427,13 +427,15 @@ begin
   FPGA_PROG:= FPGA_DONE;
 
   if FPGA_DONE then
-    ReceiveFPGA(3);  // FPGA-Datum lesen
+    ReceiveFPGA(3);  // FPGA-Datum lesen, DD MM YYYY
     Boardinfo.FPGAversion:= FPGAreceiveLong;
-    // BCD-kodiertes Erstellungsdatum umsortieren
-    FPGAyear0:= FPGAreceiveLong0; // in FPGAdate!
-    FPGAyear1:= FPGAreceiveLong1;
-    FPGAmonth:= FPGAreceiveLong2;
-    FPGAday:=   FPGAreceiveLong3;
+    // BCD-kodiertes Erstellungsdatum in YYYY MM DD umsortieren, wie c_min_date = $20240424: 
+    FPGAsendLong3:= FPGAreceiveLong1; // in FPGAdate!
+    FPGAsendLong2:= FPGAreceiveLong0;
+    FPGAsendLong1:= FPGAreceiveLong2;
+    FPGAsendLong0:= FPGAreceiveLong3;
+    Boardinfo.FPGAdate:= FPGAsendLong; // umsortiertes Datum in Boardinfo
+
 {$IFDEF DEBUG_MSG}
     write(serout, '/ (FI) FPGA: #');
     writeln(serout, LongToHex(FPGAreceiveLong));

@@ -6,7 +6,7 @@ DESC=c:\program files (x86)\avrco\avrco\PMEGA1284P.dsc
 [Status]
 Compile=true
 Assemble=true
-FuncCount=489
+FuncCount=485
 
 [SPECS]
 clock=16000000
@@ -37,28 +37,28 @@ flags=6
 Base=896
 
 [Entries]
-Library=$01AEE4
-MainEntry=54491
-UnitEntry=7636
+Library=$01A25E
+MainEntry=53298
+UnitEntry=7069
 BootEntry=0
 
 [-MAINENTRY]
-PC=$01AFE0
+PC=$01A35A
 
 [-I2CEXPSTAT]
-PC=$01B43E
+PC=$01A7B8
 
 [-I2CEXPOUTW]
-PC=$01B44A
+PC=$01A7C4
 
 [-I2CEXPOUTR]
-PC=$01B456
+PC=$01A7D0
 
 [-I2CEXPINP1]
-PC=$01B464
+PC=$01A7DE
 
 [-I2CEXPINP2]
-PC=$01B466
+PC=$01A7E0
 
 [Diverse]
 AppLeft=-4
@@ -517,79 +517,62 @@ Name=NB_CheckForLive
 Name=NB_ResetSpecialFlags
 
 [Func170]
-Name=NB_GetBytefromI2Cslave
-0=i2c_addr|00003h|0000Dh
-1=idx|00002h|0000Dh
-2=data|00000h|0800Dh
-
-[Func171]
-Name=NB_SendBytetoI2Cslave
-0=i2c_addr|00002h|0000Dh
-1=idx|00001h|0000Dh
-2=data|00000h|0000Dh
-
-[Func172]
-Name=NB_ManualDefaultsToI2Cslave
-0=manual|00001h|0000Dh
-1=i2c_addr|00000h|0000Dh
-
-[Func173]
 Name=NB_CheckDFUmsg
 
-[Func174]
+[Func171]
 Name=NB_CreateInverseCCarrays
 0=my_idx|00002h|00004h
 1=cc|00001h|0000Dh
 2=ch|00000h|0000Dh
 
-[Func175]
+[Func172]
 Name=NB_CCarrayFromDF
 0=cc_set|00000h|0000Dh
 
-[Func176]
+[Func173]
 Name=NB_init_edittable
 0=idx_w|00000h|0000Eh
 
-[Func177]
+[Func174]
 Name=NB_CreateInverseMenuArr
 0=my_param|00002h|00004h
 1=my_idx|00000h|00004h
 
-[Func178]
+[Func175]
 Name=NB_ValidateExtendedParams
 0=my_param|00002h|00004h
 1=my_idx|00001h|0000Dh
 2=my_mask|00000h|0000Dh
 
-[Func179]
+[Func176]
 Name=NB_LoadLeslieInits
 
-[Func180]
+[Func177]
 Name=NB_LoadPhasingSet
 0=my_phr_preset|00000h|0000Dh
 
-[Func181]
+[Func178]
 Name=NB_SerSendBlockArray
 0=len_w|00005h|0000Eh
 1=idx_w|00003h|0000Eh
 2=checksum|00001h|0000Eh
 3=retry|00000h|0000Dh
 
-[Func182]
+[Func179]
 Name=NB_SendBinaryHeader
 0=cmd|00003h|0000Dh
 1=param_num|00001h|00004h
 2=my_temp_crc|00000h|0000Dh
 
-[Func183]
+[Func180]
 Name=NB_BlockRcvMsg
 0=my_block|00000h|00004h
 
-[Func184]
+[Func181]
 Name=NB_WaitACK
 0=add_timeout|00000h|0000Dh
 
-[Func185]
+[Func182]
 Name=NB_SendBinaryBlock
 0=param_num|00009h|00004h
 1=len|00008h|0000Dh
@@ -601,7 +584,7 @@ Name=NB_SendBinaryBlock
 7=edit_idx|00001h|00004h
 8=done|00000h|00003h
 
-[Func186]
+[Func183]
 Name=NB_SendBinaryVal
 0=param_num|00005h|00004h
 1=value|00004h|0000Dh
@@ -610,78 +593,78 @@ Name=NB_SendBinaryVal
 4=cmd|00001h|0000Dh
 5=done|00000h|00003h
 
-[Func187]
+[Func184]
 Name=NB_SendBinaryAllOSCvals
 0=idx|00000h|0000Eh
 
-[Func188]
+[Func185]
 Name=NB_InitPCA9532_dim
 0=my_adr|00002h|0000Dh
 1=my_dim|00001h|0000Dh
 2=my_dim_2|00000h|0000Dh
 
-[Func189]
+[Func186]
 Name=NB_SetLEDdimmer
 0=my_dim|00000h|0000Dh
 
-[Func190]
+[Func187]
 Name=LCDOut_M_space
 
-[Func191]
+[Func188]
 Name=LCDout_Error
 
-[Func192]
+[Func189]
 Name=LCDsetBitfield
 
-[Func193]
+[Func190]
 Name=LCDsetBar
 
-[Func194]
+[Func191]
 Name=LCDset_LR_Arrows
 0=filled_arrows|00000h|00003h
 
-[Func195]
+[Func192]
 Name=DT_InitLCD
 
-[Func196]
+[Func193]
 Name=DT_ResetEncoderKnob
 
-[Func197]
+[Func194]
 Name=DT_GetMenuMax
 0=my_menu_index|00003h|0000Dh
 1=arr_idx|00001h|00004h
 2=max_val|00000h|0000Dh
 
-[Func198]
+[Func195]
 Name=DT_GetEncoderKnobDelta
 0=encoder_delta_temp|00001h|00004h
 1=max_val|00000h|0000Dh
 
-[Func199]
+[Func196]
 Name=DT_PanelButtonPressed
 0=my_delay|00000h|0000Eh
 
-[Func200]
+[Func197]
 Name=DT_MenuEntryValid
 0=menu_idx|00003h|0000Dh
 1=menu_valid|00002h|0000Ah
 2=my_mask|00001h|0000Dh
 3=my_organ_type_bit|00000h|0000Dh
 
-[Func201]
+[Func198]
 Name=DT_ResetMenuEnables
 
-[Func202]
+[Func199]
 Name=DT_GetMenuGroupLimits
 0=menu_idx|00004h|0000Dh
 1=first_menu|00002h|0800Dh
 2=last_menu|00000h|0800Dh
 
-[Func203]
+[Func200]
 Name=DT_GetMenuStatus
 0=my_menutype|00000h|0000Ah
 
-[Func204]
+[Func201]
 Name=DT_GetNextValidMenuIndex
 0=delta|00005h|0000Dh
 1=search_index|00004h|0000Dh
@@ -690,67 +673,67 @@ Name=DT_GetNextValidMenuIndex
 4=valid|00001h|0000Ah
 5=is_on_limit|00000h|00003h
 
-[Func205]
+[Func202]
 Name=DT_SetUpDownArrows
 
-[Func206]
+[Func203]
 Name=DT_LeftArrowClrEol
 
-[Func207]
+[Func204]
 Name=DT_GetButtonDelta
 
-[Func208]
+[Func205]
 Name=DisplayHeader
 0=my_str|00000h|0303Ch
 
-[Func209]
+[Func206]
 Name=DisplayHeaderIndexed
 0=my_idx|00000h|0000Dh
 
-[Func210]
+[Func207]
 Name=DisplayBottom
 0=my_str|00000h|0303Ch
 
-[Func211]
+[Func208]
 Name=DisplayOnOff
 0=my_bool|00000h|00003h
 
-[Func212]
+[Func209]
 Name=msg_savedest
 0=my_dest|00000h|0000Ch
 
-[Func213]
+[Func210]
 Name=DT_MsgToPreset
 0=my_dest|00000h|0000Ch
 
-[Func214]
+[Func211]
 Name=DT_MsgSaveDone
 0=my_dest|00000h|0000Ch
 
-[Func215]
+[Func212]
 Name=DT_MsgSaveDoneBlink
 0=my_dest|00000h|0000Ch
 
-[Func216]
+[Func213]
 Name=DT_Init
 
-[Func217]
+[Func214]
 Name=sd_missing_msg
 
-[Func218]
+[Func215]
 Name=SD_ForceCheck
 
-[Func219]
+[Func216]
 Name=SD_SilentInit
 
-[Func220]
+[Func217]
 Name=SD_GetDir
 0=file_mask|00057h|0303Ch
 1=list_files|00056h|00003h
 2=my_searchRec|00001h|00008h
 3=number_of_Files|00000h|0000Dh
 
-[Func221]
+[Func218]
 Name=SD_FlashBinFile
 0=startblock|0001Dh|0000Eh
 1=my_BinFileName|0000Dh|0303Ch
@@ -761,44 +744,44 @@ Name=SD_FlashBinFile
 6=block_count|00001h|0000Eh
 7=my_err|00000h|0000Ah
 
-[Func222]
+[Func219]
 Name=SD_LoadAndFlashStandardCCsets
 0=my_err|00001h|0000Ah
 1=file_idx|00000h|0000Dh
 
-[Func223]
+[Func220]
 Name=SD_LoadAndFlashCustomCCsets
 0=my_err|00001h|0000Ah
 1=file_idx|00000h|0000Dh
 
-[Func224]
+[Func221]
 Name=SD_LoadAndFlashWavesets
 0=my_err|00003h|0000Ah
 1=file_idx|00002h|0000Dh
 2=block_offs|00000h|0000Eh
 
-[Func225]
+[Func222]
 Name=SD_LoadAndFlashTaperings
 0=my_err|00001h|0000Ah
 1=file_idx|00000h|0000Dh
 
-[Func226]
+[Func223]
 Name=SD_LoadAndFlashAllBinCores
 0=upd_cores|00003h|00003h
 1=upd_firmware|00002h|00003h
 2=is_ok|00001h|00003h
 3=overwrite_eeprom|00000h|00003h
 
-[Func227]
+[Func224]
 Name=MIDI_SendSustainSostEnable
 
-[Func228]
+[Func225]
 Name=MIDI_ResetGMprogs
 
-[Func229]
+[Func226]
 Name=MIDI_RequestAllGMnames
 
-[Func230]
+[Func227]
 Name=MIDI_SendIndexedController
 0=idx|00007h|0000Eh
 1=scaled_val|00006h|0000Dh
@@ -809,104 +792,104 @@ Name=MIDI_SendIndexedController
 6=cc_max|00001h|0000Dh
 7=arr_idx|00000h|0000Dh
 
-[Func231]
+[Func228]
 Name=MIDI_SendAllOSCvals
 0=my_val|00002h|0000Dh
 1=idx|00000h|0000Eh
 
-[Func232]
+[Func229]
 Name=MIDI_SendNRPN
 0=my_nrpn|00001h|00004h
 1=my_val|00000h|0000Dh
 
-[Func233]
+[Func230]
 Name=MIDI_SendSysExParam
 0=my_param|00002h|00004h
 1=my_val|00000h|00004h
 
-[Func234]
+[Func231]
 Name=MIDI_SendSysExParamList
 0=start_param|00004h|00004h
 1=count|00002h|00004h
 2=param_idx|00000h|00004h
 
-[Func235]
+[Func232]
 Name=MIDI_SendSysEx_header
 
-[Func236]
+[Func233]
 Name=MIDI_SendSysEx_header_ID
 0=my_cmd_id|00000h|0000Dh
 
-[Func237]
+[Func234]
 Name=MIDI_SendSysEx_end
 
-[Func238]
+[Func235]
 Name=MIDI_SendByte
 0=my_byte|00001h|0000Dh
 1=buffer_full|00000h|00003h
 
-[Func239]
+[Func236]
 Name=MIDI_SendChar
 0=my_char|00000h|0000Ch
 
-[Func240]
+[Func237]
 Name=MIDI_SendController
 0=my_channel_offset|00002h|0000Dh
 1=my_ctrl|00001h|0000Dh
 2=my_val|00000h|0000Dh
 
-[Func241]
+[Func238]
 Name=MIDI_SendPitchwheel
 0=my_channel_offset|00001h|0000Dh
 1=my_val|00000h|0000Dh
 
-[Func242]
+[Func239]
 Name=MIDI_SendBoolean
 0=my_channel_offset|00002h|0000Dh
 1=my_ctrl|00001h|0000Dh
 2=my_bool|00000h|00003h
 
-[Func243]
+[Func240]
 Name=MIDI_SendProgramChange
 0=my_channel_offset|00001h|0000Dh
 1=my_val|00000h|0000Dh
 
-[Func244]
+[Func241]
 Name=MIDI_SendChangedSwell
 0=my_val|00000h|0000Dh
 
-[Func245]
+[Func242]
 Name=MIDI_SendVent
 
-[Func246]
+[Func243]
 Name=MIDI_send_7plus1_bytes
 0=my_buf_adr|00003h|08004h
 1=checksum|00001h|0800Dh
 2=msbits|00000h|0000Dh
 
-[Func247]
+[Func244]
 Name=MIDI_14_to_int
 0=msb|00001h|0000Dh
 1=lsb|00000h|0000Dh
 
-[Func248]
+[Func245]
 Name=MIDI_SendInt
 0=my_int|00002h|00004h
 1=msb|00001h|0000Dh
 2=lsb|00000h|0000Dh
 
-[Func249]
+[Func246]
 Name=FH_SendFIRToFPGA
 0=rotary_model|00002h|0000Dh
 1=idx|00000h|0000Eh
 
-[Func250]
+[Func247]
 Name=FH_SendLeslieInitsToFPGA
 
-[Func251]
+[Func248]
 Name=FH_SendReverbTabs
 
-[Func252]
+[Func249]
 Name=drawbars_to_lc
 0=db_array|00009h|0803Dh
 1=manual|00008h|0000Dh
@@ -918,10 +901,10 @@ Name=drawbars_to_lc
 7=is_eg_adsr|00001h|00003h
 8=mute_db|00000h|00003h
 
-[Func253]
+[Func250]
 Name=bb_adsr_to_fpga
 
-[Func254]
+[Func251]
 Name=adsr_to_bb_adsr
 0=my_timefac|00012h|0000Dh
 1=decay_harm|00011h|0000Dh
@@ -939,13 +922,13 @@ Name=adsr_to_bb_adsr
 13=decay_int|00002h|00004h
 14=release_int|00000h|00004h
 
-[Func255]
+[Func252]
 Name=harp_sustain_to_bb_adsr
 
-[Func256]
+[Func253]
 Name=FH_UpperDrawbarsToFPGA
 
-[Func257]
+[Func254]
 Name=mixtures_to_ena_byte
 0=to_adsr_bits|00004h|0000Dh
 1=my_fac_10|00003h|0000Dh
@@ -953,30 +936,30 @@ Name=mixtures_to_ena_byte
 3=my_fac_12|00001h|0000Dh
 4=temp|00000h|0000Dh
 
-[Func258]
+[Func255]
 Name=drawbar_ena_to_busbar_ena
 0=drawbar_ena|00002h|0000Eh
 1=temp_word|00000h|0000Eh
 
-[Func259]
+[Func256]
 Name=FH_RouteOrgan
 
-[Func260]
+[Func257]
 Name=FH_PercOnOff
 
-[Func261]
+[Func258]
 Name=FH_UpperRoutingToFPGA
 0=idx|00001h|0000Dh
 1=cancel_1|00000h|00003h
 
-[Func262]
+[Func259]
 Name=FH_PercussionParamsToFPGA
 0=my_lvl|00005h|0000Eh
 1=my_timerval|00003h|0000Eh
 2=my_med_lvl|00001h|0000Eh
 3=ena_h100_perc|00000h|00003h
 
-[Func263]
+[Func260]
 Name=scaled_lwrped_adsr_to_lc
 0=adsr_arr|00007h|0803Dh
 1=full_adsr|00005h|0000Eh
@@ -986,28 +969,28 @@ Name=scaled_lwrped_adsr_to_lc
 5=sustain_val|00001h|0000Dh
 6=release_val|00000h|0000Dh
 
-[Func264]
+[Func261]
 Name=FH_LowerDrawbarsToFPGA
 0=my_word|00000h|0000Eh
 
-[Func265]
+[Func262]
 Name=convert_pedal2
 0=my_dbval|00000h|0000Dh
 
-[Func266]
+[Func263]
 Name=convert_pedal4
 
-[Func267]
+[Func264]
 Name=FH_PedalDrawbarsToFPGA
 
-[Func268]
+[Func265]
 Name=FH_InsertsToFPGA
 0=ena_dac_swap|00000h|00003h
 
-[Func269]
+[Func266]
 Name=FH_SplitConfigToFPGA
 
-[Func270]
+[Func267]
 Name=FH_CreateDynTable
 0=mindyn|00008h|0000Dh
 1=slope|00007h|0000Dh
@@ -1016,73 +999,73 @@ Name=FH_CreateDynTable
 4=divi|00001h|00004h
 5=t|00000h|0000Dh
 
-[Func271]
+[Func268]
 Name=FH_OrganParamsToFPGA
 
-[Func272]
+[Func269]
 Name=FH_LicenceToFPGA
 
-[Func273]
+[Func270]
 Name=FH_WaveBlocksToFPGA
 0=idx_b|00002h|0000Dh
 1=waveset_block|00000h|0000Eh
 
-[Func274]
+[Func271]
 Name=FH_KeymapToFPGA64
 0=my_startnote|00004h|0000Dh
 1=my_generator_size|00002h|0800Dh
 2=do_high_foldback|00000h|08003h
 
-[Func275]
+[Func272]
 Name=FH_KeymapToFPGA
 0=busbar|00000h|0000Dh
 
-[Func276]
+[Func273]
 Name=FH_NoteHighpassFilterToFPGA64
 0=my_startnote|00002h|0000Dh
 1=my_generator_size|00000h|0800Dh
 
-[Func277]
+[Func274]
 Name=FH_NoteHighpassFilterToFPGA
 0=busbar|00000h|0000Dh
 
-[Func278]
+[Func275]
 Name=FH_TubeCurveToFPGA
 0=tube_set_a|00005h|0000Dh
 1=tube_set_b|00004h|0000Dh
 2=stepval|00002h|00004h
 3=slopeval|00000h|00004h
 
-[Func279]
+[Func276]
 Name=FH_TuningValsToFPGA
 0=my_random_limit|00002h|0000Eh
 1=my_random_word|00000h|0000Eh
 
-[Func280]
+[Func277]
 Name=FH_TaperingToFPGA
 0=taper_set|00001h|0000Dh
 1=fixed_taperval|00000h|0000Dh
 
-[Func281]
+[Func278]
 Name=FH_PhasingRotorToFPGA
 0=temp_level_w|00001h|0000Eh
 1=temp_level|00000h|0000Dh
 
-[Func282]
+[Func279]
 Name=FH_UpdatePHRspeed
 
-[Func283]
+[Func280]
 Name=FH_VibratoToFPGA
 0=my_fm|00001h|0000Dh
 1=my_am|00000h|0000Dh
 
-[Func284]
+[Func281]
 Name=FH_UpdateLeslieSpeed
 
-[Func285]
+[Func282]
 Name=FH_TestExtLicence
 
-[Func286]
+[Func283]
 Name=adc_to_table
 0=adc_chan|00009h|0000Dh
 1=adc_remap|00008h|0000Dh
@@ -1093,10 +1076,10 @@ Name=adc_to_table
 6=adc_raw_i|00001h|00004h
 7=my_active|00000h|00003h
 
-[Func287]
+[Func284]
 Name=adc_disable
 
-[Func288]
+[Func285]
 Name=ADC_ReadAll_24
 0=adc_chan|00004h|0000Dh
 1=adc_remap|00003h|0000Dh
@@ -1104,12 +1087,12 @@ Name=ADC_ReadAll_24
 3=table_offset_upper|00001h|0000Dh
 4=table_offset_lower|00000h|0000Dh
 
-[Func289]
+[Func286]
 Name=ADC_ReadAll_64
 0=adc_chan|00001h|0000Dh
 1=adc_remap|00000h|0000Dh
 
-[Func290]
+[Func287]
 Name=ADC_ChangeToRemap
 0=adc_chan|00008h|0000Dh
 1=adc_remap|00007h|0000Dh
@@ -1119,7 +1102,7 @@ Name=ADC_ChangeToRemap
 5=my_remap|00001h|0000Dh
 6=is_2nd_dbset_remap|00000h|00003h
 
-[Func291]
+[Func288]
 Name=ADC_ChangesToEdit
 0=adc_chan|00006h|0000Dh
 1=adc_remap|00005h|0000Dh
@@ -1128,60 +1111,60 @@ Name=ADC_ChangesToEdit
 4=log_pots|00002h|00003h
 5=adc_val|00000h|00004h
 
-[Func292]
+[Func289]
 Name=ADC_ReadSwell
 0=my_adc_new|00000h|00004h
 
-[Func293]
+[Func290]
 Name=adc_set_timer_range
 0=remapped_start|00003h|0000Dh
 1=remapped_end|00002h|0000Dh
 2=changed|00001h|00003h
 3=my_remap|00000h|0000Dh
 
-[Func294]
+[Func291]
 Name=ADC_ResetTimersAll
 
-[Func295]
+[Func292]
 Name=ADC_ResetTimersUpper
 
-[Func296]
+[Func293]
 Name=ADC_ResetTimersLower
 
-[Func297]
+[Func294]
 Name=ADC_ResetTimersPedal
 
-[Func298]
+[Func295]
 Name=ADC_ChangeStateAll
 0=my_state|00000h|00003h
 
-[Func299]
+[Func296]
 Name=ADC_SetChangedUpper
 
-[Func300]
+[Func297]
 Name=ADC_SetChangedLower
 
-[Func301]
+[Func298]
 Name=ADC_SetChangedPedal
 
-[Func302]
+[Func299]
 Name=ADC_SetRemapTable
 0=my_idx|00001h|0000Dh
 1=my_val|00000h|0000Dh
 
-[Func303]
+[Func300]
 Name=ADC_Init
 
-[Func304]
+[Func301]
 Name=SR_LoadSpeakerModel
 0=leslie|00001h|0000Dh
 1=result|00000h|00003h
 
-[Func305]
+[Func302]
 Name=SR_StoreSpeakerModel
 0=leslie|00000h|0000Dh
 
-[Func306]
+[Func303]
 Name=SR_LoadOrganModel
 0=organ|0000Ah|0000Dh
 1=temp_tuning|00009h|0000Dh
@@ -1193,11 +1176,11 @@ Name=SR_LoadOrganModel
 7=save_dest|00001h|0000Dh
 8=control_type|00000h|0000Dh
 
-[Func307]
+[Func304]
 Name=SR_StoreOrganModel
 0=organ|00000h|0000Dh
 
-[Func308]
+[Func305]
 Name=LoadPresetFromBlockBuffer
 0=struct_version|0000Ah|0000Dh
 1=my_result|00009h|00003h
@@ -1209,68 +1192,68 @@ Name=LoadPresetFromBlockBuffer
 7=restore_mask|00001h|0000Dh
 8=blockarr_val|00000h|0000Dh
 
-[Func309]
+[Func306]
 Name=SR_PresetTempToLive
 0=my_idx|00000h|00004h
 
-[Func310]
+[Func307]
 Name=SR_PresetLiveToTemp
 
-[Func311]
+[Func308]
 Name=SaveEditDefaultsToEEPROM
 0=my_idx|00000h|00004h
 
-[Func312]
+[Func309]
 Name=InitCommonPresets
 0=my_idx|00000h|0000Eh
 
-[Func313]
+[Func310]
 Name=SaveCommonPreset
 0=new_index|00000h|0800Dh
 
-[Func314]
+[Func311]
 Name=SR_UpperTempToLive
 
-[Func315]
+[Func312]
 Name=SR_UpperLiveToTemp
 
-[Func316]
+[Func313]
 Name=SR_LowerTempToLive
 
-[Func317]
+[Func314]
 Name=SR_LowerLiveToTemp
 
-[Func318]
+[Func315]
 Name=SR_PedalTempToLive
 
-[Func319]
+[Func316]
 Name=SR_PedalLiveToTemp
 
-[Func320]
+[Func317]
 Name=LoadUpperVoice
 0=new_index|00000h|0000Dh
 
-[Func321]
+[Func318]
 Name=LoadLowerVoice
 0=new_index|00000h|0000Dh
 
-[Func322]
+[Func319]
 Name=LoadPedalVoice
 0=new_index|00000h|0000Dh
 
-[Func323]
+[Func320]
 Name=LoadDrawbarDefaults
 
-[Func324]
+[Func321]
 Name=SaveUpperVoice
 
-[Func325]
+[Func322]
 Name=SaveLowerVoice
 
-[Func326]
+[Func323]
 Name=SavePedalVoice
 
-[Func327]
+[Func324]
 Name=xb2_UpdateLEDs
 0=temp_word|00007h|0000Eh
 1=temp_word_0|00007h|0000Dh
@@ -1283,29 +1266,29 @@ Name=xb2_UpdateLEDs
 8=blink_bits_dark_on|00001h|0000Dh
 9=blink_bits_off_dark|00000h|0000Dh
 
-[Func328]
+[Func325]
 Name=xb2_RemapSetBtn
 0=xb2_remap_idx|00002h|0000Dh
 1=new_state|00001h|00003h
 2=tab_remap|00000h|0000Dh
 
-[Func329]
+[Func326]
 Name=xb2_BtnPressedEvent
 0=btn|00003h|0000Dh
 1=new_state|00002h|00003h
 2=tab_remap|00001h|0000Dh
 3=old_split_on|00000h|00003h
 
-[Func330]
+[Func327]
 Name=xb2_BtnReleasedEvent
 0=btn|00000h|0000Dh
 
-[Func331]
+[Func328]
 Name=xb2_CheckPresetTimeout
 0=btn|00002h|0000Dh
 1=temp_word|00000h|0000Eh
 
-[Func332]
+[Func329]
 Name=SWI_HandleXB2panel
 0=i2c_data|00008h|0000Dh
 1=btn|00007h|0000Dh
@@ -1316,14 +1299,14 @@ Name=SWI_HandleXB2panel
 6=old_split_on|00002h|00003h
 7=temp_word|00000h|0000Eh
 
-[Func333]
+[Func330]
 Name=swi_search_group
 0=btn_type|00005h|0000Dh
 1=start_btn|00003h|0800Dh
 2=end_btn|00001h|0800Dh
 3=found_btn|00000h|00003h
 
-[Func334]
+[Func331]
 Name=swi_CollectBinaryPresetButtons
 0=map_idx|00005h|0000Dh
 1=preset_nr|00004h|0000Dh
@@ -1332,7 +1315,7 @@ Name=swi_CollectBinaryPresetButtons
 4=adder|00001h|0000Dh
 5=btn_state_collected|00000h|00003h
 
-[Func335]
+[Func332]
 Name=swi_set_simple_PresetLEDs
 0=first_btn|00004h|0000Dh
 1=btn_count|00003h|0000Dh
@@ -1340,21 +1323,21 @@ Name=swi_set_simple_PresetLEDs
 3=invalid|00001h|00003h
 4=led_state|00000h|0000Dh
 
-[Func336]
+[Func333]
 Name=swi_set_organ_PresetLEDs
 0=first_btn|00003h|0000Dh
 1=btn_count|00002h|0000Dh
 2=led_number|00001h|0000Dh
 3=model_idx|00000h|0000Dh
 
-[Func337]
+[Func334]
 Name=swi_set_speaker_PresetLEDs
 0=first_btn|00003h|0000Dh
 1=btn_count|00002h|0000Dh
 2=led_number|00001h|0000Dh
 3=model_idx|00000h|0000Dh
 
-[Func338]
+[Func335]
 Name=swi_set_binary_PresetLEDs
 0=first_btn|00004h|0000Dh
 1=btn_count|00003h|0000Dh
@@ -1362,21 +1345,21 @@ Name=swi_set_binary_PresetLEDs
 3=invalid|00001h|00003h
 4=led_state|00000h|0000Dh
 
-[Func339]
+[Func336]
 Name=swi_set_PresetLEDs
 0=first_btn|00003h|0000Dh
 1=btn_count|00002h|0000Dh
 2=led_bits|00001h|0000Dh
 3=btn_type_idx|00000h|0000Dh
 
-[Func340]
+[Func337]
 Name=swi_get_TabLED_bits
 0=btn_idx|00003h|0000Dh
 1=xb2_mode|00002h|00003h
 2=dim_bits|00001h|0000Dh
 3=btn_remap|00000h|0000Dh
 
-[Func341]
+[Func338]
 Name=swi_setLEDs_getInPort
 0=panel_nr|0000Bh|0000Dh
 1=btn|0000Ah|0000Dh
@@ -1392,7 +1375,7 @@ Name=swi_setLEDs_getInPort
 11=temp_word_1|00002h|0000Dh
 12=swap_rows|00000h|00003h
 
-[Func342]
+[Func339]
 Name=swi_BtnPressedEvent
 0=panel_nr|00005h|0000Dh
 1=btn_idx|00004h|0000Dh
@@ -1401,7 +1384,7 @@ Name=swi_BtnPressedEvent
 4=tab_state|00001h|00003h
 5=old_split_on|00000h|00003h
 
-[Func343]
+[Func340]
 Name=swi_BtnReleasedEvent
 0=panel_nr|00005h|0000Dh
 1=btn|00004h|0000Dh
@@ -1410,21 +1393,21 @@ Name=swi_BtnReleasedEvent
 4=first_preset_btn|00001h|0000Dh
 5=preset_nr|00000h|0000Dh
 
-[Func344]
+[Func341]
 Name=swi_voice_released
 0=btn_remap|00003h|0000Dh
 1=voice_idx|00002h|0000Dh
 2=panel_nr|00001h|0000Dh
 3=preset_temp|00000h|0000Dh
 
-[Func345]
+[Func342]
 Name=swi_PanelAllBtnsReleasedEvent
 0=panel_nr|00003h|0000Dh
 1=last_btn_released|00002h|0000Dh
 2=btn_remap|00001h|0000Dh
 3=preset_temp|00000h|0000Dh
 
-[Func346]
+[Func343]
 Name=swi_SwitchChangedEvent
 0=panel_nr|00004h|0000Dh
 1=btn_idx|00003h|0000Dh
@@ -1432,7 +1415,7 @@ Name=swi_SwitchChangedEvent
 3=btn_remap|00001h|0000Dh
 4=old_split_on|00000h|00003h
 
-[Func347]
+[Func344]
 Name=swi_CheckPresetTimeout
 0=panel_nr|0000Ah|0000Dh
 1=btn_idx|00009h|0000Dh
@@ -1443,7 +1426,7 @@ Name=swi_CheckPresetTimeout
 6=i2c_addr|00004h|0000Dh
 7=temp_leds|00000h|0000Fh
 
-[Func348]
+[Func345]
 Name=swi_HandlePanel
 0=panel_nr|0000Dh|0000Dh
 1=force_sw_reload|0000Ch|00003h
@@ -1458,45 +1441,45 @@ Name=swi_HandlePanel
 10=any_btn_on|00001h|00003h
 11=any_btn_on_old|00000h|00003h
 
-[Func349]
+[Func346]
 Name=SWI_ForceSwitchReload
 0=panel_nr|00000h|0000Dh
 
-[Func350]
+[Func347]
 Name=SWI_GetPanel16
 0=panel_nr|00000h|0000Dh
 
-[Func351]
+[Func348]
 Name=SWI_PresetLoadOrDisplayToggle
 0=preset_nr|00000h|0000Dh
 
-[Func352]
+[Func349]
 Name=SWI_MessagePanel
 0=panel_nr|00000h|0000Dh
 
-[Func353]
+[Func350]
 Name=SWI_InitButtons
 0=start_btn|00003h|0000Dh
 1=end_btn|00002h|0000Dh
 2=btn_type_idx|00001h|0000Dh
 3=btn_cancel|00000h|0000Dh
 
-[Func354]
+[Func351]
 Name=SWI_GetSwitchVibrato
 0=vib_port|00001h|0000Dh
 1=result|00000h|0000Dh
 
-[Func355]
+[Func352]
 Name=SWI_GetSwitchVibratoChange
 0=vibknob|00000h|0000Dh
 
-[Func356]
+[Func353]
 Name=SWI_Init
 
-[Func357]
+[Func354]
 Name=AC_SendPresetName
 
-[Func358]
+[Func355]
 Name=AC_sendmsg
 0=idx|00006h|0000Eh
 1=event_source|00005h|0000Dh
@@ -1505,152 +1488,152 @@ Name=AC_sendmsg
 4=hammond_db_val|00001h|0000Dh
 5=new_val|00000h|0000Dh
 
-[Func359]
+[Func356]
 Name=ac_detent_shift
 0=my_val|00005h|0000Dh
 1=detent_shift|00004h|0000Dh
 2=diff_i|00002h|00004h
 3=val_i|00000h|00004h
 
-[Func360]
+[Func357]
 Name=AC_SetLEDdimmer
 
-[Func361]
+[Func358]
 Name=AC_SendGating
 
-[Func362]
+[Func359]
 Name=AC_OrganParamsToFPGA
 
-[Func363]
+[Func360]
 Name=AC_PhasingRotorToFPGA
 
-[Func364]
+[Func361]
 Name=AC_SplitConfigToFPGA
 
-[Func365]
+[Func362]
 Name=AC_WaveBlocksToFPGA
 
-[Func366]
+[Func363]
 Name=AC_SendUpperDBs
 
-[Func367]
+[Func364]
 Name=AC_SendLowerDBs
 
-[Func368]
+[Func365]
 Name=AC_SendPedalDBs
 
-[Func369]
+[Func366]
 Name=AC_SendConvertedPedalDBs
 
-[Func370]
+[Func367]
 Name=AC_RouteDirect
 
-[Func371]
+[Func368]
 Name=AC_RouteOrgan
 
-[Func372]
+[Func369]
 Name=AC_SendTaper
 
-[Func373]
+[Func370]
 Name=AC_SendTuningVals
 
-[Func374]
+[Func371]
 Name=AC_VibratoToFPGA
 
-[Func375]
+[Func372]
 Name=AC_HandleVibknob
 0=edit_idx|00000h|00004h
 
-[Func376]
+[Func373]
 Name=AC_HandleVibButtons
 
-[Func377]
+[Func374]
 Name=AC_HandleReverbKnob
 
-[Func378]
+[Func375]
 Name=AC_HandleReverbButtons
 
-[Func379]
+[Func376]
 Name=AC_SendReverb
 
-[Func380]
+[Func377]
 Name=AC_HandlePercKnob
 0=edit_idx|00000h|0000Eh
 
-[Func381]
+[Func378]
 Name=AC_HandlePercButtons
 
-[Func382]
+[Func379]
 Name=AC_SendPercOnOff
 
-[Func383]
+[Func380]
 Name=AC_SendPercValues
 
-[Func384]
+[Func381]
 Name=AC_HandleGatingknob
 
-[Func385]
+[Func382]
 Name=AC_HandleGatingButtons
 
-[Func386]
+[Func383]
 Name=AC_SendInserts
 
-[Func387]
+[Func384]
 Name=AC_SendRotarySpeed
 0=my_bool|00000h|00003h
 
-[Func388]
+[Func385]
 Name=AC_SendMIDIccSet
 
-[Func389]
+[Func386]
 Name=AC_SetDetent
 
-[Func390]
+[Func387]
 Name=AC_SendGM2ena
 
-[Func391]
+[Func388]
 Name=AC_SendGMprgRequestDisplay
 0=idx|00001h|00004h
 1=gm_prg|00000h|0000Dh
 
-[Func392]
+[Func389]
 Name=AC_SendGMvoiceUpper0
 
-[Func393]
+[Func390]
 Name=AC_SendGMvoiceUpper1
 
-[Func394]
+[Func391]
 Name=AC_SendGMupperLvl
 
-[Func395]
+[Func392]
 Name=AC_SendGMvoiceLower0
 
-[Func396]
+[Func393]
 Name=AC_SendGMvoiceLower1
 
-[Func397]
+[Func394]
 Name=AC_SendGMlowerLvl
 
-[Func398]
+[Func395]
 Name=AC_SendGMvoicePedal0
 
-[Func399]
+[Func396]
 Name=AC_SendGMvoicePedal1
 
-[Func400]
+[Func397]
 Name=AC_SendGMpedalLvl
 
-[Func401]
+[Func398]
 Name=AC_SendVolumes
 
-[Func402]
+[Func399]
 Name=AC_SendTrimPots
 0=temp_vol|00000h|0000Dh
 
-[Func403]
+[Func400]
 Name=AC_SendMasterVolume
 
-[Func404]
+[Func401]
 Name=AC_SendSwell
 0=swell_raw255|0000Fh|0000Dh
 1=swell_raw128|0000Eh|0000Dh
@@ -1669,71 +1652,71 @@ Name=AC_SendSwell
 14=swell_final_response|00001h|0000Dh
 15=swell_changed|00000h|00003h
 
-[Func405]
+[Func402]
 Name=AC_SendLeslieLiveParams
 0=my_val|00001h|0000Dh
 1=my_spread_angle|00000h|0000Dh
 
-[Func406]
+[Func403]
 Name=AC_HandleVoiceChangeUpper
 0=was_live|00000h|00003h
 
-[Func407]
+[Func404]
 Name=AC_HandleVoiceChangeLower
 0=was_live|00000h|00003h
 
-[Func408]
+[Func405]
 Name=AC_HandleVoiceChangePedal
 0=was_live|00001h|00003h
 1=is_live|00000h|00003h
 
-[Func409]
+[Func406]
 Name=AC_SendPHRprgm
 0=my_phrset|00000h|0000Dh
 
-[Func410]
+[Func407]
 Name=AC_LoadOrganModel
 
-[Func411]
+[Func408]
 Name=AC_LoadSpeakerModel
 
-[Func412]
+[Func409]
 Name=send_osc_colors
 0=idx|00000h|00004h
 
-[Func413]
+[Func410]
 Name=ac_incDecParam
 0=edit_idx|00003h|0000Eh
 1=do_inc|00002h|00003h
 2=do_limit|00001h|00003h
 3=event_source|00000h|0000Dh
 
-[Func414]
+[Func411]
 Name=AC_IncDecGMprogs
 0=gm_btn_offset|00001h|0000Dh
 1=event_source|00000h|0000Dh
 
-[Func415]
+[Func412]
 Name=AC_IncDecControls
 0=event_source|00003h|0000Dh
 1=my_idx|00002h|0000Dh
 2=edit_idx|00000h|0000Eh
 
-[Func416]
+[Func413]
 Name=AC_IncDecControlsTimerElapsed
 
-[Func417]
+[Func414]
 Name=ac_send_converted_vibbtns
 0=event_source|00000h|0000Dh
 
-[Func418]
+[Func415]
 Name=ac_reset_vibtabs_flags
 0=a_bool|00000h|00003h
 
-[Func419]
+[Func416]
 Name=AC_HandlePresetChange
 
-[Func420]
+[Func417]
 Name=AC_MutualControls
 0=any_change|00007h|00003h
 1=resend_osc_colors|00006h|00003h
@@ -1744,34 +1727,30 @@ Name=AC_MutualControls
 6=temp_flag|00001h|0000Dh
 7=idx_b|00000h|0000Dh
 
-[Func421]
+[Func418]
 Name=AC_ExecEditChanges
 0=event_flags|00003h|0000Dh
 1=proc_idx|00002h|0000Dh
 2=run_proc|00000h|00010h
 
-[Func422]
+[Func419]
 Name=START_LoadFromEEPROM
 0=idx|00000h|00004h
 
-[Func423]
-Name=START_InitFatarScan76
-0=my_result|00000h|0000Dh
-
-[Func424]
+[Func420]
 Name=START_InitAll
 
-[Func425]
+[Func421]
 Name=START_ColdBoot
 0=my_word|00000h|0000Eh
 
-[Func426]
+[Func422]
 Name=ValueStrToValues
 
-[Func427]
+[Func423]
 Name=send_osc_store_led
 
-[Func428]
+[Func424]
 Name=PA_GetParamByte
 0=my_param|00008h|00004h
 1=my_result|00006h|0800Dh
@@ -1781,13 +1760,13 @@ Name=PA_GetParamByte
 5=my_index_10|00002h|0000Dh
 6=my_int|00000h|00004h
 
-[Func429]
+[Func425]
 Name=PA_GetParamString
 0=my_param|00003h|00004h
 1=my_index_100|00002h|0000Dh
 2=my_word|00000h|0000Eh
 
-[Func430]
+[Func426]
 Name=PA_NewEditEvent
 0=idx_i|00005h|0000Eh
 1=value|00004h|0000Dh
@@ -1796,13 +1775,13 @@ Name=PA_NewEditEvent
 4=my_bool|00001h|00003h
 5=val_ltd|00000h|0000Dh
 
-[Func431]
+[Func427]
 Name=pa_send_osc_store_led
 
-[Func432]
+[Func428]
 Name=pa_send_osc_store_led_off
 
-[Func433]
+[Func429]
 Name=PA_NewParamEvent
 0=my_param|0000Bh|00004h
 1=value|0000Ah|0000Dh
@@ -1815,7 +1794,7 @@ Name=PA_NewParamEvent
 8=my_word|00002h|0000Eh
 9=my_index_1000_i|00000h|0000Eh
 
-[Func434]
+[Func430]
 Name=PA_SetParam
 0=my_param|00008h|00004h
 1=verbose|00007h|00003h
@@ -1825,17 +1804,17 @@ Name=PA_SetParam
 5=my_bool|00002h|00003h
 6=my_int|00000h|00004h
 
-[Func435]
+[Func431]
 Name=Cmd2Index
 0=myCmdIndex|00000h|0000Dh
 
-[Func436]
+[Func432]
 Name=ParseExtract
 0=nachGleich|00002h|00003h
 1=my_char|00001h|0000Ch
 2=myBool|00000h|00003h
 
-[Func437]
+[Func433]
 Name=PA_HandleCmdString
 0=GleichPos|00006h|0000Dh
 1=my_param|00004h|00004h
@@ -1843,7 +1822,7 @@ Name=PA_HandleCmdString
 3=isRequest|00001h|00003h
 4=verbose|00000h|00003h
 
-[Func438]
+[Func434]
 Name=PA_HandleBinary
 0=my_count|00007h|0000Dh
 1=my_temp_crc|00006h|0000Dh
@@ -1852,26 +1831,26 @@ Name=PA_HandleBinary
 4=my_idx|00001h|00004h
 5=sender|00000h|0000Ah
 
-[Func439]
+[Func435]
 Name=PA_CheckSer
 0=my_char|00000h|0000Ch
 
-[Func440]
+[Func436]
 Name=PA_RunSDscript
 0=my_ini_filename|00004h|0303Ch
 1=script_found|00003h|00003h
 2=my_byte|00002h|0000Dh
 3=bytes_read|00000h|0000Eh
 
-[Func441]
+[Func437]
 Name=MIDIset_CCdisplayRequest
 0=my_idx|00000h|00004h
 
-[Func442]
+[Func438]
 Name=MIDIset_CheckTransposeTuning
 0=my_param|00000h|00004h
 
-[Func443]
+[Func439]
 Name=MIDI_Setval
 0=my_param|0000Dh|00004h
 1=ch|0000Ch|0000Dh
@@ -1887,13 +1866,13 @@ Name=MIDI_Setval
 11=my_val|00001h|0000Dh
 12=my_pos|00000h|0000Dh
 
-[Func444]
+[Func440]
 Name=MIDI_setswell
 
-[Func445]
+[Func441]
 Name=PresetStoreRequest_off
 
-[Func446]
+[Func442]
 Name=MIDI_Dispatch_custom
 0=cc_min|00006h|0000Dh
 1=cc_max|00005h|0000Dh
@@ -1901,25 +1880,25 @@ Name=MIDI_Dispatch_custom
 3=my_param|00001h|00004h
 4=arr_idx|00000h|0000Dh
 
-[Func447]
+[Func443]
 Name=MIDI_Dispatch_none
 
-[Func448]
+[Func444]
 Name=MIDI_Dispatch_ni
 0=my_index|00002h|0000Dh
 1=my_param|00000h|00004h
 
-[Func449]
+[Func445]
 Name=MIDI_SendSysEx_blockbuf
 0=my_param|00005h|08004h
 1=my_count|00003h|08004h
 2=calc_cs|00002h|0000Dh
 3=my_adr|00000h|00004h
 
-[Func450]
+[Func446]
 Name=midi_set_sysex_mode
 
-[Func451]
+[Func447]
 Name=MIDI_DispatchSysEx
 0=my_param|0000Fh|00004h
 1=my_val|0000Dh|00004h
@@ -1935,136 +1914,136 @@ Name=MIDI_DispatchSysEx
 11=block_page_cs|00001h|0000Dh
 12=calc_cs|00000h|0000Dh
 
-[Func452]
+[Func448]
 Name=MIDI_GetSysEx_int
 0=my_idx|00004h|0800Dh
 1=my_val|00002h|08004h
 2=msb|00001h|0000Dh
 3=lsb|00000h|0000Dh
 
-[Func453]
+[Func449]
 Name=MIDI_SendSysEx_status
 
-[Func454]
+[Func450]
 Name=MIDI_SendSysEx_cmderr
 
-[Func455]
+[Func451]
 Name=MIDI_SendSysExParamStr
 0=header_id|00000h|0000Dh
 
-[Func456]
+[Func452]
 Name=MIDI_SendSysExSernum
 
-[Func457]
+[Func453]
 Name=MIDI_SysExReceived
 0=sysex_byte|00000h|0000Dh
 
-[Func458]
+[Func454]
 Name=MIDI_SetGenosActive
 0=ch_idx|00001h|0000Dh
 1=my_bool|00000h|00003h
 
-[Func459]
+[Func455]
 Name=MIDI_Dispatch
 0=mch_is_valid|00002h|00003h
 1=mch_idx|00001h|0000Dh
 2=midi_prog|00000h|0000Dh
 
-[Func460]
+[Func456]
 Name=MT_HandleGMnameRequests
 0=gm_idx|00001h|0000Dh
 1=temp_idx|00000h|0000Dh
 
-[Func461]
+[Func457]
 Name=MT_ScheduledTasks
 0=my_bool|00002h|00003h
 1=my_idx|00001h|0000Dh
 2=my_val|00000h|0000Dh
 
-[Func462]
+[Func458]
 Name=MainTasks
 
-[Func463]
+[Func459]
 Name=MainTasks_Init
 
-[Func464]
+[Func460]
 Name=lcd_number2
 0=my_number|00000h|0000Dh
 
-[Func465]
+[Func461]
 Name=menu_WaitPanelButtonsReleased
 
-[Func466]
+[Func462]
 Name=menu_PanelButtonTimeout
 0=timeout|00002h|0000Dh
 1=loopcount|00001h|0000Dh
 2=my_result|00000h|00003h
 
-[Func467]
+[Func463]
 Name=menu_GetSaveDestination
 0=my_menu_idx|00005h|0000Dh
 1=save_mask|00003h|0000Eh
 2=save_dest|00002h|0000Dh
 3=idx|00000h|00004h
 
-[Func468]
+[Func464]
 Name=disp_arrow_clreol
 
-[Func469]
+[Func465]
 Name=MenuOnOffArrow
 0=my_bool|00000h|00003h
 
-[Func470]
+[Func466]
 Name=MenuDispValueArrow
 0=my_val|00000h|0000Dh
 
-[Func471]
+[Func467]
 Name=MenuDispValZeroOffArrow
 0=my_val|00000h|0000Dh
 
-[Func472]
+[Func468]
 Name=MenuDispPercussion
 0=my_percmode|00000h|0000Dh
 
-[Func473]
+[Func469]
 Name=MenuDispVibrato
 0=vibon_upr|00002h|00003h
 1=vibon_lwr|00001h|00003h
 2=knob_pos|00000h|0000Dh
 
-[Func474]
+[Func470]
 Name=DrawbarNumberScale
 0=my_dbval|00000h|0000Dh
 
-[Func475]
+[Func471]
 Name=MenuDispValueBarArrow
 0=my_val|00001h|0000Dh
 1=my_temp|00000h|0000Dh
 
-[Func476]
+[Func472]
 Name=MenuDispListItemArrow
 0=my_ptr|00003h|00010h
 1=my_idx|00002h|0000Dh
 2=my_bool|00001h|00003h
 3=my_len|00000h|0000Dh
 
-[Func477]
+[Func473]
 Name=display_frequ
 0=edit_val|00005h|0000Dh
 1=shifts|00004h|0000Dh
 2=offset|00002h|0000Eh
 3=frequ|00000h|0000Eh
 
-[Func478]
+[Func474]
 Name=MainPresetDisplay
 0=my_menutype|00001h|0000Ah
 1=my_dbval|00000h|0000Dh
 
-[Func479]
+[Func475]
 Name=MenuDispChangedStar
 0=my_bool|00000h|00003h
 
-[Func480]
+[Func476]
 Name=ApplyDelta
 0=my_val|00006h|0800Dh
 1=my_min|00005h|0000Dh
@@ -2073,7 +2052,7 @@ Name=ApplyDelta
 4=my_encoder_val|00001h|00004h
 5=ovr_dir|00000h|0000Ah
 
-[Func481]
+[Func477]
 Name=EditPresetName
 0=char_idx|00014h|0000Dh
 1=delta|00013h|0000Dh
@@ -2081,7 +2060,7 @@ Name=EditPresetName
 3=temp_arr|00002h|0003Dh
 4=len|00000h|0000Eh
 
-[Func482]
+[Func478]
 Name=EditBitfield
 0=bitfield|00005h|0800Eh
 1=my_len|00004h|0000Dh
@@ -2090,7 +2069,7 @@ Name=EditBitfield
 4=all_white_btns|00001h|00003h
 5=my_bool|00000h|00003h
 
-[Func483]
+[Func479]
 Name=DoMenuChange
 0=delta|00013h|0000Dh
 1=change_menu_only|00012h|00003h
@@ -2108,35 +2087,35 @@ Name=DoMenuChange
 13=my_bitfield_temp|00001h|0000Eh
 14=my_save_dest_char|00000h|0000Ch
 
-[Func484]
+[Func480]
 Name=menu_RequestNewPresetNumber
 0=old_preset|00003h|0000Dh
 1=max_preset|00002h|0000Dh
 2=my_dest|00001h|0000Ch
 3=new_preset|00000h|0000Dh
 
-[Func485]
+[Func481]
 Name=menu_RequestNewModel
 0=old_preset|00003h|0000Dh
 1=my_dest|00002h|0000Ch
 2=new_preset|00001h|0000Dh
 3=limit|00000h|0000Dh
 
-[Func486]
+[Func482]
 Name=MenuEnterButton
 0=old_val|00004h|0000Dh
 1=my_save_dest_char|00003h|0000Ch
 2=my_idx|00001h|00004h
 3=menu_type|00000h|0000Ah
 
-[Func487]
+[Func483]
 Name=MenuPanelHandling
 0=my_ovr_dir|00000h|0000Ah
 
-[Func488]
+[Func484]
 Name=onSysTick
 
-[Func489]
+[Func485]
 Name=$_Main
 
 [PROCESSES]
@@ -2167,69 +2146,69 @@ const_def=
 UFAT16_32=
 
 [Project_Files]
-0=hx35_main_allinone|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\HX35_main.pas|1550617907
+0=hx35_main_allinone|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\HX35_main.pas|1550670090
 1=UFAT16_32|c:\program files (x86)\avrco\avrco\System\UFAT16_32.PCU|1301779963
 2=eeprom_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\eeprom_def.pas|1496410959
-3=const_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\const_def.pas|1550615091
-4=var_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\var_def.pas|1550614897
-5=nuts_and_bolts|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\nuts_and_bolts.pas|1464437516
+3=const_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\const_def.pas|1550671317
+4=var_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\var_def.pas|1550671186
+5=nuts_and_bolts|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\nuts_and_bolts.pas|1550668435
 6=port_def|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\port_def.pas|1446547797
 7=edit_changes|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\edit_changes.pas|1548503933
-8=fpga_if|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\fpga_if.pas|1550621421
-9=dataflash|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\dataflash.pas|1548658094
-10=startup|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\startup.pas|1492667209
-11=sd_card|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\sd_card.pas|1535277232
-12=display_toolbox|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\display_toolbox.pas|1550614178
-13=apply_changes|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\apply_changes.pas|1550471725
+8=fpga_if|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\fpga_if.pas|1550671187
+9=dataflash|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\dataflash.pas|1550668581
+10=startup|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\startup.pas|1550669688
+11=sd_card|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\sd_card.pas|1550669944
+12=display_toolbox|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\display_toolbox.pas|1550668282
+13=apply_changes|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\apply_changes.pas|1550671266
 14=MIDI_com|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_com.pas|1464437526
-15=fpga_hilevel|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\fpga_hilevel.pas|1550621540
-16=adc_touch_interface|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\adc_touch_interface.pas|1463583413
-17=save_restore|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\save_restore.pas|1464437504
+15=fpga_hilevel|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\fpga_hilevel.pas|1550669126
+16=adc_touch_interface|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\adc_touch_interface.pas|1550667819
+17=save_restore|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\save_restore.pas|1550668641
 18=switch_interface|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\switch_interface.pas|1463133465
 19=main_tasks|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\main_tasks.pas|1550472407
-20=parser|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\parser.pas|1550614373
-21=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\midi_sysex.pas|1548442892
+20=parser|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\parser.pas|1550670579
+21=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\midi_sysex.pas|1550671043
 22=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_Custom.pas|1466138482
 23=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_ni.pas|1548443930
 24=midi_sysex|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\MIDI_sempra.pas|1548503080
 25=menu_system|E:\DROPBOX\HOAX_35\HX3.5-FIRMWARE\AVRCO\menu_system.pas|1548502183
 
 [-SYSTICKENTRY]
-PC=$01AFE2
+PC=$01A35C
 
 [-SYSTICKEXIT]
-PC=$01B0C2
+PC=$01A43C
 
 [-LCDBUSY_RD]
-PC=$01B2C8
+PC=$01A642
 
 [-LCDCTRL_WR]
-PC=$01B2F2
+PC=$01A66C
 
 [-LCDOUT_M]
-PC=$01B2FE
+PC=$01A678
 
 [-I2CSTAT_M]
-PC=$01B312
+PC=$01A68C
 
 [-FAT16ENTER]
-PC=$01B6CE
+PC=$01AA48
 
 [-FAT16EXIT]
-PC=$01B722
+PC=$01AA9C
 
 [-Execute]
-off0=$01B822
-on0=$01B832
-off1=$01B838
-on1=$01B838
-off2=$01B852
-on2=$01B892
-off3=$01B8C0
-on3=$01B8E0
-off4=$01B8FA
-on4=$01B908
+off0=$01AB9C
+on0=$01ABAC
+off1=$01ABB2
+on1=$01ABB2
+off2=$01ABCC
+on2=$01AC0C
+off3=$01AC3A
+on3=$01AC5A
+off4=$01AC74
+on4=$01AC82
 
 [-DEBDELAY]
-PC=$01B94E
+PC=$01ACC8
 

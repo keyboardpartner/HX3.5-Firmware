@@ -1,5 +1,5 @@
 // #############################################################################
-// ###                       F Ü R   A L L E   B O A R D S                   ###
+// ###                       F ï¿½ R   A L L E   B O A R D S                   ###
 // #############################################################################
 // ###                       allg. VARIABLEN-Definitionen                    ###
 // #############################################################################
@@ -18,7 +18,7 @@ type
 
 var
 {$DATA}
-// schnelle temporäre Variablen
+// schnelle temporï¿½re Variablen
   h, i              : byte;  // h in HW-ADCProzess benutzt
   m, n              : byte;
 
@@ -33,7 +33,7 @@ var
 
   SysTickSema: Byte;
 
-  IRQ_Incr0, IRQ_Incr1, IRQ_Incr2: byte; // Für Dreh-Encoder, in Systick-IRQ benutzt
+  IRQ_Incr0, IRQ_Incr1, IRQ_Incr2: byte; // fÃ¼r Dreh-Encoder, in Systick-IRQ benutzt
   IRQ_Incr_delta, IRQ_Incr_acc: Int8;
   IRQ_EncoderTouched: boolean;
 {
@@ -54,21 +54,21 @@ var
   EditFieldIndex, EditFieldSize: Byte;
 
   MenuRefresh: Boolean;       // Wert neu anzeigen
-  MenuIndex_Requested: Byte;  // anzuzeigendes Menü wenn <> 255
+  MenuIndex_Requested: Byte;  // anzuzeigendes Menï¿½ wenn <> 255
   MenuIndex_Splash,
-  MenuIndex_SplashIfEnabled: Byte;  // kurz anzuzeigendes Menü wenn <> 255
+  MenuIndex_SplashIfEnabled: Byte;  // kurz anzuzeigendes Menï¿½ wenn <> 255
   MenuIndex, LastMainMenuIndex: Byte;
-  ValueChangeMode,    // Menü-Modus: Wechseln wenn FLASE oder Wert wenn TRUE
+  ValueChangeMode,    // Menï¿½-Modus: Wechseln wenn FLASE oder Wert wenn TRUE
   AnyParamChanged: Boolean;
 
   ButtonDelta: Int8;
   EncoderDelta: Int8;
-  EncoderDiff: Int8;  // für Drehgeber in SysTick-IRQ
+  EncoderDiff: Int8;  // fÃ¼r Drehgeber in SysTick-IRQ
   NumberOfIniFiles: byte; // Anzahl INI-Dateien auf SD-Karte
 
   BlinkToggle, SpeedBlinkToggle: boolean;
-  BlinkTimerByte: Byte; // für Preset-Blink
-  SingleDBsetSelect: Byte; // Enthält Manual 0..2
+  BlinkTimerByte: Byte; // fÃ¼r Preset-Blink
+  SingleDBsetSelect: Byte; // Enthï¿½lt Manual 0..2
 
   ForceSplitRequest: boolean;
 
@@ -115,7 +115,7 @@ var
   MIDI_swell_w, MIDI_swell_final_w: Word;
   MIDI_DisablePercussion: Boolean;  // temp. Percussion-Abschaltung per MIDI
   MIDI_data_entry: byte;
-  MIDI_data_entry_msb, MIDI_data_entry_lsb: Byte; // für Sempra
+  MIDI_data_entry_msb, MIDI_data_entry_lsb: Byte; // fÃ¼r Sempra
   MIDI_nrpn: Integer;
   MIDI_nrpn_lsb[@MIDI_nrpn+0]: byte;
   MIDI_nrpn_msb[@MIDI_nrpn+1]: byte;
@@ -126,7 +126,7 @@ var
   MIDI_edit_perc_levelsoft, MIDI_edit_perc_levelnorm: byte;
   MIDI_sysex_busyflag: Boolean;
   MIDI_OverrideCancelDB1: Boolean;
-  MIDI_NewSwellVal: Byte;  // Wird bei Änderung alle 8ms gesendet
+  MIDI_NewSwellVal: Byte;  // Wird bei ï¿½nderung alle 8ms gesendet
  // MIDI_RealOrganSwellAdjust: Byte;
 
   SysExArray: array[0..255] of byte;
@@ -179,9 +179,9 @@ var
 
   PhasingSpeed, PhasingDestSpeed: byte;
 
-  ReverbKnob_old: Byte;  // Reverb-Program senden falls geändert, sonst nur Level
+  ReverbKnob_old: Byte;  // Reverb-Program senden falls geï¿½ndert, sonst nur Level
 
-// Verteiler für zeitintensive Routinen:
+// Verteiler fÃ¼r zeitintensive Routinen:
 // 0..3 ADCs
 // 4 Leslie
 // 5 Display
@@ -193,8 +193,8 @@ var
   Inserts: Byte; // Bit-Folge in FPGA-SPI
   InsertPhasingUpper[@Inserts,0]: bit;
   InsertPhasingLower[@Inserts,1]: bit;
-  InsertVibratoUpper[@Inserts,2]: bit; // wird ständig mit edit_LogicalTab_VibOnUpper überschrieben
-  InsertVibratoLower[@Inserts,3]: bit; // wird ständig mit VibOnLower überschrieben
+  InsertVibratoUpper[@Inserts,2]: bit; // wird stï¿½ndig mit edit_LogicalTab_VibOnUpper ï¿½berschrieben
+  InsertVibratoLower[@Inserts,3]: bit; // wird stï¿½ndig mit VibOnLower ï¿½berschrieben
   InsertTubeAmp[@Inserts, 4]:     bit;
   InsertRotarySpkr[@Inserts, 5]:  bit;
   InsertPedalPostMix[@Inserts, 6]: bit;
@@ -207,7 +207,7 @@ var
 
 // ------------------------------ Parser ---------------------------------------
 
-  ParamStr       : String[31]; // auch für Display
+  ParamStr       : String[31]; // auch fÃ¼r Display
   SerInpStr      : String[31];
   CommentStr     : String[31];
   TempStr: String[15];
@@ -215,7 +215,7 @@ var
   SerInpPtr, ParsePtr  : byte;
   CmdWhich       : byte; // tcmdwhich nicht mehr benutzt
   ValueInt       : integer;
-  ParamAlpha     : boolean; // Flag für Zeichenfolge hinter "="
+  ParamAlpha     : boolean; // Flag fÃ¼r Zeichenfolge hinter "="
   ValueLong      : LongInt;
   ValueLong0[@ValueLong+0]: byte;
   ValueLong1[@ValueLong+1]: byte;
@@ -223,7 +223,7 @@ var
   ValueLong3[@ValueLong+3]: byte;
   ValueByte      : byte;
 
-  // Buffer für Binärformat
+  // Buffer fÃ¼r BinÃ¤rformat
   // ESC CMD ADRL ADRH LEN DATA0...DATAn, CRC
   //  BinaryData: array[0..255] of byte;  // jetzt in BlockBuffer8
   BinaryStart: byte;     // ESC char
@@ -246,23 +246,14 @@ var
     ScanCoreRevision, ScanCoreID: Byte;
     DSPversion: Word;
     FPGAversion: LongInt; // DD MM YYYY
-    FPGAdate: LongInt; // umgekehrte Reihenfolge wie c_min_date = $20240424: FPGA YYYY MM DD (!)
+    FPGAdate: LongInt; // YYYY MM DD (!), umgekehrte Reihenfolge
   end;
-  
-  DSPversion_L[@BoardInfo.DSPversion+0]: Byte;
-  DSPversion_H[@BoardInfo.DSPversion+1]: Byte;
-  
-  // umgekehrte Reihenfolge wie c_min_date = $20240424: FPGA YYYY MM DD (!)
-  FPGAday[@BoardInfo.FPGAdate+0]: byte;
-  FPGAmonth[@BoardInfo.FPGAdate+1]: byte;
-  FPGAyear0[@BoardInfo.FPGAdate+2]: byte;
-  FPGAyear1[@BoardInfo.FPGAdate+3]: byte;
-  FPGAyear[@BoardInfo.FPGAdate+2]: Integer;
 
-// Fehlerkonstanten für SysEx <er>, die falls >0 aufgetretene Fehler
-// in einem 8-Bit-Feld anzeigen. Fehler können kombiniert auftreten.
+
+// Fehlerkonstanten fÃ¼r SysEx <er>, die falls >0 aufgetretene Fehler
+// in einem 8-Bit-Feld anzeigen. Fehler kÃ¶nnen kombiniert auftreten.
 // Bit 0 = SysEx-Befehl unbekannt (nur wenn auf 0 oder 0x33 addressiert, der Rest interessiert nicht)
-//         Dieses Bit wird nach Ausgeben des Status wieder gelöscht.
+//         Dieses Bit wird nach Ausgeben des Status wieder gelÃ¶scht.
 //         Alle anderen sind persistent, bleiben also bis zum Reboot gesetzt.
 // Bit 1 = SD-Karte nicht erkannt/fehlerhaft (darf 1 sein, weil nicht immer eine SD-Karte steckt),
 //         Datei auf SD nicht gefunden
@@ -279,19 +270,19 @@ var
 // c_err_upd:       Byte = 5;    // Bit 5 = +32
 // c_err_busy:      Byte = 6;    // Bit 6 = +64
 
-// -------------------------- zusätzliche Arrays -------------------------------
+// -------------------------- zusï¿½tzliche Arrays -------------------------------
 
-  // von Parameter-1000 auf Menu-Index für 1000..1511,
+  // von Parameter-1000 auf Menu-Index fÃ¼r 1000..1511,
   // wird in NB_CreateRestoreArr_InverseArr angelegt
 
   Param2MenuInverseArray: array[0..511] of byte;
 
-  // Inverse MIDI CC/CH Arrays zum Senden von Parameteränderungen
-  CCarray: array[0..1023] of byte; // Dummy für Pointer
-  // CCarray_i mit Index [ch, cc]  liefert zugehörige Parameter-Nummer
+  // Inverse MIDI CC/CH Arrays zum Senden von ParameterÃ¤nderungen
+  CCarray: array[0..1023] of byte; // Dummy fÃ¼r Pointer
+  // CCarray_i mit Index [ch, cc]  liefert zugehÃ¶rige Parameter-Nummer
   CCarray_i[@CCarray + 0]: array[0..3, 0..127] of Integer; // 4 x 128 x 2 = 1024
 
-  MIDIset_Array: array[0..3199] of Byte;  // Dummy für Adresspointer
+  MIDIset_Array: array[0..3199] of Byte;  // Dummy fÃ¼r Adresspointer
   MIDIset_CCarray[@MIDIset_Array + 0]: array[0..767] of byte; // Index Param-1000, liefert CC-Nummer
   MIDIset_CHarray[@MIDIset_Array + 768]: array[0..767] of byte; // Index Param-1000, liefert Channel
   MIDIset_CCminArray[@MIDIset_Array + 1536]: array[0..767] of byte; // Index Param-1000, liefert CC-Maximalwert
@@ -315,9 +306,9 @@ var
 
   BlockBuffer8: array[0..4095] of byte;
 
-  // Hilfsarray für Binärbefehle, hier Zweitnutzung:
+  // Hilfsarray fÃ¼r BinÃ¤rbefehle, hier Zweitnutzung:
   BlockArrayBinaryBuf[@BlockBuffer8 + 3328]: array[0..255] of byte;
-  // Hilfsarray für Directory, sonst nie benutzt, deshalb hier Zweitnutzung:
+  // Hilfsarray fÃ¼r Directory, sonst nie benutzt, deshalb hier Zweitnutzung:
   BlockArrayDirFileNames[@BlockBuffer8 + 3584]: array[0..31] of String[15];
 
   BlockArray256_0[@BlockBuffer8]: array[0..255] of byte;
@@ -332,7 +323,7 @@ var
   // Aus Preset direkt gelesene Werte, zur Erstellung des PresetLoadEnableArray
   block_PresetNameStr[@BlockBuffer8 + 192]: String[15];
   block_PresetNameLen[@BlockBuffer8 + 192]: Byte;
-  block_CommonPreset[@BlockBuffer8 + 268]:  byte;  // #268, wird nicht bei edit_CommonPreset überschrieben
+  block_CommonPreset[@BlockBuffer8 + 268]:  byte;  // #268, wird nicht bei edit_CommonPreset ï¿½berschrieben
   block_LogicalTab_H100mode[@BlockBuffer8 + 104]: boolean;
   block_LogicalTab_EGmode[@BlockBuffer8 + 107]: boolean;
 // Wird nach Lesen der EEPROM-Datei verglichen mit aktuell
@@ -342,7 +333,7 @@ var
 // im EEPROM gespeicherter Versionsnummer:
   BlockArrayPresetVersion[@BlockBuffer8 + 510] : Byte;
   BlockArrayMagicByte[@BlockBuffer8+ 511] : Byte;
-  BlockArray_start[@BlockBuffer8]: byte;   // für CopyBlock
+  BlockArray_start[@BlockBuffer8]: byte;   // fÃ¼r CopyBlock
 
 
 implementation

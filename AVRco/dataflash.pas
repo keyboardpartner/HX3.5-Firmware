@@ -321,7 +321,7 @@ begin
   if common_preset = 0 then
     CommentStr:= c_PresetNameStr0;
   else
-    my_4K_block_num:= c_preset_base_DF + word(common_preset);
+    my_4K_block_num:= c_preset_base + word(common_preset);
     DF_readblock(my_4K_block_num, 256);
     if valueInRange(block_PresetNameLen, 1, 15) then
       CommentStr:= block_PresetNameStr;

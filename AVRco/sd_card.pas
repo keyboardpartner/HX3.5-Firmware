@@ -1,19 +1,19 @@
 // #############################################################################
-// ###                       F Ü R   A L L E   B O A R D S                   ###
+// ###                       F ï¿½ R   A L L E   B O A R D S                   ###
 // #############################################################################
 // ###                          SD CARD FUNCTIONS                           ####
 // #############################################################################
 unit sd_card;
 
 interface
-uses var_def, port_def, edit_changes, dataflash;
+uses const_def, var_def, port_def, edit_changes, dataflash;
 {$IFNDEF MODULE}
 uses display_toolbox;
 {$ENDIF} // ALLINONE
 
 type t_flashErr = (df_noErr, df_skipped, df_fileNotFound, df_eraseErr, df_writeFailed, df_verifyFailed);
 
-// Gibt Anzahl der vorhandenen Dateien zurück
+// Gibt Anzahl der vorhandenen Dateien zurï¿½ck
 function SD_GetDir(const file_mask: string[5]; const list_files: boolean): Byte;
 
 function  SD_ForceCheck: Boolean; // mit Meldung, wenn Karte fehlt oder defekt
@@ -33,20 +33,16 @@ function SD_LoadAndFlashTaperings: t_flashErr;
 implementation
 {$IDATA}
 
-{$TYPEDCONST OFF}
-const
-  sd_missing_str = 'SD not found!';
-{$TYPEDCONST ON}
 
 procedure sd_missing_msg;
 begin
   if LCDpresent then
     LCDclr_M(LCD_m1);
-    write(LCDOut_M, sd_missing_str);
+    write(LCDOut_M, s_err_sd_missing);
     LED_blink(3);
   endif;
   WriteSerError;
-  writeln(serout, sd_missing_str);
+  writeln(serout, s_err_sd_missing);
 end;
 
 function SD_ForceCheck: Boolean;
@@ -78,7 +74,7 @@ begin
 end;
 
 function SD_GetDir(const file_mask: string[5]; const list_files: boolean): Byte;
-// Gibt in "number_of_Files" Anzahl der passenden Dateien zurück
+// Gibt in "number_of_Files" Anzahl der passenden Dateien zurï¿½ck
 var my_searchRec: TsearchRec;
     number_of_Files: Byte;
 begin
@@ -140,7 +136,7 @@ begin
 {$ENDIF}
     sd_size:= (sd_size div 4096) + 1;
     F16_FileAssign(sd_file, '', my_BinFileName);
-    F16_FileReset(sd_file); // Datei zum Lesen öffnen
+    F16_FileReset(sd_file); // Datei zum Lesen ï¿½ffnen
     DF_unprotect;
     ConfErr:= false;
     while not F16_EndOfFile(sd_file) do // read the entire file
@@ -190,7 +186,7 @@ begin
       endif;
       inc(current_block);
       if (block_count > (c_FPGA_lastblock + 1)) or (block_count > word(sd_size)) then
-        // maximale Länge einer Datei überschritten (SD defekt)?
+        // maximale Lï¿½nge einer Datei ï¿½berschritten (SD defekt)?
         ConfErr:= true;
         my_err:= df_writeFailed;
 {$IFDEF DEBUG_SD}
@@ -217,7 +213,7 @@ begin
     if my_Err >= df_eraseErr then
       incl(ErrFlags, c_err_flash);
     endif;
-    MenuIndex_Requested:= MenuIndex; // zurück zum letzen Menü
+    MenuIndex_Requested:= MenuIndex; // zurï¿½ck zum letzen Menï¿½
 {$IFDEF DEBUG_SD}
     writeln(serout, '/ SD FlashFile returns ' + ByteToStr(ord(my_Err)));
 {$ENDIF}
@@ -233,7 +229,7 @@ begin
     endif;
 {$ENDIF}
     ConfErr:= true;
-    MenuIndex_Requested:= MenuIndex; // zurück zum letzen Menü
+    MenuIndex_Requested:= MenuIndex; // zurï¿½ck zum letzen Menï¿½
     return(df_fileNotFound);
   endif;
 end;
@@ -247,8 +243,8 @@ var my_err: t_flashErr;
 begin
   my_err:= df_noErr;
   for file_idx:= 0 to 8 do   // cc_set0.dat bis cc_set8.dat
-    TempStr:= 'ccset' + ByteToStr(file_idx) + '.dat';
-    my_err:= my_err or SD_FlashBinFile(c_midicc_base_DF + word(file_idx), TempStr);
+    TempStr:= s_ccset_name + ByteToStr(file_idx) + s_dat_ext;
+    my_err:= my_err or SD_FlashBinFile(c_midi_cc_base + word(file_idx), TempStr);
   endfor;
   return(my_err);
 end;
@@ -260,22 +256,22 @@ var my_err: t_flashErr;
 begin
   my_err:= df_noErr;
   for file_idx:= 9 to 10 do   // cc_set9.dat bis cc_set10.dat
-    TempStr:= 'ccset' + ByteToStr(file_idx) + '.dat';
-    my_err:= my_err or SD_FlashBinFile(c_midicc_base_DF + word(file_idx), TempStr);
+    TempStr:= s_ccset_name + ByteToStr(file_idx) + s_dat_ext;
+    my_err:= my_err or SD_FlashBinFile(c_midi_cc_base + word(file_idx), TempStr);
   endfor;
   return(my_err);
 end;
 
 function SD_LoadAndFlashWavesets: t_flashErr;
-// 4 Blöcke pro File!
+// 4 Blï¿½cke pro File!
 var my_err: t_flashErr;
   file_idx: Byte; block_offs: Word;
 begin
   my_err:= df_noErr;
   block_offs:= 0;
   for file_idx:= 0 to 7 do
-    TempStr:= 'waveset' + ByteToStr(file_idx) + '.bin';
-    my_err:= my_err or SD_FlashBinFile(c_waveset_base_DF + block_offs, TempStr);
+    TempStr:= s_waveset_name + ByteToStr(file_idx) + s_bin_ext;
+    my_err:= my_err or SD_FlashBinFile(c_waveset_base + block_offs, TempStr);
     inc(block_offs, 4);
   endfor;
   return(my_err);
@@ -288,8 +284,8 @@ var my_err: t_flashErr;
 begin
   my_err:= df_noErr;
   for file_idx:= 0 to 3 do
-    TempStr:= 'taper' + ByteToStr(file_idx + 1) + '.dat';
-    my_err:= my_err or SD_FlashBinFile(c_taper_base_DF + word(file_idx), TempStr);
+    TempStr:= s_taper_name + ByteToStr(file_idx + 1) + s_dat_ext;
+    my_err:= my_err or SD_FlashBinFile(c_taper_base + word(file_idx), TempStr);
   endfor;
   return(my_err);
 end;
@@ -303,38 +299,38 @@ begin
   ConfErr:= false;
   is_ok:= true;
   if upd_cores then
-    if SD_FlashBinFile(0, 'hx3_main.bin') > df_noErr then
+    if SD_FlashBinFile(0, s_fpga_name) > df_noErr then
       ConfErr:= true;
       incl(ErrFlags, c_err_flash);
       is_ok:= false;
     endif;
 
-    if (SD_FlashBinFile(c_scan_base_DF, 'scan.dat') > df_noErr) then
-      incl(ErrFlags, c_err_upd);  // ScanCore immer benötigt!
+    if (SD_FlashBinFile(c_scan, s_scan_name) > df_noErr) then
+      incl(ErrFlags, c_err_upd);  // ScanCore immer benï¿½tigt!
       is_ok:= false;
     endif;
 
     if (SD_LoadAndFlashStandardCCsets > df_noErr) then
-      incl(ErrFlags, c_err_upd);  // Standard CC Sets immer benötigt!
+      incl(ErrFlags, c_err_upd);  // Standard CC Sets immer benï¿½tigt!
       is_ok:= false;
     endif;
 
     if (SD_LoadAndFlashTaperings > df_noErr) then
-      incl(ErrFlags, c_err_upd);  // Taperings immer benötigt!
+      incl(ErrFlags, c_err_upd);  // Taperings immer benï¿½tigt!
       is_ok:= false;
     endif;
 
 
     if (SD_LoadAndFlashWavesets > df_noErr) then
-      incl(ErrFlags, c_err_upd);  // Wavesets immer benötigt!
+      incl(ErrFlags, c_err_upd);  // Wavesets immer benï¿½tigt!
       is_ok:= false;
     endif;
 
-    SD_FlashBinFile(c_coeff_base_DF, 'fir_coe.dat');
+    SD_FlashBinFile(c_fir_coeff, s_fircoe_name);
     SD_LoadAndFlashCustomCCsets;                            // optional
-    SD_FlashBinFile(c_organModel_base_DF, 'organs.dat');    // optional
-    SD_FlashBinFile(c_leslieModel_base_DF, 'speakers.dat'); // optional
-    SD_FlashBinFile(c_preset_base_DF, 'presets.dat');       // optional
+    SD_FlashBinFile(c_organ_model_base, s_organs_name);    // optional
+    SD_FlashBinFile(c_speaker_model_base, s_speakers_name); // optional
+    SD_FlashBinFile(c_preset_base, s_presets_name);       // optional
   endif;
 // Restore Edit Array from DF block #myDF_4K_block_offs
 // Relative 4k-Blocknummer, Offset hier auf Daten-Bereich!
@@ -342,13 +338,13 @@ begin
   overwrite_eeprom:= false;
   if upd_firmware then
     // EEPROM auf DF Core 9
-    if SD_FlashBinFile(c_eeprom_base35_DF, 'eeprom.bin') = df_noErr then   // optional
+    if SD_FlashBinFile(c_eeprom, s_eeprom_name) = df_noErr then   // optional
       overwrite_eeprom:= true;    // bei Modul EEPROM immer updaten
     endif;
-    // 128 KByte Firmware für Bootloader
-    if SD_FlashBinFile(c_firmware_base35_DF, 'firmware.bin') = df_noErr then  // 992, 128 KByte
+    // 128 KByte Firmware fï¿½r Bootloader
+    if SD_FlashBinFile(c_firmware, s_firmware_name) = df_noErr then  // 992, 128 KByte
       writeln(serout, '/ Firmware copied to DF');
-      if overwrite_eeprom then // steht noch im Buffer, nur ins EEPROM übertragen, wenn TRUE
+      if overwrite_eeprom then // steht noch im Buffer, nur ins EEPROM ï¿½bertragen, wenn TRUE
         writeln(serout, '/ Overwrite EEPROM from DF');
         EE_ForceUpdateEEPROM:= true; // DF-Init beim Reboot erzwingen
       else
@@ -357,7 +353,7 @@ begin
 {$IFNDEF MODULE}
       DT_ResetMenuEnables;
 {$ENDIF}
-      // DFtoEEPROM(c_eeprom_base) wird beim Reboot ausgeführt!
+      // DFtoEEPROM(c_eeprom_base) wird beim Reboot ausgefï¿½hrt!
       DF_FWupdateFromFlashAndReboot;  // mit Meldung!
     else
       is_ok:= false;

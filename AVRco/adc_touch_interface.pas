@@ -17,7 +17,7 @@ uses var_def, eeprom_def, MIDI_com, edit_changes;
   procedure ADC_ReadAll_64;    // 64 externe Inputs holen und auf edit-Tabelle verteilen
   procedure ADC_ChangesToEdit;
 
-  procedure ADC_ChangeStateAll(const my_state: Boolean); // ADCs freigeben, erzwingt spätere Aktualisierung
+  procedure ADC_ChangeStateAll(const my_state: Boolean); // ADCs freigeben, erzwingt spï¿½tere Aktualisierung
   procedure ADC_ResetTimersAll;
   procedure ADC_ResetTimersUpper;
   procedure ADC_SetChangedUpper;
@@ -30,7 +30,7 @@ uses var_def, eeprom_def, MIDI_com, edit_changes;
   procedure ADC_ReadSwell;  // Nur Schweller lesen, getrennter AVR-Eingang
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ADC-Remap über Tabelle: Index ist ADC-Kanal, Eintrag ist edit_LogicalTabsTable-Index
+// ADC-Remap ï¿½ber Tabelle: Index ist ADC-Kanal, Eintrag ist edit_LogicalTabsTable-Index
 // Werte aus Index-Tabelle:
 // 0..79 in edit_table_0
 // 80..239 in edit_table_1
@@ -44,12 +44,12 @@ const
   c_fine_ADChyst:     Integer = 3;
 
 var
-  ADC_changed : Array[0..127] of boolean; // Flags: Analog-Wert hat sich geändert
+  ADC_changed : Array[0..127] of boolean; // Flags: Analog-Wert hat sich geï¿½ndert
   // 100..108: Secondary DB Set 1
   // 112..120: Secondary DB Set 2
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-// ADC-Remap über Tabelle: Index ADC-Kanal, Ausgang edit_Table-Index
+// ADC-Remap ï¿½ber Tabelle: Index ADC-Kanal, Ausgang edit_Table-Index
 // Werte aus Index-Tabelle:
 // 0..79 in edit_table_0
 // 80..239 in edit_table_1
@@ -58,8 +58,8 @@ var
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
   ADC_remaps: Array[0..127] of byte;
-  // 100..108: Secondary DB Set 1, gleiche Werte wie 0..9    (für DBX9)
-  // 112..120: Secondary DB Set 2, gleiche Werte wie 12..21  (für DBX9)
+  // 100..108: Secondary DB Set 1, gleiche Werte wie 0..9    (fï¿½r DBX9)
+  // 112..120: Secondary DB Set 2, gleiche Werte wie 12..21  (fï¿½r DBX9)
 
 implementation
 
@@ -76,20 +76,20 @@ var
 // #############################################################################
 
 procedure adc_to_table(adc_chan, adc_remap: byte; sr_pulse: Boolean);
-// Schreibt in Tabelle ADC_Values, wenn Eingang sich stärker als
-// Hysterese ändert. Dieser Eingang wird dann über Timer auf "aktiv" gesetzt
+// Schreibt in Tabelle ADC_Values, wenn Eingang sich stï¿½rker als
+// Hysterese ï¿½ndert. Dieser Eingang wird dann ï¿½ber Timer auf "aktiv" gesetzt
 // und laufend in ADC_Values aktualisiert.
-// Wert in ADC_Values speichern und ADC_changed-Flag setzen, sofern geändert
-// liefert Remap-Wert zurück, der ohnehin gebraucht wird
-// 18 µs für je jeden freigeschalteten Eingang im Leerlauf (nicht bedient)
-// 20 µs, wenn Wert sich gerade ändert
+// Wert in ADC_Values speichern und ADC_changed-Flag setzen, sofern geï¿½ndert
+// liefert Remap-Wert zurï¿½ck, der ohnehin gebraucht wird
+// 18 ï¿½s fï¿½r je jeden freigeschalteten Eingang im Leerlauf (nicht bedient)
+// 20 ï¿½s, wenn Wert sich gerade ï¿½ndert
 // benutzt n
 var
   my_ADChyst, adc_val_b : byte;
   adc_val_old_i, adc_raw_i: Integer;
   my_active : boolean;
 begin
-  // Einschwingzeit nutzen, Zeit bis zur Wandlung liegt insgesamt bei ca. 8 µs
+  // Einschwingzeit nutzen, Zeit bis zur Wandlung liegt insgesamt bei ca. 8 ï¿½s
   if (not ADCtestMode) and (adc_remap >= 254) then
     if sr_pulse then
       incl(PortD, 5); // HC164 CLK
@@ -109,23 +109,23 @@ begin
 
   if sr_pulse then
     ADCSR:= $93;  // Clear ADIF
-    ADCSR:= $C3;  // Start, ca. 8 µs nach SR-Takt bzw. MPX-Umschaltung
+    ADCSR:= $C3;  // Start, ca. 8 ï¿½s nach SR-Takt bzw. MPX-Umschaltung
     // Konvertierzeit nutzen
     adc_val_old_i:= ADC_Values[adc_chan]; // vorheriger ADC-Wert
     repeat
     until Bit(ADCSR, 4);         // bis ADIF-Bit gesetzt
     ADCSR:= $83;  // Stopp
-    // nächster HC164-Ausgang, Einschwingzeit nutzen
+    // nï¿½chster HC164-Ausgang, Einschwingzeit nutzen
     incl(PortD, 5); // HC164 CLK
     nop; nop;
     excl(PortD, 5); // HC164 CLK
   else
-    // Einschwingzeit verlängern für Poti in DB-Expander, evt. 50k
+    // Einschwingzeit verlï¿½ngern fï¿½r Poti in DB-Expander, evt. 50k
     if valueInRange(adc_remap, 80, 87) then
       udelay(1);
     endif;
     ADCSR:= $93;  // Clear ADIF
-    ADCSR:= $C3;  // Start, ca. 8 µs nach SR-Takt bzw. MPX-Umschaltung
+    ADCSR:= $C3;  // Start, ca. 8 ï¿½s nach SR-Takt bzw. MPX-Umschaltung
     // Konvertierzeit nutzen
     adc_val_old_i:= ADC_Values[adc_chan]; // vorheriger ADC-Wert
     repeat
@@ -135,16 +135,16 @@ begin
 
   adc_raw_i:= integer(ADCH);
 
-  // neuer Wert um grobe Hysterese größer oder kleiner als alter Wert?
+  // neuer Wert um grobe Hysterese grï¿½ï¿½er oder kleiner als alter Wert?
   if not valueinTolerance(adc_raw_i, adc_val_old_i, c_coarse_ADChyst) then
     // Aktiv-Timer laden, 100=1,6 sek. bei 16ms Cycle (2ms Systick, 8 Timeslots)
     adc_changetimers[adc_chan]:= 50;
     my_active:= true;
   endif;
 
-  // falls geändert, neuen Wert und Flag in ADC-Array setzen
+  // falls geï¿½ndert, neuen Wert und Flag in ADC-Array setzen
   if my_active and (adc_raw_i <> adc_val_old_i) then
-    ADC_Values[adc_chan]:= adc_raw_i; // letzter Wert für nächsten Vergleich
+    ADC_Values[adc_chan]:= adc_raw_i; // letzter Wert fï¿½r nï¿½chsten Vergleich
     ADC_changed[adc_chan]:= true;
   endif;
 end;
@@ -159,8 +159,8 @@ end;
 
 procedure ADC_ReadAll_24;
 // 24 ADCs, kompatibel zu HX3.4, mit 3x 74HC4051 MPX on board
-// Werte in edit_table speichern und Änderungs-Flags setzen
-// 740 µs mit 24 Eingängen im Leerlauf
+// Werte in edit_table speichern und ï¿½nderungs-Flags setzen
+// 740 ï¿½s mit 24 Eingï¿½ngen im Leerlauf
 // PA4: INHIBIT MPX 0
 // PA5: INHIBIT MPX 1
 // PA6: INHIBIT MPX 2
@@ -181,7 +181,7 @@ begin
 {$IFNDEF MODULE}
   if ADCtestMode or (edit_ADCconfig >= 2) then
 
-    // vor der Wandlung ggf. einmalig DB9-MPX-Satz auswählen
+    // vor der Wandlung ggf. einmalig DB9-MPX-Satz auswï¿½hlen
     // I2C-Ports sind sehr langsam!
     if UpperSecondaryActive_DB9_MPX_old <> UpperSecondaryActive_DB9_MPX then
       PREAMP_DBSELECT_UPPER:= UpperSecondaryActive_DB9_MPX;
@@ -287,8 +287,8 @@ end;
 
 procedure ADC_ReadAll_64;
 // 64 ADCs bei HX3.5, neue DB-Platinen mit HC164 und 4066 MPX
-// Werte in edit_table speichern und Änderungs-Flags setzen
-// 19 µs für je jeden freigeschalteten Eingang im Leerlauf (nicht bedient)
+// Werte in edit_table speichern und ï¿½nderungs-Flags setzen
+// 19 ï¿½s fï¿½r je jeden freigeschalteten Eingang im Leerlauf (nicht bedient)
 // PA3: Reset HC164                  (PL20 DRAWB_MPX Pin 2)
 // PA7: ANALOG BUS                   (PL20 DRAWB_MPX Pin 6)
 // PD4: SROUT_DATA to HC164 chain    (PL20 DRAWB_MPX Pin 7)
@@ -354,11 +354,11 @@ begin
       // DB-Levels ggf. sperren, wenn inaktiver DB-Satz
       if valueInRange(my_remap, 0, 11) then          // Upper DBs?
         if is_2nd_dbset_remap <> UpperSecondaryActive then
-          return;                                   // nicht aktiv, überspringen
+          return;                                   // nicht aktiv, ï¿½berspringen
         endif;
       elsif valueInRange(my_remap, 16, 27) then      // Lower DBs?
         if is_2nd_dbset_remap <> LowerSecondaryActive then
-          return;                                   // nicht aktiv, überspringen
+          return;                                   // nicht aktiv, ï¿½berspringen
         endif;
       endif;
     endif;
@@ -382,20 +382,20 @@ begin
     return;
   endif;
 
-  // normale Zuordnung über Remap, kein Rotary-DB
+  // normale Zuordnung ï¿½ber Remap, kein Rotary-DB
   if edit_ADCconfig = 2 then       // alte DB9-MPX mit 4053-Umschaltern
     if UpperSecondaryActive_DB9_MPX and valueInRange(adc_remap, 0, 8) then
-      return; // nicht eintragen, wird später erledigt
+      return; // nicht eintragen, wird spï¿½ter erledigt
     endif;
     if LowerSecondaryActive_DB9_MPX and valueInRange(adc_remap, 16, 24) then
-      return; // nicht eintragen, wird später erledigt
+      return; // nicht eintragen, wird spï¿½ter erledigt
     endif;
   // Orgel mit nur einem DB-Satz
   elsif edit_ADCconfig >= 4 then
     if SingleDBsetSelect = 1 then
       // Single DB9 umleiten wenn edit_ADCconfig = 4 und ToLower-Tab
       if valueInRange(adc_remap, 0, 8) then   // Upper DBs?
-        // Änderungen auf Lower umleiten
+        // ï¿½nderungen auf Lower umleiten
         my_remap:= adc_remap + 16;
       endif;
     elsif SingleDBsetSelect = 2 then
@@ -412,7 +412,7 @@ begin
       endcase;
     else
       if valueInRange(adc_remap, 16, 24) then   // Lower DBs?
-        // Änderungen auf Lower-Eingängen verwerfen
+        // ï¿½nderungen auf Lower-Eingï¿½ngen verwerfen
         return;
       endif;
     endif;
@@ -426,7 +426,7 @@ end;
 // -----------------------------------------------------------------------------
 
 procedure ADC_ChangesToEdit;
-// Änderungen von ADC-Werten in edit_table setzen
+// ï¿½nderungen von ADC-Werten in edit_table setzen
 var
   adc_chan, adc_remap, upper_keycount, lower_keycount: byte;
   log_pots: Boolean;
@@ -439,14 +439,16 @@ begin
 
   log_pots:= Bit(edit_ConfBits, 5);
 
+{$IFDEF EDER_FS76}
   if ExternalScanActive and (edit_ADCconfig = 5) then
-    // Nur für Orgeln mit FatarScan76
-    // Anzahl gedrückter Tasten vom Scan-Interface holen.
+    // Nur fï¿½r Orgeln mit FatarScan76
+    // Anzahl gedrï¿½ckter Tasten vom Scan-Interface holen.
     // Evt. Umbau auf FPGA-Register?
     NB_GetBytefromI2Cslave($5A, 2, upper_keycount);
     NB_GetBytefromI2Cslave($5B, 2, lower_keycount);
     edit_SingleDBtoLower:= lower_keycount > upper_keycount;
   endif;
+{$ENDIF}
 
   for adc_chan:= 0 to 23 do
     adc_remap:= ADC_remaps[adc_chan];
@@ -479,11 +481,11 @@ begin
     return;
   endif;
 
-  // Wenn bei altem DB9-MPX zweiter Drawbar-Satz gewählt ist,
+  // Wenn bei altem DB9-MPX zweiter Drawbar-Satz gewï¿½hlt ist,
   // wurden die Drawbar-ADC-Werte auf 100..108 und 112..120 abgelegt
   if UpperSecondaryActive_DB9_MPX then
     for adc_chan:= 100 to 108 do
-      // Verteilt ADC-Werte von zweitem DB9-MPX, wenn geändert.
+      // Verteilt ADC-Werte von zweitem DB9-MPX, wenn geï¿½ndert.
       adc_remap:= ADC_remaps[adc_chan];
       if adc_remap = c_map_none then
         continue;
@@ -508,7 +510,7 @@ begin
 
   if LowerSecondaryActive_DB9_MPX then
     for adc_chan:= 112 to 120 do
-      // Verteilt ADC-Werte von zweitem DB9-MPX, wenn geändert.
+      // Verteilt ADC-Werte von zweitem DB9-MPX, wenn geï¿½ndert.
       adc_remap:= ADC_remaps[adc_chan];
       if adc_remap = c_map_none then
         continue;
@@ -536,7 +538,7 @@ end;
 // #############################################################################
 
 procedure ADC_ReadSwell;
-// Schweller-Eingang PA2 wird immer gewandelt und bei Änderung Change-Flag gesetzt
+// Schweller-Eingang PA2 wird immer gewandelt und bei ï¿½nderung Change-Flag gesetzt
 var
   my_adc_new : integer;
 begin
@@ -545,7 +547,7 @@ begin
     return;
   endif;
   ADMUX:= $22;  // immer Kanal 2, ADLAR =1 (left adjusted, 8-Bit-Result on ADCH), 3,3 VRef
-  udelay(1);    // 10µs Einschwingen
+  udelay(1);    // 10ï¿½s Einschwingen
   ADCSR:= $93;  // clear ADIF
   ADCSR:= $C3;
   repeat
@@ -565,7 +567,7 @@ end;
 // #############################################################################
 
 procedure adc_set_timer_range(const remapped_start, remapped_end: Byte; const changed: Boolean);
-// Analoge Eingänge und Timer auf "changed" setzen
+// Analoge Eingï¿½nge und Timer auf "changed" setzen
 // Wird bei Voice-Umschaltung
 // von Preset auf Live aufgerufen.
 // Durchsucht ADC_remaps nach Werten zwischen db_start und db_end
@@ -645,7 +647,7 @@ begin
 end;
 
 procedure ADC_Init;
-// Tabellen ungültig machen
+// Tabellen ungï¿½ltig machen
 begin
   SingleDBsetSelect:= 0;
   edit_SingleDBtoUpper:= true;
@@ -654,14 +656,14 @@ begin
   for i:= 0 to 87 do
     ADC_remaps[i]:= eep_ADCremaps[i];
   endfor;
-  // 100..108: Secondary DB Set 1, gleiche Werte wie 0..9   (für DB9-MPX, alt)
+  // 100..108: Secondary DB Set 1, gleiche Werte wie 0..9   (fï¿½r DB9-MPX, alt)
   for i:= 0 to 8 do
     ADC_remaps[i + 100]:= ADC_remaps[i];
   endfor;
   for i:= 109 to 111 do
     ADC_remaps[i]:= c_map_none;
   endfor;
-  // 112..118: Secondary DB Set 2, gleiche Werte wie 12..21 (für DB9-MPX, alt)
+  // 112..118: Secondary DB Set 2, gleiche Werte wie 12..21 (fï¿½r DB9-MPX, alt)
   for i:= 12 to 20 do
     ADC_remaps[i + 100]:= ADC_remaps[i];
   endfor;

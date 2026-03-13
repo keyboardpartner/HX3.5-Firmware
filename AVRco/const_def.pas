@@ -1,5 +1,12 @@
 // #############################################################################
-// ###                     F � R   A L L E   B O A R D S                     ###
+//       __ ________  _____  ____  ___   ___  ___
+//      / //_/ __/\ \/ / _ )/ __ \/ _ | / _ \/ _ \
+//     / ,< / _/   \  / _  / /_/ / __ |/ , _/ // /
+//    /_/|_/___/_  /_/____/\____/_/_|_/_/|_/____/
+//      / _ \/ _ | / _ \/_  __/ |/ / __/ _ \
+//     / ___/ __ |/ , _/ / / /    / _// , _/
+//    /_/  /_/ |_/_/|_| /_/ /_/|_/___/_/|_|
+//
 // #############################################################################
 
 unit const_def;
@@ -40,13 +47,13 @@ const
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
   c_min_date: LongInt = $20260312; // FPGA YYYY MM DD (!)
   // letzte 4 Bytes vor Bootloader ($1F000) = $1EFFC
-  c_CurrentFirmwareVersion[$1EFFE]: Word   = $0590;
-  // Erh�hen, wenn sich eep_defaults-Array-Struktur �ndert:
+  c_CurrentFirmwareVersion[$1EFFE]: Word   = $0584;  // BCD-kodiert, z.B. 5.840 = $0584, 5.85 = $0585, 5.9 = $0590
+  // Erhöhen, wenn sich eep_defaults-Array-Struktur ändert:
   c_FirmwareStructureVersion: Byte   = 90;  // Dezimalstellen FW-Version
-  // Wenn bestehende EEPROM-Version kleiner, wird DB-Bereich �berschrieben
+  // Wenn bestehende EEPROM-Version kleiner, wird DB-Bereich überschrieben
   c_SkipEEPROM_DBs: Word   = $400;
   // Self-FlashWrite from DF, BOOTSZ0-Fuse = $FC000 (*2 = $1F800):
-  c_BootSection: LongInt = $1F800;    // Einsprungadresse in gesch�tzten Bereich
+  c_BootSection: LongInt = $1F800;    // Einsprungadresse in geschützten Bereich
 
   c_MinimalPresetStructureVersion: Byte = 31;
   c_MinimalOrganStructureVersion: Byte = 60;
@@ -76,12 +83,42 @@ const
 
   LCD1Str   = 'HX3.5 #' + Vers1Str;    // Kurzform von Vers1 für LCD
 
-  c_PresetNameStr0        = 'Startup/Live';
+  c_PresetNameStr0 = 'Startup/Live';
+
   s_none = '(none)';
   s_autorun_ini = 'autorun.ini';
   s_config_ini = 'config.ini';
-  s_autorun_ini_old = '_autorun.ini';
-  s_config_ini_old = '_config.ini';
+
+  s_firmware_name = 'firmware.bin';
+  s_eeprom_name = 'eeprom.bin';
+  s_fpga_name = 'hx3_main.bin';
+  s_scan_name = 'scan.dat';
+  s_fircoe_name = 'fir_coe.dat';
+  s_defaults_name = 'defaults.dat';
+  s_voices_name = 'voices.dat';
+  s_presets_name = 'presets.dat';
+  s_organs_name = 'organs.dat';
+  s_params_name = 'params.dat';
+  s_speakers_name = 'speakers.dat';
+
+  s_ccset_name = 'ccset';
+  s_taper_name = 'taper';
+  s_waveset_name = 'waveset';
+  s_dat_ext = '.dat';
+  s_bin_ext = '.bin';
+  s_ini_ext = '.ini';
+
+  s_err_cs_failed = 'Checksum failed';
+  s_err_notfound = ' - not found';
+  s_err_sd_missing = 'SD missing';
+
+  s_red = '"red"';
+  s_green = '"green"';
+  s_blue = '"blue"';
+  s_white = '"white"';
+  s_yellow = '"yellow"';
+  s_gray = '"gray"';
+  
 
 {$TYPEDCONST ON}
 
@@ -110,31 +147,6 @@ const
   c_scan_failsafe_base_DF: Word = $278;  // 632, zwei Blocks
   c_dfudl_failsafe_DF: Word     = $27C;  // 636, letzte geladene DFUDL-Table mit Failsafe
 
-  c_update_info_DF: Word        = $27D;  // 637, DFUDL-Info-Block, für Firmware
-  c_param_update_list_DF: Word  = $27E;  // 638, PUL-Block, für Firmware
-  c_boardinfo_DF: Word          = $27F;  // 639, Block mit Seriennummern, Username etc.
-
-  // 16 Rotary-Modelle (Einstellungen für Rotary Setup)
-  c_leslieModel_base_DF: Word   = $300;  // 768, nach Firmware-Image
-  // 16 Orgelmodelle (Einstellungen für Vibrato, Generator, Gating, Mixturen etc.
-  c_organModel_base_DF: Word    = $310;  // 784, nach Rotary Models
-
-  // Freie Bl�cke für Daten, 100 für Presets benutzt
-  c_preset_base_DF: Word  = $320;  // 800..899
-  // Platz für 16 MIDI-CC-Sets je 4K:
-  c_midicc_base_DF: Word  = $3A0;  // 928, erster 4k-Block nach Presets
-
-  c_core_base_DF: Word     = $3B0;    // 944, erster 4k-Block nach FPGA-Image(s)
-  c_scan_base_DF: Word     = $3B0;    // 944, erster 4k-Block nach FPGA-Image(s)
-  c_voice_base_DF: Word    = c_core_base_DF + 2;    // 946, Zugriegel-Arrays, Länge 1 Block
-  c_defaults_base_DF: Word = c_core_base_DF + 3;    // 947, EEPROM-simulation bei ARM
-  c_taper_base_DF: Word    = c_core_base_DF + 11;   // 955..958, Länge 4 x 1 Block
-  c_coeff_base_DF: Word    = c_core_base_DF + 15;   // 959, Länge 1 Block
-  c_waveset_base_DF: Word  = $3C0;   // 960, Länge 32 (8 x 4 Blocks)
-
-  c_eeprom_base35_DF: Word   = c_core_base_DF + 9;    // 953, EEPROM AVR
-  c_firmware_base35_DF: Word = $3E0;  // 32 Blöcke, 128 KByte
-  
   // LC Cores
   c_lc_scan_driver: Byte = 0;
   c_lc_tapering: Byte = 1;
@@ -153,15 +165,16 @@ const
   c_lc_dynslope: Byte = 14;
 
   // DF Basisadressen
-  c_fpga: Word = 0;  // XC6S25 Binary, 196 Bl�cke
-  c_failsafe_base: Word = 320;  // Sicherungskopie
-  c_update_info: Word = 637;  // Update List
+  c_fpga: Word = 0;  // XC6S25 Binary, 196 Bl�cke
+  // c_fpga_failsafe: Word = 320;  // Sicherungskopie
+  // c_update_info: Word = 637;  // Update List
+  // c_param_update_list: Word  = $27E;  // 638, PUL-Block, für Firmware
   c_board_info: Word = 639;  //
-  c_speaker_model_base: Word = 768;  // 16 Bl�cke
-  c_organ_model_base: Word = 784;  // 16 Bl�cke
-  c_preset_base: Word = 800;  // 100 Bl�cke
-  c_midi_cc_base: Word = 928;  // 16 Bl�cke
-  c_core_base: Word = 944;  //
+  c_speaker_model_base: Word = 768;  // 16 Bl�cke
+  c_organ_model_base: Word = 784;  // 16 Bl�cke
+  c_preset_base: Word = 800;  // 100 Bl�cke
+  c_midi_cc_base: Word = 928;  // 16 Bl�cke
+  // c_core_base: Word = 944;  //
   c_scan: Word = 944;  //
   c_voice: Word = 946;  //
   c_defaults: Word = 947;  // HX3 Edit Array
@@ -181,7 +194,7 @@ const
   c_waveset_5: Word = 980;  //
   c_waveset_6: Word = 984;  //
   c_waveset_7: Word = 988;  //
-  c_firmware: Word = 992;  // Buffer f�r Update
+  c_firmware: Word = 992;  // $3E0, Buffer f�r Update
 
 // #############################################################################
 // ###                       BLOCKBUFFER   OFFSETS                           ###

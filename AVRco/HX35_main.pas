@@ -14,12 +14,13 @@ program hx35_main_allinone;
 {$W+}
 
 // #############################################################################
-// ###      Schalter f�r bedingte Kompilierung verschiedener Versionen       ###
+// ###      Schalter f�r bedingte Kompilierung verschiedener Versionen       ###
 // #############################################################################
 
 {$DEFINE ALLINONE}
 { $DEFINE MODULE}
 { $DEFINE SPARTAN7}
+{ $DEFINE EDER_FS76}
 
 { $DEFINE AUTO_FINALIZE}  // TO DO!   - nicht benutzen
 
@@ -30,6 +31,8 @@ program hx35_main_allinone;
 { $DEFINE DEBUG_FH}       // Ausführliche Meldungen bei
 { $DEFINE DEBUG_SWI}
 { $DEFINE DEBUG_AC}       // Apply Changes
+
+
 
 {$IFDEF DEBUG_MSG}
   {$DEFINE DEBUG_DF}       // Ausführliche Meldungen bei Dataflash-Aktionen
@@ -212,27 +215,15 @@ begin
 {$IFDEF DEBUG_MSG}
     writeln(serout,' - OK');
 {$ENDIF}
-    if F16_FileExist('\', s_autorun_ini, faFilesOnly) then
-      // altes _autorun.ini vorhanden? Dann l�schen, muss neu angelegt werden
-      if F16_FileExist('\', s_autorun_ini_old, faFilesOnly) then
-        F16_FileDelete('\', s_autorun_ini_old);
-      endif;
-      // Datei umbenennen, um erneuten Start zu vermeiden
-      F16_FileRename('\', s_autorun_ini, s_autorun_ini_old);
-      PA_RunSDscript( s_autorun_ini_old); // ggf. Reboot, kommt dann nicht zur�ck!
-    endif;
     if F16_FileExist('\',s_config_ini, faFilesOnly) then
-      if PA_RunSDscript(s_config_ini) then  // darf kein UPD enthalten!
-        // Datei umbenennen, um erneuten Start zu vermeiden
-        if F16_FileExist('\', s_config_ini_old, faFilesOnly) then
-          F16_FileDelete('\', s_config_ini_old);
-        endif;
-        F16_FileRename('\', s_config_ini, s_config_ini_old);
-      endif;
+      PA_RunSDscript(s_config_ini);  // darf kein UPD enthalten!
+    endif;
+    if F16_FileExist('\', s_autorun_ini, faFilesOnly) then
+      PA_RunSDscript(s_autorun_ini); // ggf. Reboot, kommt dann nicht zur�ck!
     endif;
 {$IFDEF DEBUG_MSG}
   else
-    writeln(serout,' - not found');
+    writeln(serout, s_err_notfound);
 {$ENDIF}
   endif;
   ErrFlags:= 0;

@@ -59,7 +59,7 @@ var result: Boolean;
 begin
   result:= false;
   LED_timer150;
-  DF_ReadBlock(c_leslieModel_base_DF + word(leslie), c_edit_array_len);  // 512 Bytes!
+  DF_ReadBlock(c_speaker_model_base + word(leslie), c_edit_array_len);  // 512 Bytes!
   if (BlockBuffer8[c_EditMagicFlagIdx] = $AA)
   and (BlockBuffer8[c_PresetStructure] >= c_MinimalRotaryStructureVersion) then
 {$IFDEF DEBUG_SR}
@@ -85,7 +85,7 @@ begin
   CopyBlock(@edit_RotaryGroup, @BlockBuffer8 + c_leslie_array_len, 16);
   BlockBuffer8[c_PresetStructure]:= c_CurrentRotaryStructureVersion;
   BlockBuffer8[c_EditMagicFlagIdx]:= $AA;   // valid Rotary setzen
-  DF_EraseWriteBlock(c_leslieModel_base_DF + word(leslie), c_edit_array_len); // 512 Bytes
+  DF_EraseWriteBlock(c_speaker_model_base + word(leslie), c_edit_array_len); // 512 Bytes
   MenuRefresh:= true;
 end;
 
@@ -103,7 +103,7 @@ begin
   result:= false;
   LED_timer150;
   // komplett lesen wg. MagicFlag
-  DF_ReadBlock(c_organModel_base_DF + Word(organ), c_edit_array_len);
+  DF_ReadBlock(c_organ_model_base + Word(organ), c_edit_array_len);
   if (BlockBuffer8[c_EditMagicFlagIdx] = $A5)
   and (BlockBuffer8[c_PresetStructure] >= c_MinimalOrganStructureVersion) then
 {$IFDEF DEBUG_SR}
@@ -147,7 +147,7 @@ begin
   CopyBlock(@edit_array, @BlockBuffer8, c_edit_array_len);
   BlockBuffer8[c_PresetStructure]:= c_CurrentOrganStructureVersion;
   BlockBuffer8[c_EditMagicFlagIdx]:= $A5;   // valid setzen
-  DF_EraseWriteBlock(c_organModel_base_DF + Word(organ), c_edit_array_len);
+  DF_EraseWriteBlock(c_organ_model_base + Word(organ), c_edit_array_len);
   MenuRefresh:= true;
 end;
 
@@ -383,7 +383,7 @@ begin
   block_PresetNameStr:= s_none;
   BlockArrayPresetVersion:= 0;
   for my_idx:= 0 to 99 do
-    DF_EraseWriteblock(c_preset_base_DF + my_idx, 512);
+    DF_EraseWriteblock(c_preset_base + my_idx, 512);
   endfor;
   FillBlock(@edit_LogicalTab_Specials, 16, 0);
 end;
@@ -410,7 +410,7 @@ begin
     edit_MagicFlag:= $A5;
     CopyBlock(@edit_array, @BlockBuffer8, 512);
     block_PresetNameStr:= CurrentPresetName;
-    DF_EraseWriteblock(c_preset_base_DF + Word(new_index), 512);
+    DF_EraseWriteblock(c_preset_base + Word(new_index), 512);
   else
     SaveEditDefaultsToEEPROM;
   endif;

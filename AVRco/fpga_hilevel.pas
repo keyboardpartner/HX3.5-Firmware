@@ -163,7 +163,7 @@ procedure FH_SendFIRToFPGA(rotary_model: Byte);
 var idx: Word;
 begin
   if rotary_model < 8 then
-    DF_SendToAutoinc(c_coeff_base_DF, 2, 512);  // FIR Koeffizienten Horn (Reg. 2)
+    DF_SendToAutoinc(c_fir_coeff, c_lc_fir_coeff, 512);  // FIR Koeffizienten Horn (Reg. 2)
   else
     FI_AutoIncSetup(c_lc_fir_coeff);
     for idx:= 0 to 511 do
@@ -1234,7 +1234,7 @@ var
   idx_b  : byte;
   waveset_block: word;
 begin
-  waveset_block:= word((edit_TG_WaveSet) * 4) + c_waveset_base_DF;
+  waveset_block:= word((edit_TG_WaveSet) * 4) + c_waveset_base;
 {$IFDEF DEBUG_FH}
   Writeln(Serout, '/ FH TG WaveSet #' + ByteToStr((edit_TG_WaveSet))
           + ' from DF block #' + IntToStr(waveset_block) + ' to FPGA (4)');
@@ -1422,7 +1422,7 @@ begin
 {$ENDIF}
   if taper_set <= 3 then
     // Taper-Sets aus DF
-    DF_SendToAutoinc(c_taper_base_DF + Word(taper_set), 1, 4096);  // Target Tapering (+11)
+    DF_SendToAutoinc(c_taper_base + Word(taper_set), c_lc_tapering, 4096);  // Target Tapering (+11)
   else
     // Errechnete oder konstante Taper-Werte f�r Nicht-Hammonds
     FI_AutoIncSetup(c_lc_tapering); // for Write Core 1 = Tapering

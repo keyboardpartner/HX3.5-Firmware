@@ -1,5 +1,5 @@
 // #############################################################################
-// ###                     F Ü R   A L L E   B O A R D S                     ###
+// ###                     F ï¿½ R   A L L E   B O A R D S                     ###
 // #############################################################################
 // ###                            UTILITIES                                  ###
 // #############################################################################
@@ -23,7 +23,7 @@ uses const_def, var_def, port_def, edit_changes, fpga_if, eeprom_def, dataflash;
   procedure NB_CreateInverseCCarrays;
   procedure NB_CCarrayFromDF(const cc_set: Byte);
 
-  // sendet einen binär kodierten Header ohne Länge an serielle Schnittstelle:
+  // sendet einen binï¿½r kodierten Header ohne Lï¿½nge an serielle Schnittstelle:
   function NB_SendBinaryHeader(const cmd: byte; const param_num: Integer):byte;
 
   procedure NB_SendBinaryBlock(const param_num: Integer; const len: Byte);
@@ -33,7 +33,7 @@ uses const_def, var_def, port_def, edit_changes, fpga_if, eeprom_def, dataflash;
   procedure NB_SerSendBlockArray(const len_w: Word);
 
   procedure NB_LoadLeslieInits;
-//  procedure NB_pulse(const p_len: byte); // neg. 10µs/dig Impuls für Messungen mit LA
+//  procedure NB_pulse(const p_len: byte); // neg. 10ï¿½s/dig Impuls fï¿½r Messungen mit LA
 
   procedure NB_LoadPhasingSet(const my_phr_preset: byte);
 
@@ -45,9 +45,11 @@ uses const_def, var_def, port_def, edit_changes, fpga_if, eeprom_def, dataflash;
   procedure NB_SetLEDdimmer;
   procedure NB_BlockRcvMsg(const my_block: Integer);
 
+{$IFDEF EDER_FS76}
   function NB_GetBytefromI2Cslave(const i2c_addr, idx: Byte; var data: Byte): Boolean;
   function NB_SendBytetoI2Cslave(const i2c_addr, idx, data: Byte): Boolean;
   function NB_ManualDefaultsToI2Cslave(const manual: Byte): Boolean;
+{$ENDIF}
 
   procedure NB_ValidateExtendedParams;
   procedure NB_init_edittable;
@@ -125,7 +127,7 @@ begin
 end;
 
 procedure NB_VibknobToVCbits;
-// setzt Vibrato-Knopfstellung in logische Tab-Stellung für LEDs um
+// setzt Vibrato-Knopfstellung in logische Tab-Stellung fï¿½r LEDs um
 begin
   if (edit_VibKnobMode = 3) then
     FillBlock(@edit_LogicalTab_VibBtns, 6, 0);
@@ -141,15 +143,15 @@ begin
     edit_LogicalTab_4V3:= Bit(m, 2);
     edit_LogicalTab_4VCh:= Bit(m, 3);
   endif;
-  // nur Knob-Stellung berücksichtigen:
+  // nur Knob-Stellung berï¿½cksichtigen:
   FillBlock(@edit_LogicalTab_VibBtns_flag, 6, 0);
   MenuRefresh:= true;
 end;
 
 procedure NB_VCbitsToVibknob;
-// setzt logische Tab-Stellung für LEDs in Vibrato-Knopfstellung um
+// setzt logische Tab-Stellung fï¿½r LEDs in Vibrato-Knopfstellung um
 begin
-  // Sonderfall Button Vibrato mit gegenseitiger Auslösung, V/C einzeln
+  // Sonderfall Button Vibrato mit gegenseitiger Auslï¿½sung, V/C einzeln
   // nur Vib-Tabs
   if (edit_VibKnobMode = 3) then
     edit_VibKnob:= 0;
@@ -241,29 +243,24 @@ begin
   FillBlock(@edit_LogicalTab_IncDecBtns_flag, 16, 0);
 end;
 
-
+{$IFDEF EDER_FS76}
 function NB_GetBytefromI2Cslave(const i2c_addr, idx: Byte; var data: Byte): Boolean;
 begin
-{$IFDEF MODULE}
-  return(false);
-{$ELSE}
   if TWIstat(i2c_addr) then
     udelay(10); // immer nach TWIstat
     TWIout(i2c_addr, idx); // Index im Buffer
-    udelay(10); // für FatarScan76 nötig!
+    udelay(10); // fï¿½r FatarScan76 nï¿½tig!
     TWIinp(i2c_addr, data);
     return(true);
   else
     return(false);
   endif;
-{$ENDIF}
+
 end;
 
 function NB_SendBytetoI2Cslave(const i2c_addr, idx, data: Byte): Boolean;
 begin
-{$IFDEF MODULE}
-  return(false);
-{$ELSE}
+
   if TWIstat(i2c_addr) then
     udelay(10); // immer nach TWIstat
     TWIout(i2c_addr, idx, data); // Index im Buffer
@@ -271,15 +268,11 @@ begin
   else
     return(false);
   endif;
-{$ENDIF}
 end;
 
 function NB_ManualDefaultsToI2Cslave(const manual: Byte): Boolean;
 var i2c_addr: Byte;
 begin
-{$IFDEF MODULE}
-  return(false);
-{$ELSE}
   i2c_addr:= $5A + manual;
   if TWIstat(i2c_addr) then
     udelay(5); // immer nach TWIstat
@@ -292,8 +285,8 @@ begin
   else
     return(false);
   endif;
-{$ENDIF}
 end;
+{$ENDIF}
 
 
 procedure NB_CheckDFUmsg;
@@ -305,7 +298,7 @@ begin
     ReceiveFPGA(1);
     if FPGAreceiveLong0 <> 0 then
       if LCDpresent and (not DFUrunning) and IsSysTimerZero(ActivityTimer) then
-        MenuIndex_Requested:= MenuIndex; // zurück
+        MenuIndex_Requested:= MenuIndex; // zurï¿½ck
         LCDxy_M(LCD_m1, 0, 0);
         write(LCDOut_M, 'DSP Update (DFU)');
         LCDxy_M(LCD_m1, 0, 1);
@@ -323,13 +316,13 @@ end;
 
 
 procedure NB_CreateInverseCCarrays;
-// CC-Arrays für MIDI IN/OUT anlegen
-// ch enthält auch Flags: Bit 4 = Inverted, Bit 5 = Scaled
+// CC-Arrays fï¿½r MIDI IN/OUT anlegen
+// ch enthï¿½lt auch Flags: Bit 4 = Inverted, Bit 5 = Scaled
 var my_idx: Integer;
     cc, ch: Byte;
 begin
   UseSustainSostMask:= $80;
-  FillBlock(@CCarray, 1024, 255); // -1 = ungültiger Parameter
+  FillBlock(@CCarray, 1024, 255); // -1 = ungï¿½ltiger Parameter
   // Index auf CCarray_i: ch*128 + cc
   // Index auf MIDIset_Array: Param-1000 wenn 1000..1751
   // MIDIset_Arrays enthalten zum Parameter (100)0..(1)751
@@ -362,8 +355,8 @@ begin
   // 11..14: Tapering
   // 15: FIR filter
   // 16 ff.: Wavesets
-  DF_readblock(c_midicc_base_DF + word(cc_set), c_midiarr_dflen);
-  // BlockBuffer8 enthält jetzt Block aus 4 x 768 Parametern
+  DF_readblock(c_midi_cc_base + word(cc_set), c_midiarr_dflen);
+  // BlockBuffer8 enthï¿½lt jetzt Block aus 4 x 768 Parametern
   // CH- und CC-Nummern sowie min und max
   // plus 4x128 min- und 4x128 max-Werte
   // NRPN-Array getrennt von CCs ab Index 3072
@@ -382,7 +375,7 @@ end;
 // #############################################################################
 
 procedure NB_init_edittable;
-// Defaults aus Flash für Preset-Initialisierung
+// Defaults aus Flash fï¿½r Preset-Initialisierung
 var idx_w: Word;
 begin
   for idx_w:= 0 to 495 do
@@ -394,7 +387,7 @@ end;
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 procedure NB_CreateInverseMenuArr;
-// Das RestoreArray entscheidet, ob ein Wert aus CommonPresets übernommen wird
+// Das RestoreArray entscheidet, ob ein Wert aus CommonPresets ï¿½bernommen wird
 // anhand edit_RestoreCommonPresetMask und c_MenuSaveDestArr setzen
 // Legt auch Param2MenuInverseArray an!
 var
@@ -402,8 +395,8 @@ var
 
 begin
   FillBlock(@Param2MenuInverseArray, 512, 255);  // alle unbelegt
-  // edit_RestoreCommonPresetMask Bits 1 bis 6 im Menü
-  for i:= 0 to c_MenuLen - 1 do      // im Menü, falls save_dest < EEPROM
+  // edit_RestoreCommonPresetMask Bits 1 bis 6 im Menï¿½
+  for i:= 0 to c_MenuLen - 1 do      // im Menï¿½, falls save_dest < EEPROM
     my_param:= c_Index2ParamArr[i];
     if valueInRange(my_param, 1000, 1494) then
       my_idx:= my_param - 1000;
@@ -425,7 +418,7 @@ end;
 
 
 procedure NB_ValidateExtendedParams;
-// Ungültige Werte anhand nicht freigegebener Bedienelemente setzen
+// Ungï¿½ltige Werte anhand nicht freigegebener Bedienelemente setzen
 var
    my_param: Integer;
    my_idx, my_mask: byte;
@@ -433,7 +426,7 @@ begin
   for my_idx:= 0 to c_MenuLen do
     my_mask:= c_MenuMaskArr[my_idx];
     if (not HasExtendedLicence) and (not Bit(my_mask, 6)) then
-      // Eintrag ungültig, Default-Wert 0 in edit_table
+      // Eintrag ungï¿½ltig, Default-Wert 0 in edit_table
       my_param:= c_Index2ParamArr[my_idx];
       if my_param >= 1000 then
         edit_array[my_param - 1000]:= 0;
@@ -448,7 +441,7 @@ end;
 // #############################################################################
 
 {
-procedure NB_pulse(const p_len: byte); // neg. Impuls für Messungen mit LA
+procedure NB_pulse(const p_len: byte); // neg. Impuls fï¿½r Messungen mit LA
 begin
   excl(PortD, 3);
   udelay(p_len);
@@ -508,12 +501,12 @@ end;
 // ###                             EVENT-SENDER                              ###
 // #############################################################################
 
-// Routinen zum binär kodierten Senden (schneller als Parser in Klartext)
+// Routinen zum binï¿½r kodierten Senden (schneller als Parser in Klartext)
 
 function NB_SendBinaryHeader(const cmd: byte; const param_num: Integer):byte;
-// sendet einen binär kodierten Header ohne Länge an BLE bzw. serielle Schnittstelle
+// sendet einen binï¿½r kodierten Header ohne Lï¿½nge an BLE bzw. serielle Schnittstelle
 // ESC CMD ADRL ADRH
-// liefert CRC zurück
+// liefert CRC zurï¿½ck
 var
   my_temp_crc : byte;
 begin
@@ -538,7 +531,7 @@ begin
   write(LCDOut_M, 'Block #' + IntToSTr(my_block));
   LED_timer1000;
 {$ENDIF}
-  MenuIndex_Requested:= MenuIndex; // zurück zum letzen Menü
+  MenuIndex_Requested:= MenuIndex; // zurï¿½ck zum letzen Menï¿½
 end;
 
 function NB_WaitACK(const add_timeout: Byte): Boolean;
@@ -555,7 +548,7 @@ begin
 end;
 
 procedure NB_SendBinaryBlock(const param_num: Integer; const len: Byte);
-// mit Event-CMD #5: Erwarte Bestätigung nach Bearbeitung
+// mit Event-CMD #5: Erwarte Bestï¿½tigung nach Bearbeitung
 // ESC CMD ADRL ADRH LEN DATA0...DATAn CHK, hier also
 // 27  4/5 ADRL ADRH  1  <vals...>     CHK
 // len=1: nur 1 Byte senden
@@ -566,7 +559,7 @@ var
   done: Boolean;
 begin
   if ConnectMode = t_connect_osc_wifi then // OSC connected By Serial
-    cmd:= 5; // mit Bestätigung
+    cmd:= 5; // mit Bestï¿½tigung
   else
     cmd:= 4;
   endif;
@@ -590,7 +583,7 @@ begin
     if ConnectMode = t_connect_osc_wifi then
       done:= NB_WaitACK(len);   // Timeout
     else
-      done:= true; // nur einmal ausführen wenn kein ACK erwartet
+      done:= true; // nur einmal ausfï¿½hren wenn kein ACK erwartet
     endif;
     inc(retry);
   until done or (retry > 3);
@@ -618,7 +611,7 @@ begin
     if ConnectMode = t_connect_osc_wifi then
       done:= NB_WaitACK(0);   // Timeout 25ms
     else
-      done:= true; // nur einmal ausführen wenn kein ACK erwartet
+      done:= true; // nur einmal ausfï¿½hren wenn kein ACK erwartet
     endif;
     inc(retry);
   until done or (retry > 3);
@@ -666,8 +659,8 @@ end;
 
 procedure NB_InitPCA9532_dim(const my_adr, my_dim: byte);
 // initialisiert PCA9532, LEDs aus
-// ACHTUNG: AutoInc funktioniert beim PCA9532 aus unbekannten Gründen
-// NICHT bei PSC- und PWM-Registern, deshalb hier "zu Fuß":
+// ACHTUNG: AutoInc funktioniert beim PCA9532 aus unbekannten Grï¿½nden
+// NICHT bei PSC- und PWM-Registern, deshalb hier "zu Fuï¿½":
 // %00 = OFF, %01 = ON, %10 = PWM_0 (darker), %11= PWM_1 (brighter)
 var my_dim_2: Byte;
 begin

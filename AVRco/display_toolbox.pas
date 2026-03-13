@@ -28,7 +28,7 @@ procedure DisplayOnOff(const my_bool: boolean);
 procedure LCDsetBitfield;
 procedure LCDsetBar;
 procedure DT_InitLCD;
-// MenuIndex um menu_delta erhöhen/erniedrigen, Wrap around ausführen
+// MenuIndex um menu_delta erhï¿½hen/erniedrigen, Wrap around ausfï¿½hren
 procedure DT_GetNextValidMenuIndex(const delta: Int8);
 
 procedure DT_MsgToPreset(const my_dest: char);
@@ -41,7 +41,7 @@ procedure DT_GetButtonDelta;
 procedure DT_GetMenuStatus;  // setzt IsInBitField, IsInMainMenu
 function DT_GetMenuMax(const my_menu_index: byte): byte;
 
-// Holt Menupanel-Button-Status und liefert TRUE wenn Up/Down/Enter gedrückt
+// Holt Menupanel-Button-Status und liefert TRUE wenn Up/Down/Enter gedrï¿½ckt
 function DT_PanelButtonPressed(my_delay: word):Boolean;
 
 procedure LCDOut_M_space;
@@ -155,7 +155,7 @@ begin
     CLI;
   endasm;
 {
-// für Encoder-BETA in Main
+// fï¿½r Encoder-BETA in Main
   IRQ_Incr0:= (PinA and 3);  // Ruheposition angenommen
   IRQ_Incr1:= IRQ_Incr0;
   IRQ_Incr_zero:= IRQ_Incr0;          // eingerastet
@@ -174,7 +174,7 @@ begin
 end;
 
 function DT_GetMenuMax(const my_menu_index: byte): byte;
-// liefert Maximalwert des Menüeintrags über c_edit_max-Tabelle
+// liefert Maximalwert des Menï¿½eintrags ï¿½ber c_edit_max-Tabelle
 var
   arr_idx: Integer;
   max_val: byte;
@@ -194,7 +194,7 @@ var
   encoder_delta_temp: Integer;
   max_val: byte;
 begin
-  // mit Beschleuningung für Drawbar/Poti-Werte
+  // mit Beschleuningung fï¿½r Drawbar/Poti-Werte
   asm;
     CLI;
   endasm;
@@ -205,7 +205,7 @@ begin
   endasm;
   EncoderChanged:= (EncoderDelta <> 0);
 
-  // Integrierer für Encoder-Absolutwert
+  // Integrierer fï¿½r Encoder-Absolutwert
   if isSystimerZero(EncoderIntegratorTimer) then
     setSysTimer(EncoderIntegratorTimer, 33); // 66 ms
     asm;
@@ -248,9 +248,9 @@ end;
 
 
 function DT_MenuEntryValid(const menu_idx: byte): t_menuvalid;
-// Menü-Eintrag vorhanden? Ist nur gültig, wenn KEIN phys.
-// Bedienelement vorhanden ist und Lizenz den Eintrag zulässt.
-// wird bei jedem Menüwechsel aufgerufen (Up/Down/Enter)
+// Menï¿½-Eintrag vorhanden? Ist nur gï¿½ltig, wenn KEIN phys.
+// Bedienelement vorhanden ist und Lizenz den Eintrag zulï¿½sst.
+// wird bei jedem Menï¿½wechsel aufgerufen (Up/Down/Enter)
 // type t_menuvalid = (t_menu_hidden, t_menu_invalid, t_menu_valid);
 var
    menu_valid: t_menuvalid;
@@ -269,7 +269,7 @@ begin
   endif;
 
   if (not HasExtendedLicence) and (not Bit(my_mask, 6)) then
-    // Eintrag ungültig
+    // Eintrag ungï¿½ltig
     menu_valid:= t_menu_hidden;
   endif;
 
@@ -278,24 +278,15 @@ begin
   endif;
 
   if (menu_idx = c_KeybEarlySubmenu) and ((Boardinfo.ScanCoreID and $0F) <> $01) then
-    return(t_menu_hidden);
+    menu_valid:= t_menu_hidden;
   endif;
-{
-  if (ScanCoreID = $53) then   // wenn MIDI Input
-    MenuMaskArray[c_KeybTransposeMenu]:= 0;
-    MenuMaskArray[c_LocalOnOffMenu]:= 0;
-    MenuMaskArray[c_SplitOnMenu]:= 0;
-    MenuMaskArray[c_SplitPointMenu]:= 0;
-    MenuMaskArray[c_SplitModeMenu]:= 0;
-  endif;
-}
 
   return(menu_valid);
 end;
 
 procedure DT_ResetMenuEnables;
 begin
-// Alle Menüs wieder auf ON
+// Alle Menï¿½s wieder auf ON
   for i:= 0 to c_MenuLen do
      eep_MenuValidArr[i]:= true;
   endfor;
@@ -305,7 +296,7 @@ end;
 // -----------------------------------------------------------------------------
 
 procedure DT_GetMenuGroupLimits(const menu_idx: Byte; var first_menu, last_menu: Byte);
-// Start und Ende des aktuellen Menü-Bereichs ermitteln
+// Start und Ende des aktuellen Menï¿½-Bereichs ermitteln
 begin
   for i:= 0 to c_MenuGroups do
     first_menu:= c_MenuStartArr[i];
@@ -317,8 +308,8 @@ begin
 end;
 
 procedure DT_GetMenuStatus;
-// Menü-Bedienung und Einstellungen über Display, Buttons und Drehgeber
-// wertet DisplayDisplayRequest aus und setzt dieses zurück, sobald angezeigt
+// Menï¿½-Bedienung und Einstellungen ï¿½ber Display, Buttons und Drehgeber
+// wertet DisplayDisplayRequest aus und setzt dieses zurï¿½ck, sobald angezeigt
 // type t_ovr = (t_inrange, t_overrange, t_underrange);
 var
   my_menutype: t_menuType;
@@ -343,7 +334,7 @@ end;
 // -----------------------------------------------------------------------------
 
 procedure DT_GetNextValidMenuIndex(delta: Int8);
-// MenuIndex um menu_delta erhöhen/erniedrigen, ggf. Wrap around ausführen
+// MenuIndex um menu_delta erhï¿½hen/erniedrigen, ggf. Wrap around ausfï¿½hren
 // t_scroll_both, t_scroll_up, t_scroll_down, t_scroll_none
 // type t_menuvalid = (t_menu_hidden, t_menu_invalid, t_menu_valid);
 var
@@ -356,10 +347,10 @@ begin
   is_on_limit:= false;
   search_index:= MenuIndex;
   repeat
-    // wiederholen, bis gültiges Menü gefunden
+    // wiederholen, bis gï¿½ltiges Menï¿½ gefunden
     search_index:= search_index + byte(delta);
     // if Bit(edit_ConfBits, 5) then  // Wrap Menus?
-      if (search_index > 200) or (search_index < first_menu) then // Überlauf Byte
+      if (search_index > 200) or (search_index < first_menu) then // ï¿½berlauf Byte
         search_index:= last_menu;
       endif;
       if (search_index > last_menu) then
@@ -380,7 +371,7 @@ begin
     // writeln(serout,'/ Menu: ' + bytetostr(search_index));
     valid:= DT_MenuEntryValid(search_index);
 
-    // Ausgehend vom letzen Menü ein gültiges in Richtung Delta suchen;
+    // Ausgehend vom letzen Menï¿½ ein gï¿½ltiges in Richtung Delta suchen;
     // Abbrechen wenn gefunden oder Ende erreicht
     // nur noch Einzelschritte, Richtung beibehalten
     if delta >= 0 then
@@ -395,19 +386,19 @@ begin
 end;
 
 procedure DT_SetUpDownArrows;
-// Up/Down-Arrows für derzeitige Richtung anhand des
-// nächsten und vorherigen Eintrags setzen
-// Weiße Up/Down-Arrows, wenn Submenu vorhanden
+// Up/Down-Arrows fï¿½r derzeitige Richtung anhand des
+// nï¿½chsten und vorherigen Eintrags setzen
+// Weiï¿½e Up/Down-Arrows, wenn Submenu vorhanden
 begin
   LCDset_LR_Arrows(ValueChangeMode); // filled wenn ValueChangeMode
 
   LCDxy_M(LCD_m1, 15, 0);
-  LCDOut_M(#6);   // Updown, Farbe abhängig von ValueChangeMode
+  LCDOut_M(#6);   // Updown, Farbe abhï¿½ngig von ValueChangeMode
   LCDxy_M(LCD_m1, 15, 1);
   if IsInMainMenu then
     LCDOut_M(#32);
   else
-    LCDOut_M(#5); // inv. "s" wenn im Submenü
+    LCDOut_M(#5); // inv. "s" wenn im Submenï¿½
   endif;
 
   if (IsInEditName or IsInBitField) then
@@ -449,7 +440,7 @@ end;
 // #############################################################################
 
 procedure DisplayHeader(const my_str: String[15]);
-// Display-Überschrift aus Array, Rest löschen und in zweite Zeile wechseln
+// Display-ï¿½berschrift aus Array, Rest lï¿½schen und in zweite Zeile wechseln
 begin
   LCDxy_M(LCD_m1, 0, 0);
   write(LCDOut_M, my_str);
@@ -458,7 +449,7 @@ begin
 end;
 
 procedure DisplayHeaderIndexed(const my_idx: byte);
-// Display-Überschrift aus Array, Rest löschen und in zweite Zeile wechseln
+// Display-ï¿½berschrift aus Array, Rest lï¿½schen und in zweite Zeile wechseln
 begin
   if (my_idx = c_EnvEnaUpperMenu) and (edit_GatingKnob >= 2)then
     DisplayHeader('EG Dry  ');
@@ -468,7 +459,7 @@ begin
 end;
 
 procedure DisplayBottom(const my_str: String[15]);
-// Display-Überschrift aus Array, Rest löschen und in zweite Zeile wechseln
+// Display-ï¿½berschrift aus Array, Rest lï¿½schen und in zweite Zeile wechseln
 begin
   LCDxy_M(LCD_m1, 0, 1);
   write(LCDOut_M, my_str);
@@ -535,7 +526,7 @@ begin
     LCDxy_M(LCD_m1, 0, 1);
     msg_savedest(my_dest);
     write(LCDOut_M, ' OK!');
-    MenuIndex_Requested:= MenuIndex; // zurück zum letzen Menü
+    MenuIndex_Requested:= MenuIndex; // zurï¿½ck zum letzen Menï¿½
   endif;
 end;
 

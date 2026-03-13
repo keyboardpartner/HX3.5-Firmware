@@ -26,13 +26,13 @@ uses var_def, const_def, fpga_if, dataflash, MIDI_com;
 // aus DF laden und an AutoInc-Reg senden 
   procedure FH_WaveBlocksToFPGA;
   
-// 1024 Keymap-Werte 8 Bit breit an FPGA DDS48 übertragen 
+// 1024 Keymap-Werte 8 Bit breit an FPGA DDS48 ï¿½bertragen 
   procedure FH_KeymapToFPGA; 
   
-// 1024 Keymap-Werte 8 Bit breit an FPGA DDS48 übertragen 
+// 1024 Keymap-Werte 8 Bit breit an FPGA DDS48 ï¿½bertragen 
   procedure FH_NoteHighpassFilterToFPGA; 
   
-// 95 Tuning-Werte 16 Bit breit an FPGA DDS96 übertragen 
+// 95 Tuning-Werte 16 Bit breit an FPGA DDS96 ï¿½bertragen 
   procedure FH_TuningValsToFPGA; 
   
   procedure FH_TaperingToFPGA(const taper_set: byte); 
@@ -61,7 +61,7 @@ var
   HornTimer, RotorTimer: Systimer8; 
   MixturesEnaByte: byte; 
   
-  // erhalten übersetzte Werte aus edit_UpperRoutingWords 
+  // erhalten ï¿½bersetzte Werte aus edit_UpperRoutingWords 
   bb_UpperRoutingWords: array[0..7] of word; 
     // an FPGA: 
   bb_ena_cont_bits[@bb_UpperRoutingWords + 0]: word;         // FPGA SPI #40 
@@ -75,10 +75,10 @@ var
   bb_ena_env_timemode_bits[@bb_UpperRoutingWords + 14]: word;     // FW use, full ADSR 
   
   
-  bb_attack_arr: array[0..15] of byte;   // Zeitkorrekturen für EG Decay Mode 
-  bb_decay_arr : array[0..15] of byte;  // Zeitkorrekturen für EG Decay Mode 
-  bb_sustain_arr: array[0..15] of byte;   // Zeitkorrekturen für EG Decay Mode 
-  bb_release_arr: array[0..15] of byte;   // Zeitkorrekturen für EG Decay Mode 
+  bb_attack_arr: array[0..15] of byte;   // Zeitkorrekturen fï¿½r EG Decay Mode 
+  bb_decay_arr : array[0..15] of byte;  // Zeitkorrekturen fï¿½r EG Decay Mode 
+  bb_sustain_arr: array[0..15] of byte;   // Zeitkorrekturen fï¿½r EG Decay Mode 
+  bb_release_arr: array[0..15] of byte;   // Zeitkorrekturen fï¿½r EG Decay Mode 
   
   fpga_PhasingGroup: array[0..15] of byte; 
   fpga_PHR_SpeedVariSlow[@fpga_PhasingGroup + 0]: byte;       // FPGA SPI #112 
@@ -146,8 +146,8 @@ procedure drawbars_to_lc(var db_array: array[0..15] of byte;
 // In "bb_ena_env_adsrmode_bits" sind jene Bits auf '1', 
 // bei denen ein BUSBAR auf ADSR geschaltet ist. 
 // In "bb_ena_env_percmode_bits" sind jene Bits auf '1', 
-// bei denen zusätzlich der Sustain-Pegel vom normalen 
-// Fußlagen-Drawbar statt von ADSR-Sustain-Poti übernommen werden soll. 
+// bei denen zusï¿½tzlich der Sustain-Pegel vom normalen 
+// Fuï¿½lagen-Drawbar statt von ADSR-Sustain-Poti ï¿½bernommen werden soll. 
 var
   my_fac_10, my_fac_11, my_fac_12, my_dbe_val  : byte; 
   my_word                                      : word; 
@@ -180,7 +180,7 @@ begin
   endif; 
   
   // 3 Pegelwerte in temp_db_levels zusammenstellen 
-  // Zugehörige Fußlagen ermitteln 
+  // Zugehï¿½rige Fuï¿½lagen ermitteln 
   // Es kann ein Busbar jeweils nur EINEM Zugriegel zugeordnet werden, 
   // ein Zugriegel kann aber Signale von mehreren Busbars erhalten 
   for i:= 0 to 5 do 
@@ -236,7 +236,7 @@ begin
     else 
       FPGAsendByte:= gettable(c_DrawbarLogTable, m); 
       if mute_db then 
-        // Drawbar-Pegelabsenkung bei Percussion gewünscht, nur Hammond 
+        // Drawbar-Pegelabsenkung bei Percussion gewï¿½nscht, nur Hammond 
         FPGAsendByte:= muldivByte(FPGAsendByte, edit_PercMutedLvl, 127); 
       endif; 
     endif; 
@@ -278,13 +278,13 @@ begin
 end; 
 
 procedure adsr_to_bb_adsr; 
-// produziert 15 abfallende/ansteigende ADSR-Werte für Saiten-Simulation 
+// produziert 15 abfallende/ansteigende ADSR-Werte fï¿½r Saiten-Simulation 
 // In "bb_ena_env_adsrmode_bits" sind jene Bits auf '1', 
 // bei denen ein BUSBAR auf ADSR geschaltet ist. 
 // In "bb_ena_env_percmode_bits" sind jene Bits auf '1', 
-// bei denen zusätzlich der Sustain-Pegel vom normalen 
-// Fußlagen-Drawbar statt von ADSR-Sustain-Poti übernommen werden soll. 
-// drawbars_to_lc muss ausgeführt sein! 
+// bei denen zusï¿½tzlich der Sustain-Pegel vom normalen 
+// Fuï¿½lagen-Drawbar statt von ADSR-Sustain-Poti ï¿½bernommen werden soll. 
+// drawbars_to_lc muss ausgefï¿½hrt sein! 
 var
   my_timefac, decay_harm, release_harm, sustain_harm, 
   my_db_val, my_dbe_val, this_env_db: byte; 
@@ -313,7 +313,7 @@ begin
       release:= release_harm; 
     endif; 
     
-    // EG Percussion Mode aktiviert? Sustain-Wert ändern 
+    // EG Percussion Mode aktiviert? Sustain-Wert ï¿½ndern 
     if bit(bb_ena_env_percmode_bits, i) then  // soll auf Drawbar-Level? 
       attack:= 0; 
       decay:= decay_harm; 
@@ -351,7 +351,7 @@ begin
     bb_sustain_arr[i]:= sustain; 
     bb_release_arr[i]:= release; 
     
-    // HARMONIC DECAY, modifizierte Zeiten für obere Teiltöne 
+    // HARMONIC DECAY, modifizierte Zeiten fï¿½r obere Teiltï¿½ne 
     decay_harm:= muldivByte(decay_harm, my_timefac, 128); 
     decay_harm:= valuetrimlimit(decay_harm, 0, 127); 
     release_harm:= muldivByte(release_harm, my_timefac, 128); 
@@ -362,7 +362,7 @@ end;
 
 procedure harp_sustain_to_bb_adsr; 
 begin
-  // Decay-Value für Harp-Sustain-Fußlage 4' = BB 2 
+  // Decay-Value fï¿½r Harp-Sustain-Fuï¿½lage 4' = BB 2 
   bb_attack_arr[3]:= 0; 
   bb_decay_arr[3]:= edit_H100harpSust; 
   bb_sustain_arr[3]:= 40;  // Sustain-Value 
@@ -377,8 +377,8 @@ procedure FH_UpperDrawbarsToFPGA;
 // In "bb_ena_env_adsrmode_bits" sind jene Bits auf '1', 
 // bei denen ein BUSBAR auf ADSR geschaltet ist. 
 // In "bb_ena_env_percmode_bits" sind jene Bits auf '1', 
-// bei denen zusätzlich der Sustain-Pegel vom normalen 
-// Fußlagen-Drawbar statt von ADSR-Sustain-Poti übernommen werden soll. 
+// bei denen zusï¿½tzlich der Sustain-Pegel vom normalen 
+// Fuï¿½lagen-Drawbar statt von ADSR-Sustain-Poti ï¿½bernommen werden soll. 
 // benutzte LCs 
 // (6)=HP-Filter, (8)=DB Upper, (10)=DB Pedal, (11)= ADSR Upper, (12)=ADSR Lower, (13)=ADSR Pedal 
 begin
@@ -405,7 +405,7 @@ end;
 // ############################################################################# 
 
 function mixtures_to_ena_byte(to_adsr_bits: byte): byte; 
-// liefert zugehörige Fußlagen-Bits nach Drawbar-Zählweise, oberes Byte 
+// liefert zugehï¿½rige Fuï¿½lagen-Bits nach Drawbar-Zï¿½hlweise, oberes Byte 
 var
   my_fac_10, my_fac_11, my_fac_12, temp  : byte; 
 begin
@@ -454,7 +454,7 @@ begin
   Writeln(Serout, '/ (FH) Route Organ'); 
 {$ENDIF}
 
-  // Routing-Bits werden durch erfolgte Änderungen an FPGA gesendet
+  // Routing-Bits werden durch erfolgte ï¿½nderungen an FPGA gesendet
   if edit_LogicalTab_PercOn then
     if edit_LogicalTab_Perc3rd then
       edit_ena_cont_perc_bits:= (edit_ena_cont_perc_bits and $FF7) or $010; // Perc Select 3rd-Bit
@@ -470,13 +470,13 @@ begin
 end; 
 
 procedure FH_UpperRoutingToFPGA; 
-// edit-Routing-Bits in beteiligte Fußlagen umrechnen und an FPGA senden 
-// bei Sempra direkte Änderungen über MIDI 
+// edit-Routing-Bits in beteiligte Fuï¿½lagen umrechnen und an FPGA senden 
+// bei Sempra direkte ï¿½nderungen ï¿½ber MIDI 
 // ena_cont_perc_bits     = 32, mit Bit 15 = PERC_BYPASS 
-// ENA_CONT_BITS     = 40, mechanische Kontakte für jede Fußlage 
-// ENA_ENV_DB_BITS   = 41, elektronische Kontakte für jede Fußlage 
-// ENA_ENV_FULL_BITS = 42, elektronische Kontakte für jede Fußlage 
-// ENV_TO_DRY_BITS   = 43, ADSR-Fußlagen auf Dry-Kanal 
+// ENA_CONT_BITS     = 40, mechanische Kontakte fï¿½r jede Fuï¿½lage 
+// ENA_ENV_DB_BITS   = 41, elektronische Kontakte fï¿½r jede Fuï¿½lage 
+// ENA_ENV_FULL_BITS = 42, elektronische Kontakte fï¿½r jede Fuï¿½lage 
+// ENV_TO_DRY_BITS   = 43, ADSR-Fuï¿½lagen auf Dry-Kanal 
 // bb_ena_env_percmode_bits (FW) = Sustain-Pegel Umrechnung in FW 
 // bb_ena_env_adsrmode_bits (FW) = ADSR statt AR-Envelope 
 // bb_ena_env_timemode_bits (FW) = Envelope-DBs sind A/D/R Time Modifier 
@@ -484,8 +484,8 @@ procedure FH_UpperRoutingToFPGA;
 // In "bb_ena_env_adsrmode_bits" sind jene Bits auf '1', 
 // bei denen ein BUSBAR auf ADSR geschaltet ist. 
 // In "fpge_ena_env_percmode_mode" sind jene Bits auf '1', 
-// bei denen zusätzlich der Sustain-Pegel vom normalen 
-// Fußlagen-Drawbar statt von ADSR-Sustain-Poti übernommen werden soll. 
+// bei denen zusï¿½tzlich der Sustain-Pegel vom normalen 
+// Fuï¿½lagen-Drawbar statt von ADSR-Sustain-Poti ï¿½bernommen werden soll. 
   
 var
   idx: byte; 
@@ -509,7 +509,7 @@ begin
                        and (not bb_ena_cont_bits); 
   
  // 1" ausmaskieren wenn DisableDB1 gesetzt 
-  // für Böhm auch EG mode!
+  // fï¿½r Bï¿½hm auch EG mode!
   if cancel_1 then 
     bb_ena_cont_bits:= bb_ena_cont_bits and $FEFF; 
     // bb_ena_env_adsrmode_bits:= bb_ena_env_adsrmode_bits and $FEFF; 
@@ -536,7 +536,7 @@ end;
 // ############################################################################# 
 
 procedure FH_PercussionParamsToFPGA; 
-// für Advanced Routing und Hammond-Percussion 
+// fï¿½r Advanced Routing und Hammond-Percussion 
 // Hammond-Percussion: Timing-Werte und Pegel an FPGA 
 var
   my_lvl, my_timerval, my_med_lvl  : word; 
@@ -563,7 +563,7 @@ begin
     my_timerval:= my_timerval div 8; 
   endif; 
   
-  // Simple Version für Böhm, kein H100-Mode 
+  // Simple Version fï¿½r Bï¿½hm, kein H100-Mode 
   m:= 0; 
   my_med_lvl:= 0; 
   for i:= 0 to 15 do 
@@ -594,7 +594,7 @@ end;
 //              (11)= ADSR Upper, (12)=ADSR Lower, (13)=ADSR Pedal 
 
 procedure scaled_lwrped_adsr_to_lc(var adsr_arr: array[0..7] of byte; const full_adsr: word); 
-// produziert 15 abfallende/ansteigende ADSR-Werte für Saiten-Simulation 
+// produziert 15 abfallende/ansteigende ADSR-Werte fï¿½r Saiten-Simulation 
 // sendet nacheinander 16 Attack-, 16 Decay-, 16 Sustain- und 16 Release-Werte 
 var
   my_timefac, attack_val, decay_val, sustain_val, release_val  : byte; 
@@ -620,7 +620,7 @@ begin
       m:= 0; 
     endif; 
     FPGAsendWord:= gettable(c_TimeLogTable, m); 
-    // modifizierte Zeiten für obere Teiltöne 
+    // modifizierte Zeiten fï¿½r obere Teiltï¿½ne 
     decay_val:= muldivByte(decay_val, my_timefac, 128); 
     decay_val:= valuetrimlimit(decay_val, 0, 127); 
     // Decay-Wert in FPGAsendWord senden 
@@ -648,7 +648,7 @@ begin
       m:= 0; 
     endif; 
     FPGAsendWord:= gettable(c_TimeLogTable, m); 
-    // modifizierte Zeiten für obere Teiltöne 
+    // modifizierte Zeiten fï¿½r obere Teiltï¿½ne 
     release_val:= muldivByte(release_val, my_timefac, 128); 
     release_val:= valuetrimlimit(release_val, 0, 127); 
     // Decay-Wert in FPGAsendWord senden 
@@ -734,7 +734,7 @@ end;
 // ############################################################################# 
 
 procedure FH_PedalDrawbarsToFPGA; 
-// Vorbereitete Parameter-Tabelle BASS für HX3-Engine an FPGA 
+// Vorbereitete Parameter-Tabelle BASS fï¿½r HX3-Engine an FPGA 
 // benutzte LCs (6)=HP-Filter, (8)=DB Upper, (10)=DB Pedal, (11)= ADSR Upper, (12)=ADSR Lower, (13)=ADSR Pedal 
 begin
 // Pedal-Bass-Drawbar ans FPGA 
@@ -793,7 +793,7 @@ begin
 {$ENDIF}
   // Werte an Scan Driver 
   SendByteToFPGA(edit_GenTranspose, 10);  // Generator Transpose, +1 = 1 Halbton nach oben 
-  SendByteToFPGA(edit_KeyTranspose, 13);  // positive Werte verschieben Töne nach UNTEN! 
+  SendByteToFPGA(edit_KeyTranspose, 13);  // positive Werte verschieben Tï¿½ne nach UNTEN! 
   SendByteToFPGA(edit_LocalEnable xor 7, 14);   // ScanCore SPI Local Disables 
   SendByteToFPGA(edit_SplitMode, 6);   // Splitmode 
   SendByteToFPGA(edit_SplitPoint, 8);  // Splitpunkt 
@@ -801,7 +801,7 @@ begin
 {$IFDEF DEBUG_MSG}
     Writeln(Serout, '/ (FH) New Split Request'); 
 {$ENDIF}
-    // Scan/Split erstmal OFF, damit Änderungen beim Wiedereinschalten übernommen werden 
+    // Scan/Split erstmal OFF, damit ï¿½nderungen beim Wiedereinschalten ï¿½bernommen werden 
     SendByteToFPGA(0, 7); 
     mdelay(3); 
     SendByteToFPGA(2, 7); 
@@ -815,7 +815,7 @@ end;
 
 procedure FH_OrganParamsToFPGA; 
 // Edit-Tabelle Orgel an FPGA, Kanal und Freigabe an SAM5504 
-// nur übertragen, wenn im Menü geändert 
+// nur ï¿½bertragen, wenn im Menï¿½ geï¿½ndert 
 begin
 // Achtung: Throb Position wird auf 4 gelesen, edit_MIDI_Channel auf SPI 4 muss
 // deshalb in AC_SendSwell ebenfalls gesendet werden! 
@@ -826,9 +826,9 @@ begin
   SendByteToFPGA(m, 4); // MIDI-Channel 
 // MIDI_OUT_SEL: 0 = MIDI_TX_1, 1 = MIDI_IN_1, 2 = MIDI_IN_2, 3 = MIDI_FROM_SAM (USB) 
   m:= (edit_ContSpringFlx shl 4) or (edit_ContSpringDmp and 15);
-  SendByteToFPGA(m, 9);          // Klick-Länge und Noise-Frequenz 
+  SendByteToFPGA(m, 9);          // Klick-Lï¿½nge und Noise-Frequenz 
   SendByteToFPGA(edit_GenTranspose, 10);  // Generator Transpose 
-  SendByteToFPGA(edit_KeyTranspose, 13);  // positive Werte verschieben Töne nach UNTEN! 
+  SendByteToFPGA(edit_KeyTranspose, 13);  // positive Werte verschieben Tï¿½ne nach UNTEN! 
   m:= gettable(c_TuningTable, edit_TG_tuning);
   SendByteToFPGA(m, 68);  // CycleSteal-Wert -125 .. +125 
   
@@ -876,10 +876,10 @@ end;
 // ###                    SETUP  SINUS-GENERATOR                             ### 
 // ############################################################################# 
 
-// Für jede Oktave des Generators muss eine eigene, 1024 Worte lange Wellenform 
-// geladen werden. Höhere Oktaven dürfen wg. Nyquist-Grenze keine Oberwellen 
+// Fï¿½r jede Oktave des Generators muss eine eigene, 1024 Worte lange Wellenform 
+// geladen werden. Hï¿½here Oktaven dï¿½rfen wg. Nyquist-Grenze keine Oberwellen 
 // jenseits 20 kHz enthalten. 
-// Wg. Nicht-Hörbarkeit der Oberwellen werden Oktaven 6 bis 8 (9) grundsätzlich 
+// Wg. Nicht-Hï¿½rbarkeit der Oberwellen werden Oktaven 6 bis 8 (9) grundsï¿½tzlich 
 // nur als Sinus abgelegt. 
 
 
@@ -920,7 +920,7 @@ end;
 
 procedure FH_KeymapToFPGA64(my_startnote: byte; var my_generator_size: byte; 
                             var do_high_foldback: boolean); 
-// 1024 Keymap-Werte 8 Bit breit an FPGA DDS48 übertragen 
+// 1024 Keymap-Werte 8 Bit breit an FPGA DDS48 ï¿½bertragen 
 begin
   for i:= 0 to 63 do 
     FPGAsendByte:= my_startnote; 
@@ -937,7 +937,7 @@ begin
 end; 
 
 procedure FH_KeymapToFPGA; 
-// 1024 Keymap-Werte 8 Bit breit an FPGA DDS48 übertragen 
+// 1024 Keymap-Werte 8 Bit breit an FPGA DDS48 ï¿½bertragen 
 var
   busbar  : byte; 
 begin
@@ -961,7 +961,7 @@ end;
 
 procedure highpassfilter_to_fpga64(my_startnote: byte; 
                                    var my_generator_size: byte); 
-// 64 Highpass-Filter-Werte 16 Bit breit an FPGA übertragen 
+// 64 Highpass-Filter-Werte 16 Bit breit an FPGA ï¿½bertragen 
 begin
   for i:= 0 to 63 do 
     FPGAsendWord:= muldivInt(c_HighpassFilterArray[my_startnote], word(edit_TG_FilterFac), 64); 
@@ -974,7 +974,7 @@ begin
 end; 
 
 procedure FH_NoteHighpassFilterToFPGA; 
-// 1024 Highpass-Filter-Werte an FPGA übertragen 
+// 1024 Highpass-Filter-Werte an FPGA ï¿½bertragen 
 var
   busbar   : byte; 
 begin
@@ -990,9 +990,9 @@ begin
 end; 
 
 procedure FH_TuningValsToFPGA; 
-// 95 Tuning-Werte 16 Bit breit an FPGA DDS96 übertragen 
+// 95 Tuning-Werte 16 Bit breit an FPGA DDS96 ï¿½bertragen 
 // Generator dds96 arbeitet mit Vorteilern 1..128 pro Oktave, deshalb gleiche Werte 
-// für jede Oktave. Lediglich oberste Hammond-Oktave ist etws gespreizt, deshalb extra. 
+// fï¿½r jede Oktave. Lediglich oberste Hammond-Oktave ist etws gespreizt, deshalb extra. 
 var
   my_random_limit, my_random_word  : word; 
 begin
@@ -1046,9 +1046,9 @@ begin
 {$ENDIF}
   if taper_set <= 3 then 
     // Taper-Sets aus DF 
-    DF_SendToAutoinc(taper_set + 11, 1, 4096);  // Target Tapering (+11) 
+    DF_SendToAutoinc(c_taper_base + Word(taper_set), c_lc_tapering, 4096);  // Target Tapering (+11)
   else 
-    // Errechnete oder konstante Taper-Werte für Nicht-Hammonds 
+    // Errechnete oder konstante Taper-Werte fï¿½r Nicht-Hammonds 
     FI_AutoIncSetup(1); // for Write Core 1 = Tapering 
     for i:= 0 to 15 do 
       case taper_set of 
@@ -1081,7 +1081,7 @@ begin
     FI_AutoIncReset(1); 
   endif; 
   
-// erste 12 Tapering- und Keymap-Werte 8 Bit breit nochmal an FPGA übertragen 
+// erste 12 Tapering- und Keymap-Werte 8 Bit breit nochmal an FPGA ï¿½bertragen 
 {$IFDEF DEBUG_FH}
   Writeln(Serout, '/ (FH) DB16 Foldb/Keymap to FPGA'); 
 {$ENDIF}
@@ -1090,8 +1090,8 @@ begin
   else 
     m:= edit_TG_FixedTaperVal; 
   endif; 
-  if (edit_DB16_FoldbMode and 2) = 2 then  // muted, früher TWG Config0 
-    // Full muted oder Foldback muted, früher TWG Config0 
+  if (edit_DB16_FoldbMode and 2) = 2 then  // muted, frï¿½her TWG Config0 
+    // Full muted oder Foldback muted, frï¿½her TWG Config0 
     m:= muldivByte(m, 50, 100); 
   endif; 
   FI_AutoIncSetup(1); // for Write Core 1 = Tapering BRAM, 12 Werte neu 
@@ -1103,7 +1103,7 @@ begin
   
   m:= edit_BusBarNoteOffsets[0]; 
   if (edit_DB16_FoldbMode and 1) = 0 then 
-    // Foldback oder Foldback muted, früher TWG Config0 
+    // Foldback oder Foldback muted, frï¿½her TWG Config0 
     Inc(m, 12); 
   endif; 
   FI_AutoIncSetup(3); // for Write Core 3 = Keymap BRAM 
@@ -1137,7 +1137,7 @@ begin
   temp_level_w:= temp_level_w div 4; 
   temp_level:= Lo(temp_level_w); 
   
-  // Defaultwerte für FPGA ggf modifizieren 
+  // Defaultwerte fï¿½r FPGA ggf modifizieren 
   
   // Nur DEEP 
   if edit_LogicalTab_PHR_Deep and (not edit_LogicalTab_PHR_Weak) then 
@@ -1148,7 +1148,7 @@ begin
     fpga_PHR_ModSlowPh1:= muldivByte(edit_PHR_ModSlowPh1, 120, 100); 
     fpga_PHR_ModSlowPh2:= muldivByte(edit_PHR_ModSlowPh2, 120, 100); 
     fpga_PHR_FeedBackInvert:= edit_PHR_FeedBackInvert or $00000010; // Filter 
-    // Wet-Level vergrößern 
+    // Wet-Level vergrï¿½ï¿½ern 
     for i:= 4 to 6 do 
       fpga_PhasingGroup[i]:= muldivByte(edit_PhasingGroup[i], 105, 100); 
     endfor; 
@@ -1188,7 +1188,7 @@ begin
     
   endif; 
   
-  // Wenn kein FB Invert, FB Level zurücknehmen 
+  // Wenn kein FB Invert, FB Level zurï¿½cknehmen 
   for i:= 2 to 15 do
     SendByteToFPGA(fpga_PhasingGroup[i], 112 + i); 
   endfor; 
@@ -1220,29 +1220,6 @@ begin
   endif; 
 end; 
 
-// ############################################################################# 
-
-procedure FH_CoresToFPGA; 
-// 0: Scan Core, 
-// 8: Keymap, 
-// 10: DSP Core (zusätzlich im EEPROM des SPIN-1) 
-// 11: Tapering 
-// 15: FIR Horn 
-begin
-{$IFDEF DEBUG_FH}
-  Writeln(Serout, '/ (FH) Config ScanCore and FIR BlockRAMs from DF'); 
-{$ENDIF}
-//  if IsFinalized then 
-  MemLED(true); 
-  DF_SendToAutoinc(0, 0, 8192);    // Target ScanCore (+0 auf Reg. 0) 
-  DF_SendToAutoinc(15, 2, 2048);    // FIR Koeffizienten Horn (+15 auf Reg. 2) 
-  MemLED(false); 
-  FI_GetScanCoreInfo; 
-//  else 
-//    WriteSerWarning; 
-//    writeln(serout,'Cores not loaded'); 
-//  endif; 
-end; 
 
 // ############################################################################# 
 
@@ -1257,7 +1234,7 @@ begin
   if (bit(edit_VibKnob, 0)) then 
     my_fm:= muldivByte(my_fm, 80, 100); 
   endif; 
-  for i:= 0 to 14 do   // 15 ansteigende Verzögerungszeiten berechnen 
+  for i:= 0 to 14 do   // 15 ansteigende Verzï¿½gerungszeiten berechnen 
     m:= muldivByte(my_fm, i, 28) + 1;   //  49 = 1 ms = V3 
     SendByteToFPGA(m, 160 + i); 
   endfor; 
@@ -1293,7 +1270,7 @@ begin
   SpeedBlinkToggle:= (FPGAreceiveLong2 and %00001100) = 0; 
   
   if edit_LogicalTab_LeslieRun then 
-    // Motoren laufen, gewünschte Geschwindigkeiten annähern 
+    // Motoren laufen, gewï¿½nschte Geschwindigkeiten annï¿½hern 
     if edit_LogicalTab_LeslieFast then 
       LeslieDestHornSpeed:= edit_HornFastTm + 50; 
       LeslieDestRotorSpeed:= edit_RotorFastTm + 50; 
@@ -1301,7 +1278,7 @@ begin
       LeslieDestHornSpeed:= edit_HornSlowTm; 
       LeslieDestRotorSpeed:= edit_RotorSlowTm; 
     endif; 
-    // Rampen für Anlauf/Bremsen 
+    // Rampen fï¿½r Anlauf/Bremsen 
     if isSystimerzero(HornTimer) then 
       if LeslieHornSpeed < LeslieDestHornSpeed then 
         Inc(LeslieHornSpeed); 
@@ -1323,7 +1300,7 @@ begin
       endif; 
     endif; 
   else 
-    // Rampe für Auslauf, stoppt auf bestimmter Position 
+    // Rampe fï¿½r Auslauf, stoppt auf bestimmter Position 
     // Horn maximalen mittleren Throb-Wert von L/R anfahren 
     if LeslieHornSpeed > 5 then 
       if isSystimerzero(HornTimer) then 

@@ -17,7 +17,7 @@ uses var_def, port_def, parser, MIDI_com, display_toolbox, nuts_and_bolts;
   procedure MIDI_SendSysExSernum; // Format: F0 00 20 04 33 26 <ASCII-TEXT> 00 F7
 
   function MIDI_GetSysEx_int(var my_idx: byte; var my_val: Integer): boolean;
-  // Standard-Antwort auf Parameter-Änderungen und Fehlerabfrage:
+  // Standard-Antwort auf Parameter-ï¿½nderungen und Fehlerabfrage:
   procedure MIDI_SendSysEx_cmderr;     // F0 00 20 04 33 02 <er> F7
   procedure MIDI_SendSysExParamStr(header_id: Byte); // ID und ParamStr senden
 
@@ -72,10 +72,10 @@ end;
 
 // MIDI interpreter, MIDI_ni muss immer vorhanden sein und ganz oben stehen
 // MIDI-CC-Sets:
-//  'NI B4 d3c  ' , // 0, interpretiert, teilw. über Custom 'ccset0.dat'
-//  'Hammond XK ' , // 1, interpretiert, teilw. über Custom 'ccset1.dat'
-//  'Hammond SK ' , // 2, interpretiert, teilw. über Custom 'ccset2.dat'
-//  'Versatile  ' , // 3, interpretiert, teilw. über Custom 'ccset3.dat'
+//  'NI B4 d3c  ' , // 0, interpretiert, teilw. ï¿½ber Custom 'ccset0.dat'
+//  'Hammond XK ' , // 1, interpretiert, teilw. ï¿½ber Custom 'ccset1.dat'
+//  'Hammond SK ' , // 2, interpretiert, teilw. ï¿½ber Custom 'ccset2.dat'
+//  'Versatile  ' , // 3, interpretiert, teilw. ï¿½ber Custom 'ccset3.dat'
 //  'Nord C1/C2 ' , // aus DF Core Block c_midicc_base +4, 'ccset4.dat'
 //  'VoceDrawbar' , // aus DF Core Block c_midicc_base +5, 'ccset5.dat'
 //  'KeyB/Duo   ' , // aus DF Core Block c_midicc_base +6, 'ccset6.dat'
@@ -84,7 +84,7 @@ end;
 //  'Custom 1   ' , // aus DF Core Block c_midicc_base +9, 'ccset9.dat'
 //  'Custom 2   ' );// aus DF Core Block c_midicc_base +10,'ccset10.dat'
 
-{$I MIDI_Custom.pas}   // für CC-Sets 4..10
+{$I MIDI_Custom.pas}   // fï¿½r CC-Sets 4..10
 {$I MIDI_ni.pas}
 {$I MIDI_sempra.pas}
 
@@ -100,7 +100,7 @@ begin
    my_adr:= 0;
    repeat
      MIDI_send_7plus1_bytes(my_adr, calc_cs);
-   until my_adr >= my_count; // Länge erreicht?
+   until my_adr >= my_count; // Lï¿½nge erreicht?
    MIDI_SendByte(calc_cs and $7F);
    MIDI_SendSysEx_end;
 end;
@@ -110,8 +110,8 @@ procedure midi_set_sysex_mode;
 begin
   CmdSentByMIDI:= true;
   CmdSentBySerial:= false;
-  if edit_MIDI_Option <> 0 then    // ggf temporär auf Ausgang schalten
-    edit_MIDI_Option:= 0;          // Senden hardwaremäßig freigeben
+  if edit_MIDI_Option <> 0 then    // ggf temporï¿½r auf Ausgang schalten
+    edit_MIDI_Option:= 0;          // Senden hardwaremï¿½ï¿½ig freigeben
     FH_OrganParamsToFPGA;
   endif;
 end;
@@ -151,7 +151,7 @@ end;
 // Parameter-Serie abfragen - wir haben empfangen:
 // F0 00 20 04 33 09 PP pp NN nn F7
 // PP pp = 14Bit-Startparameter-Nummer
-// NN nn = 14Bit-Parameter-Anzahl (1 = 1 Wert, 0 unzulässig)
+// NN nn = 14Bit-Parameter-Anzahl (1 = 1 Wert, 0 unzulï¿½ssig)
 // wir senden:
 // F0 00 20 04 33 0A PP pp VV vv VV vv ... F7
 // Werte VV vv werden sooft wiederholt, bis F7 kommt.
@@ -162,7 +162,7 @@ end;
 // F0 00 20 04 33 02 <er> F7
 
 // #############################################################################
-// Eigene SysEx behandeln. SysEx-ID von Keyswerk/Böhm oder Roland
+// Eigene SysEx behandeln. SysEx-ID von Keyswerk/Bï¿½hm oder Roland
 // SysEx-Anfrage erhalten, steht jetzt in SysEx-Buffer.
 // #############################################################################
 
@@ -182,7 +182,7 @@ begin
   if (SysExID_short = $41F0) then  // // Reihenfolge F0 41 im Buffer
 
 // #############################################################################
-// Rudimentärer Interpreter für Roland VK77, MIDI Kanal 1,2,3
+// Rudimentï¿½rer Interpreter fï¿½r Roland VK77, MIDI Kanal 1,2,3
 //
 // IDX:    0  1  2  3  4  5  6  7  8  9 10 11 12
 //        ST Mn Dv Model Co AdrHi AdrLo Da Ck End
@@ -353,7 +353,7 @@ begin
       endfor;
       MIDI_SendSysEx_end;
 
-    elsif (lo(SysExCmd_sempra) = $33) then  // Empfangen: ID für uns
+    elsif (lo(SysExCmd_sempra) = $33) then  // Empfangen: ID fï¿½r uns
       sysex_id:= hi(SysExCmd_sempra);
 
 // #############################################################################
@@ -374,7 +374,7 @@ begin
           if not MIDI_GetSysEx_int(my_idx, my_val) then
             break;
           endif;
-          // Sysex kann nur über Editor kommen, kein Feedback
+          // Sysex kann nur ï¿½ber Editor kommen, kein Feedback
           if not PA_NewParamEvent(my_param, lo(my_val), EEunLocked, c_midi_sysex_source) then
             incl(ErrFlags, c_err_cmd);
           endif;
@@ -383,7 +383,7 @@ begin
           writeln(serout, '/ ' + IntToSTr(my_param) + '=' + ByteToSTr(lo(my_val)));
 {$ENDIF}
         until false;
-        // ACK später senden, wenn Änderungen abgeschlossen
+        // ACK spï¿½ter senden, wenn ï¿½nderungen abgeschlossen
         MIDI_SendSysEx_status;
 
 // #############################################################################
@@ -408,9 +408,9 @@ begin
 {$IFDEF DEBUG_SYSEX}
         writeln(serout, 'CmdStr (03): ' + SerinpStr);
 {$ENDIF}
-        PA_HandleCmdString;  // wie Befehl über Com-Schnittstelle
+        PA_HandleCmdString;  // wie Befehl ï¿½ber Com-Schnittstelle
         SerinpStr:='';
-        // ACK später senden, wenn Änderungen abgeschlossen
+        // ACK spï¿½ter senden, wenn ï¿½nderungen abgeschlossen
         MIDI_SendSysEx_status;
 
 // #############################################################################
@@ -435,7 +435,7 @@ begin
         MIDI_SendSysExParamStr($18);
 
 // #############################################################################
-// Empfangen: einzelnen Parameter 1000...7999 abfragen, Antwort binär ($05)
+// Empfangen: einzelnen Parameter 1000...7999 abfragen, Antwort binï¿½r ($05)
 // SysEx: F0 00 20 04 33 05 PP pp F7
 // mit PP pp = Parameter-Nummer
 // wir senden:
@@ -464,13 +464,13 @@ begin
 // bzw.
 // SysEx: F0 00 20 04 33 29 PP pp NN nn F7 (CS verlangt)
 // PP pp = 14Bit-Startparameter-Nummer
-// NN nn = 14Bit-Parameter-Anzahl (1 = 1 Wert, 0 unzulässig)
+// NN nn = 14Bit-Parameter-Anzahl (1 = 1 Wert, 0 unzulï¿½ssig)
 // Wir senden:
 // F0 00 20 04 33 0A PP pp VV vv ... F7
 // bzw.
 // F0 00 20 04 33 2A PP pp NN nn VV vv ... 00 CS F7
-// CS = 7-Bit-Prüfsumme über alle Parameter- und DatenBytes PP pp VV vv VV vv...
-// Werte VV vv werden N-mal wiederholt, jeweils eine Parameternummer höher
+// CS = 7-Bit-Prï¿½fsumme ï¿½ber alle Parameter- und DatenBytes PP pp VV vv VV vv...
+// Werte VV vv werden N-mal wiederholt, jeweils eine Parameternummer hï¿½her
 // #############################################################################
 
       elsif (sysex_id = $09) or (sysex_id = $29) then
@@ -520,10 +520,10 @@ begin
         endif;
 
 // #############################################################################
-// Empfangen: 32 Byte-Segment für Buffer ($20)
+// Empfangen: 32 Byte-Segment fï¿½r Buffer ($20)
 // SysEx: F0 00 20 04 33 20 BB <7data> MS <7data> MS <7data> MS ... CC F7
 // BB = 7-Bit-Blockseiten-Nummer 0..128, 32 Bytes pro Seite
-// CS = 7-Bit-Prüfsumme über alle 32 Daten- und MSBytes
+// CS = 7-Bit-Prï¿½fsumme ï¿½ber alle 32 Daten- und MSBytes
 // MS = MSBits der letzten 7 Bytes
 // data = n * (7 Bytes Nutzdaten AND $7F, gefolgt von 1 Byte MSBits)
 // Beispiel:
@@ -569,7 +569,7 @@ begin
             inc(my_adr);
           endfor;
         until (my_idx > 43);
-        block_page_cs:= SysExArray[my_idx];   // Prüfsumme über alle Datenbytes
+        block_page_cs:= SysExArray[my_idx];   // Prï¿½fsumme ï¿½ber alle Datenbytes
         calc_cs:= calc_cs and $7F;
 
 {$IFDEF DEBUG_SYSEX}
@@ -584,13 +584,13 @@ begin
 // Anforderung: fertigen Block in Flash speichern ($21)
 // SysEx: F0 00 20 04 33 21 PP pp VV vv F7
 // PP pp = 14-Bit-Flash-Seiten-Nummer, 4096 Bytes pro Seite
-// VV vv = 14-Bit-Länge, max. 4096 Bytes pro Seite
+// VV vv = 14-Bit-Lï¿½nge, max. 4096 Bytes pro Seite
 // #############################################################################
 
       elsif (sysex_id = $21) then
         my_idx:= 6;
         if MIDI_GetSysEx_int(my_idx, my_param) then  // Blocknummer
-          if MIDI_GetSysEx_int(my_idx, my_val) then  // Länge
+          if MIDI_GetSysEx_int(my_idx, my_val) then  // Lï¿½nge
 {$IFNDEF MODULE}
             NB_BlockRcvMsg(my_param);
 {$ENDIF}
@@ -643,8 +643,8 @@ begin
 // #############################################################################
 
       elsif (sysex_id = $0F) then
-        DSPversion_H:= SysExArray[6];
-        DSPversion_L:= SysExArray[7];
+        lo(BoardInfo.DSPversion):= SysExArray[7];
+        hi(BoardInfo.DSPversion):= SysExArray[6];
 {$IFDEF DEBUG_SYSEX}
         writeln(serout, 'DSP version: '
           + ByteToHex(DSPversion_H) + '.' + ByteToHex(DSPversion_L));
@@ -655,11 +655,11 @@ begin
 // Anforderung Flash-Block-Seite ($1A, Antwort $1B)
 // SysEx: F0 00 20 04 33 1A PP pp LL ll F7
 // PP pp = 14Bit-Page-Nummer (00PPPPPP Pppppppp wird zu 0PPPPPPP 0ppppppp)
-// VV vv = 14Bit-Länge Bytes (00VVVVVV Vvvvvvvv wird zu 0VVVVVV 0vvvvvvv)
+// VV vv = 14Bit-Lï¿½nge Bytes (00VVVVVV Vvvvvvvv wird zu 0VVVVVV 0vvvvvvv)
 // wir senden:
 // F0 00 20 04 33 1B PP pp VV vv <7+1 data> <7+1 data> ... CC F7
 // mit
-// CC = 7-Bit-Prüfsumme über alle Daten- und MSBytes
+// CC = 7-Bit-Prï¿½fsumme ï¿½ber alle Daten- und MSBytes
 // #############################################################################
 
       elsif (sysex_id = $1A) then
@@ -678,14 +678,14 @@ begin
 // #############################################################################
 // Anforderung EEPROM-Seite ($1C, Antwort $1D)
 // SysEx: F0 00 20 04 33 1C 00 00 LL ll F7
-// VV vv = 14Bit-Page-Länge (00VVVVVV Vvvvvvvv wird zu 0VVVVVV 0vvvvvvv)
+// VV vv = 14Bit-Page-Lï¿½nge (00VVVVVV Vvvvvvvv wird zu 0VVVVVV 0vvvvvvv)
 // wir senden:
 // F0 00 20 04 33 1D 00 00 VV vv <7+1 data> <7+1 data> ... CC F7
 // mit
-// CC = 7-Bit-Prüfsumme über alle Daten- und MSBytes
+// CC = 7-Bit-Prï¿½fsumme ï¿½ber alle Daten- und MSBytes
 // #############################################################################
 
-// NICHT MEHR BENÖTIGT!!!
+// NICHT MEHR BENï¿½TIGT!!!
 (*
       elsif (sysex_id = $1C) then
         if not MIDI_GetSysEx_int(my_idx, my_param) then
@@ -707,11 +707,11 @@ begin
 // #############################################################################
 // Anforderung EditPages ($1E, Antwort $1F)
 // SysEx: F0 00 20 04 33 1E 00 00 LL ll F7
-// VV vv = 14Bit-Page-Länge (00VVVVVV Vvvvvvvv wird zu 0VVVVVV 0vvvvvvv)
+// VV vv = 14Bit-Page-Lï¿½nge (00VVVVVV Vvvvvvvv wird zu 0VVVVVV 0vvvvvvv)
 // wir senden:
 // F0 00 20 04 33 1F 00 00 VV vv <7+1 data> <7+1 data> ... CC F7
 // mit
-// CC = 7-Bit-Prüfsumme über alle Daten- und MSBytes
+// CC = 7-Bit-Prï¿½fsumme ï¿½ber alle Daten- und MSBytes
 // #############################################################################
 
       elsif (sysex_id = $1E) then
@@ -750,7 +750,7 @@ begin
         MIDI_SendSysEx_blockbuf(my_param, my_count);
 
 // #############################################################################
-// ErrFlags abfragen und löschen ($01)
+// ErrFlags abfragen und lï¿½schen ($01)
 // SysEx: F0 00 20 04 33 01 F7
 // #############################################################################
 
@@ -798,7 +798,7 @@ begin
 end;
 
 procedure MIDI_SendSysEx_status;
-// Standard-Antwort auf Parameter-Änderungen und Fehlerabfrage
+// Standard-Antwort auf Parameter-ï¿½nderungen und Fehlerabfrage
 // F0 00 20 04 33 02 <er> F7
 begin
   MIDI_SendSysEx_header_ID($02); // Status-ID
@@ -839,19 +839,19 @@ end;
 
 procedure MIDI_SysExReceived(sysex_byte: Byte);
 begin
-  if mv = $F0 then  // SysEx-Beginn, 8 Bit zulässig wg. SPI
+  if mv = $F0 then  // SysEx-Beginn, 8 Bit zulï¿½ssig wg. SPI
     SysExCount:= 0;
     SysExActive:= true;
-    // innerhalb 50ms muss nächstes SyEx-Byte eintreffen
+    // innerhalb 50ms muss nï¿½chstes SyEx-Byte eintreffen
     SetSysTimer(SysExTimer, 25);
   endif;
   if SysExActive then
     SysExArray[SysExCount]:= sysex_byte;
     inctolim(SysExCount, 255);
-    // innerhalb 50ms muss nächstes SyEx-Byte eintreffen
+    // innerhalb 50ms muss nï¿½chstes SyEx-Byte eintreffen
     SetSysTimer(SysExTimer, 25);
   endif;
-  if (mv = $F7) then  // vollständig, korrektes Ende
+  if (mv = $F7) then  // vollstï¿½ndig, korrektes Ende
     MIDI_DispatchSysEx;
     SysExCount:= 0;
     SysExActive:= false;
@@ -872,7 +872,7 @@ end;
 procedure MIDI_Dispatch;
 var mch_is_valid: Boolean;
   mch_idx, midi_prog: Byte;
-// MIDI IN überprüfen und ggf. an MIDI-Interpreter weiterleiten
+// MIDI IN ï¿½berprï¿½fen und ggf. an MIDI-Interpreter weiterleiten
 begin
   if edit_MIDI_CC_Set <> 8 then
     ESP_RST:= high;
@@ -924,28 +924,28 @@ begin
            |
          $78: // 120
            // umgesetzte SysEx-Daten mit CC $78 vom FPGA Scan Driver
-           // können nur auf Kanal 0 kommen!
+           // kï¿½nnen nur auf Kanal 0 kommen!
            MIDI_SysExReceived(mv);
            continue;
            |
         endcase;
       endif;
 
-      if not mch_is_valid then // Channel für uns?
+      if not mch_is_valid then // Channel fï¿½r uns?
         continue;
       endif;
 
       mch_idx:= mch - edit_MIDI_Channel;
 
-      // auf Bank Selects reagieren, auch für Eder TopShop
+      // auf Bank Selects reagieren, auch fï¿½r Eder TopShop
       if (mcmd = $B0) and (mch_idx <= 3) then
         case mp of
-           0: // Bank Select MSB von Genos für Eder TopShop
+           0: // Bank Select MSB von Genos fï¿½r Eder TopShop
             BankSelectGenosValids[mch_idx]:= (mv = 63) and (BankSelectLSBs[mch_idx] = 120);
             BankSelectMSBs[mch_idx]:= mv;
             MIDI_SetGenosActive(mch_idx);
             |
-          32: // Bank Select LSB von Genos für Eder TopShop
+          32: // Bank Select LSB von Genos fï¿½r Eder TopShop
             BankSelectGenosValids[mch_idx]:= (mv = 120) and (BankSelectMSBs[mch_idx] = 63);
             BankSelectLSBs[mch_idx]:= mv;
             MIDI_SetGenosActive(mch_idx);
@@ -957,22 +957,22 @@ begin
         continue;  // wenn von MIDI_SetGenosActive() abgeschaltet
       endif;
 
-      // Program Changes allgemein, kann ggf. in CC-Sets noch geändert werden
+      // Program Changes allgemein, kann ggf. in CC-Sets noch geï¿½ndert werden
       if (mcmd = $C0) and (not edit_MIDI_DisableProgramChange) then
-        // für Eder TopShop
+        // fï¿½r Eder TopShop
         if BankSelectGenosValids[mch_idx] then
           edit_CommonPreset:= ValueTrimLimit(mv, 0, 99);
           edit_CommonPreset_flag:= c_midi_event_source;
           continue;
         elsif (edit_MIDI_CC_Set <> 0) then
-          // nicht für NI B4
+          // nicht fï¿½r NI B4
           midi_received:= FPGAreceiveLong and $00FFFFFF;  // 00, cmd, cc, val
 {$IFNDEF MODULE}
           if edit_ShowCC then
             MIDIset_CCdisplayRequest;
           endif;
           if (edit_MIDI_CC_Set = 1) and (mch <= edit_MIDI_Channel + 1) then
-            // für Hammond XK/XB
+            // fï¿½r Hammond XK/XB
             if mp = 0 then
               midi_prog:= 0; // Cancel-Taste bei XB2, Cancel-C bei XB3/XK3
             else
@@ -1008,7 +1008,7 @@ begin
         endif;
       endif;
 
-      // Spezielle Controller außerhalb MIDI-CC-Set Interpreter
+      // Spezielle Controller auï¿½erhalb MIDI-CC-Set Interpreter
       if mcmd = $B0 then
         midi_received:= FPGAreceiveLong and $00FFFFFF;  // 00, cmd, cc, val
 {$IFNDEF MODULE}
@@ -1069,7 +1069,7 @@ begin
           edit_CommonPreset_flag:= c_midi_event_source;
           return;
         endif;
-        // Für Touchpad und Custom CC, abschalten mit val >
+        // Fï¿½r Touchpad und Custom CC, abschalten mit val >
         if (mp = 124) then
           ConnectMode:= t_connect_osc_midi;
           midi_DisablePercussion:= false;
@@ -1077,9 +1077,9 @@ begin
             edit_MIDI_CC_Set:= mv;  // CC Set
             NB_CCarrayFromDF(edit_MIDI_CC_Set);        // Set laden
             MIDI_SendSustainSostEnable;
-            if edit_MIDI_CC_Set = 8 then     // MIDI-CCs immer zurücksenden
+            if edit_MIDI_CC_Set = 8 then     // MIDI-CCs immer zurï¿½cksenden
               ESP_RST:= low;                 // ESP8266 Reset aktiv
-              edit_MIDI_Option:= 0;          // Senden hardwaremäßig freigeben
+              edit_MIDI_Option:= 0;          // Senden hardwaremï¿½ï¿½ig freigeben
               FH_OrganParamsToFPGA;
               edit_PedalDBsetup:= 1;
               MIDI_SendController(0, 124, 127);  // highlight Button "Connect"
@@ -1105,9 +1105,9 @@ begin
 
 {$IFNDEF MODULE}
       // MIDI-CC-Sets:
-      //  'NI B4 d3c  ' , // 0, interpretiert, teilw. über Custom 'ccset0.dat'
-      //  'Hammond XK ' , // 1, interpretiert, teilw. über Custom 'ccset1.dat'
-      //  'Hammond SK ' , // 2, interpretiert, teilw. über Custom 'ccset2.dat'
+      //  'NI B4 d3c  ' , // 0, interpretiert, teilw. ï¿½ber Custom 'ccset0.dat'
+      //  'Hammond XK ' , // 1, interpretiert, teilw. ï¿½ber Custom 'ccset1.dat'
+      //  'Hammond SK ' , // 2, interpretiert, teilw. ï¿½ber Custom 'ccset2.dat'
       //  'Versatile  ' , // 3, aus DF Core Block c_midicc_base +3,  'ccset3.dat'
       //  'Nord C1/C2 ' , // 4, aus DF Core Block c_midicc_base +4, 'ccset4.dat'
       //  'VoceDrawbar' , // 5, aus DF Core Block c_midicc_base +5, 'ccset5.dat'
@@ -1139,7 +1139,7 @@ begin
     endwhile;
   endif;
   // Bei Sysex-Empfang wurde 50ms-Timer gestartert, wird mit jedem Byte
-  // wieder gesetzt. Wenn zu lange nichts kommt, ist SysEx abgestürzt.
+  // wieder gesetzt. Wenn zu lange nichts kommt, ist SysEx abgestï¿½rzt.
   if SysExActive and IsSystimerzero(SysExTimer) then
 {$IFDEF DEBUG_SYSEX}
     writeln(serout, '/ (MT) SysEx: ### TimeOut Error ###');

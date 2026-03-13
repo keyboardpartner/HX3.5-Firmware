@@ -1,5 +1,5 @@
 // #############################################################################
-// ###                     F Ü R   A L L E   B O A R D S                     ###
+// ###                     F ï¿½ R   A L L E   B O A R D S                     ###
 // #############################################################################
 
 Unit startup;
@@ -25,9 +25,9 @@ var  // Send to FatarScan76
 procedure START_LoadFromEEPROM;
 procedure START_ColdBoot;
 procedure START_InitAll;
-{$IFNDEF MODULE}
+{$IFDEF EDER_FS76}
 procedure START_InitFatarScan76;
-{$ENDIF} // ALLINONE
+{$ENDIF} // EDER_FS76
 
 implementation
 {$IDATA}
@@ -92,7 +92,7 @@ begin
   midi_edit_perc_levelnorm:= edit_PercNormLvl;
 
   midi_swell128:= 125;
-  // nur VibKnob-Stellung berücksichtigen:
+  // nur VibKnob-Stellung berï¿½cksichtigen:
   VoiceUpperInvalid:= false;
   VoiceLowerInvalid:= false;
   VoicePedalInvalid:= false;
@@ -115,9 +115,7 @@ end;
 // #############################################################################
 
 // *****************************************************************************
-{$IFNDEF MODULE}
-// *****************************ALLINONE****************************************
-
+{$IFDEF EDER_FS76}
 procedure START_InitFatarScan76;
 // Initialisierung externer MIDI-Keyboards an I2C
 var my_result: Byte;
@@ -142,9 +140,7 @@ begin
     writeln(serout,'/ FatarMIDI AUX v#' + ByteToHex(my_result));
   endif;
 end;
-// **************************** ALLINONE****************************************
 {$ENDIF}
-// *****************************************************************************
 
 
 
@@ -184,7 +180,7 @@ begin
 
   LED_timer150;
 
-  START_LoadFromEEPROM; // auch für DF-Init!
+  START_LoadFromEEPROM; // auch fï¿½r DF-Init!
 
 {$IFNDEF MODULE}
   NB_CreateInverseMenuArr;
@@ -194,7 +190,8 @@ begin
   footsw_lesliefast_old:= false;
   footsw_leslierun_old:= false;
 {$ENDIF} // ALLINONE
-  DF_SendToAutoinc(c_scan_base_DF, 0, 8192);  // Target ScanCore (+0 auf Reg. 0)
+  DF_SendToAutoinc(c_scan, c_lc_scan_driver, 8192);  // Target ScanCore (+0 auf Reg. 0)
+  FI_GetScanCoreInfo; 
   FH_LicenceToFPGA;
   SendByteToFPGA(0, 246); // Set DSP ROW bits auf 0
 
@@ -207,7 +204,7 @@ begin
 
   NB_LoadPhasingSet(0);
 
-  NB_ValidateExtendedParams;  // Legt gültige Menüs und Restore-Freigaben an
+  NB_ValidateExtendedParams;  // Legt gï¿½ltige Menï¿½s und Restore-Freigaben an
   ReverbKnob_old:= 255;
 
 {$IFNDEF MODULE}
@@ -421,7 +418,10 @@ begin
     TWIout(PCA9532_2, $18, my_word);   // PL25 OFF
   endif;
 
-  START_InitFatarScan76;
+{$IFDEF EDER_FS76}
+START_InitFatarScan76;
+{$ENDIF} // EDER_FS76
+
 
 // *****************************************************************************
 {$ENDIF}
@@ -433,8 +433,6 @@ begin
 
 // Lizenzen kontrollieren
   if (EE_DNA_0 <> EE_DNA_0_bak) or (EE_DNA_1 <> EE_DNA_1_bak) then // korrumpiert?
-    WriteSerWarning;
-    writeln(serout, 'Licence corrupted');
 {$IFNDEF MODULE}
     if LCDpresent then
       LCDclr_M(LCD_m1);
@@ -454,7 +452,7 @@ begin
 
 // *****************************************************************************
 
-// erster Bootvorgang nach Flashen des AVR über SPI?
+// erster Bootvorgang nach Flashen des AVR ï¿½ber SPI?
   if EE_FirstRunAfterFactoryPrg then
     EE_FirstRunAfterFactoryPrg:= false;
     EE_ForceUpdateEEPROM:= false;
@@ -465,8 +463,7 @@ begin
 {$IFNDEF MODULE}
     // Firmware-PresetStructureVersion anders als alte EEPROM-Version?
     // Ab c_FirmwareStructureVersion = $19 nicht den Drawbar-Bereich updaten
-    DFtoEEPROM(c_eeprom_base35_DF, 1024); // neuer EEPROM-Inhalt ohne User-Info und DBs
-    writeln(Serout, '/ EEPROM update forced');
+    DFtoEEPROM(c_eeprom, 1024); // neuer EEPROM-Inhalt ohne User-Info und DBs
 {$ELSE}
     DFtoEEPROM(c_eeprom_base35_DF, 80); // neuer EEPROM-Inhalt ohne User-Info
 {$ENDIF}
@@ -487,9 +484,7 @@ begin
       eep_TubeAmpCurveA:= 3;
       eep_TubeAmpCurveB:= 3;
     endif;
-    writeln(Serout, '/ EEPROM changes done');
   endif;
-
 
   START_InitAll;
 
@@ -530,7 +525,6 @@ begin
 {$ENDIF}
 // *****************************************************************************
   MemLED(false);
-  FH_TestExtLicence;   // FPGA-Freischaltungen
 end;
 
 
