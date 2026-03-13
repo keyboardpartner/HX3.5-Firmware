@@ -4,7 +4,7 @@
 
 ### Firmware for HX3.5 Mainboard with ATmega1284P MCU
 
-**Customer info:** Do not open! No user servicable parts inside. For HX3 updates, see our **[HX3 Update page](http://updates.keyboardpartner.de/Files/index.php)**.
+**Customer info:** Do not open! No user serviceable parts inside. For HX3 updates, visit our **[HX3 Update page](http://updates.keyboardpartner.de/Files/index.php)**.
 
 HX3.5 firmware was compiled with older **AVRCo** Pascal IDE from [**e-lab**](https://www.e-lab.de/) which is free of charge now. It runs on a ATmega1284P MCU (see **AVRco** directory).
 
